@@ -1,4 +1,4 @@
-jaxedit
+JaxEdit
 =======
 
 online LaTeX editor with live preview
