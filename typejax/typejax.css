@@ -1,0 +1,142 @@
+
+/* copyright (c) 2011-2012 JaxEdit project */
+
+div.envblock  {
+  /*border: 1px solid #C1C1C1;*/
+  margin: 1px;
+}
+
+div.par {
+  margin: 0.75em 0.06em;
+}
+ 
+div.frame {
+  border: 1px solid #000000;
+}
+
+div.frametitle {
+  color: blue;
+  font-size: 1.1em;
+  margin: 0.06em 0.06em 0.31em 0.06em;
+}
+
+div.framesubtitle {
+  color: blue;
+  font-size: 1em;
+  margin: -0.31em 0.06em 0.31em 0.06em;
+}
+
+div.center {
+  border: 1px dashed #C1C1C1;
+  text-align: center;
+}
+
+div.verbatim {
+  border: 1px dashed #C1C1C1;
+  margin: 1px;
+}
+
+div.definition, div.definitions, div.example, div.examples, div.fact, div.lemma, div.theorem, div.proposition, div.corollary, div.proof, div.exercise, div.remark, div.solution {
+  border: 1px dashed #C1C1C1;
+  margin: 1px;
+  /*font-family: Tahoma, KaiTi;*/
+}
+
+div.preamble {
+  display: none;
+}
+
+div.tableofcontents {
+  margin: 2em 0em 1em 0em;
+  border: 1px dashed #C1C1C1;
+}
+
+div.contentname {
+  margin: 0.5em 0em 1em 0em;
+}
+
+div.toc-part {
+  margin: 0.3em 0em;
+}
+
+div.toc-chapter {
+  margin: 0.3em 1em;
+}
+
+div.toc-section {
+  margin: 0.3em 2em;
+}
+
+div.toc-subsection {
+  margin: 0.3em 4em;
+}
+
+div.toc-subsubsection {
+  margin: 0.3em 6em;
+}
+
+a {
+  text-decoration: none;
+}
+
+h1, h2, h3, h4 {
+  text-align: center;
+}
+
+h2 {
+  font-size: 1.8em;
+}
+
+h3 {
+  font-size: 1.6em;
+}
+
+h4 {
+  font-size: 1.4em;
+}
+
+h5 {
+  font-size: 1.2em;
+}
+
+h6 {
+  font-size: 1em;
+}
+
+div.author, div.institute, div.date {
+  text-align: center;
+  margin: 0.8em 0;
+}
+
+span.qquad {
+  display: inline-block;
+  width: 2em;
+}
+
+span.quad {
+  display: inline-block;
+  width: 1em;
+}
+
+span.thickspace {
+  display: inline-block;
+  width: 0.2777em; /* 5/18 */
+}
+
+span.medspace {
+  display: inline-block;
+  width: 0.2222em; /* 4/18 */
+}
+
+span.thinspace {
+  display: inline-block;
+  width: 0.1667em; /* 3/18 */
+}
+
+span.negthinspace {
+  margin-left: -0.1667em; /* -3/18 */
+}
+
+span.pause {
+  color: blue;
+}
