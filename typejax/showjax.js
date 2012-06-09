@@ -27,7 +27,7 @@ showjax.loadParser = function() {
 
 showjax.initShow = function() {
   var body = document.body, showarea = document.getElementById("showarea");
-  var i, node;
+  var browser = corejax.browser, prefix, i, node;
   
   this.frameall = [], this.frameidx = 0;
   for (i = 0; i < showarea.childNodes.length; i++) {
@@ -53,18 +53,25 @@ showjax.initShow = function() {
     showarea.style.border = "0 none";
     showarea.style.padding = "0.8em";
     showarea.style.backgroundColor = "#141428";
-    showarea.style.background = "linear-gradient(top, #000 0%, #141428 50%, #514C60 100%)";
-    showarea.style.background = "-moz-linear-gradient(top, #000 0%, #141428 50%, #514C60 100%)";
-    showarea.style.background = "-webkit-linear-gradient(top, #000 0%, #141428 50%, #514C60 100%)";
-    showarea.style.background = "-ms-linear-gradient(top, #000 0%, #141428 50%, #514C60 100%)";
-    showarea.style.background = "-o-linear-gradient(top, #000 0%, #141428 50%, #514C60 100%)";
+    if (browser.firefox >= 3.6) {
+      prefix = "-moz-";
+    } else if (browser.chrome >= 10 || browser.safari >= 5.1) {
+      prefix = "-webkit-";
+    } else if (browser.msie >= 10) {
+      prefix = "-ms-";
+    } else if (browser.opera >= 11.10) {
+      prefix = "-o-";
+    }
+    if (prefix) {
+      showarea.style.background = prefix + "linear-gradient(top, #000 0%, #141428 50%, #514C60 100%)";
+    }
     showarea.style.color = "white";
     this.showResize();
   }
   window.onresize = showjax.showResize;
-  window.onclick = showjax.showNavigate;
-  window.onkeydown = showjax.showNavigate;
-  window.onmousemove = showjax.showNavigate;
+  document.onclick = showjax.showNavigate;
+  document.onkeydown = showjax.showNavigate;
+  document.onmousemove = showjax.showNavigate;
 };
 
 showjax.showResize = function() {
@@ -106,7 +113,7 @@ showjax.showNavigate = function(event) {
   switch (ev.type) {
     case "click":
       showjax.frameidx = (k + 1 == showjax.frameall.length) ? 0 : k + 1;
-      ev.preventDefault();
+      ev.preventDefault ? ev.preventDefault() : ev.returnValue = false;
       break;
     case "keydown":
       switch(ev.keyCode) {
@@ -116,12 +123,12 @@ showjax.showNavigate = function(event) {
         case 37: case 63234:  // left arrow
         case 38: case 63232:  // up arrow
           showjax.frameidx = (k == 0) ? showjax.frameall.length - 1 : k - 1;
-          ev.preventDefault();
+          ev.preventDefault ? ev.preventDefault() : ev.returnValue = false;
           break;
         case 39: case 63235:  // right arrow
         case 40: case 63233:  // down arrow
           showjax.frameidx = (k + 1 == showjax.frameall.length) ? 0 : k + 1;
-          ev.preventDefault();        
+          ev.preventDefault ? ev.preventDefault() : ev.returnValue = false;
           break;
       }
       break;
@@ -158,7 +165,7 @@ showjax.addExport = function() {
       var data = "data:x-application/text;charset=utf-8," + text;
       location.href = data;
     }
-    ev.stopPropagation();
+    ev.stopPropagation ? ev.stopPropagation() : ev.cancelBubble = true;
   }
 };
 
