@@ -1321,7 +1321,7 @@ typejax.parser = function(input, modstart, modend){
     envPreamble : function(node) {
       var doccls = node.argarray[1].childs[0].value;
       this.cmdvalues["documentclass"] = doccls;
-      if (doccls == "beamer" && window.jaxedit) {
+      if (doccls == "beamer" && window.jaxedit && !corejax.browser.opera) {
         jaxedit.childs.presbtn.style.display = "inline-block";
       } else {
         jaxedit.childs.presbtn.style.display = "none";
