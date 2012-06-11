@@ -15,6 +15,7 @@ jaxedit.childs = {
   body : document.body,
   left : document.getElementById("left"),
   ltop : document.getElementById("ltop"),
+  loginbtn : document.getElementById("loginbtn"),
   openbtn : document.getElementById("openbtn"),
   savebtn : document.getElementById("savebtn"),
   source : document.getElementById("source"),
@@ -404,10 +405,23 @@ jaxedit.doScroll = function(isForward) {
 
 jaxedit.addButtons = function() {
   var browser = corejax.browser, codearea = this.childs.codearea, showarea = this.childs.showarea;
-  var openbtn = document.getElementById("openbtn"),
+  var loginbtn = document.getElementById("loginbtn"),
+      openbtn = document.getElementById("openbtn"),
       opensel = document.getElementById("opensel"),
       savebtn = document.getElementById("savebtn"),
       presbtn = document.getElementById("presbtn");
+
+  if (location.protocol == "file:" || location.search.length == 0) {
+    loginbtn.style.display = "none";
+  } else {
+    corejax.loadScript("http://js.live.net/v5.0/wl.js", function(){
+      corejax.loadScript("editor/skydrive.js", function(){
+        loginbtn.onclick = skydrive.signUserInOut;
+      });
+    });
+  }
+  var dlgclose = document.getElementById("dlgclose");
+  dlgclose.onclick = jaxedit.toggleModal;
   
   function fileOpen() {
     var doOpen = function(evt) {
@@ -477,6 +491,20 @@ jaxedit.addButtons = function() {
   }
 };
 
+jaxedit.changeLoginButton = function(value) {
+  document.getElementById("loginbtn").value = value;
+};
+
+jaxedit.toggleLogin = function() {
+  var el = document.getElementById("loginbtn");
+  el.value = (el.value == "Login") ? "Logout" : "Login";
+};
+
+jaxedit.toggleModal = function() {
+  var el = document.getElementById("overlay");
+  el.style.visibility = (el.style.visibility == "visible") ? "hidden" : "visible";
+};
+
 jaxedit.addHandler = function() {
   var codearea = this.childs.codearea,
       showarea = this.childs.showarea;
@@ -516,9 +544,3 @@ jaxedit.addHandler = function() {
 
 window.onload = jaxedit.doLoad;
 window.onresize = jaxedit.doResize;
-
-if (location.search.length > 0) {
-  corejax.loadScript("http://js.live.net/v5.0/wl.js", function(){
-    corejax.loadScript("editor/skydrive.js", function(){});
-  });
-}
