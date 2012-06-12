@@ -108,7 +108,7 @@ var skydrive = {
       path: "me/skydrive",
       method: "POST",
       body: {
-        name: "jaxedit",
+        name: "jaxedit"
       }
     },
     function(response){
