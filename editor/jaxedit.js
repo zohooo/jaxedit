@@ -7,23 +7,27 @@ var jaxedit = {
   highlight: false,
   hasParser: false,
   autoScroll: false,
-  canPresent: true
+  canPresent: true,
+  useDrive: null
 };
 
 jaxedit.childs = {
   html : document.documentElement,
   body : document.body,
-  left : document.getElementById("left"),
-  ltop : document.getElementById("ltop"),
-  loginbtn : document.getElementById("loginbtn"),
+  header : document.getElementById("header"),
+  newbtn : document.getElementById("newbtn"),
   openbtn : document.getElementById("openbtn"),
   savebtn : document.getElementById("savebtn"),
+  presbtn : document.getElementById("presbtn"),
+  loginbtn : document.getElementById("loginbtn"),
+  drivesel: document.getElementById("drivesel"),
+  left : document.getElementById("left"),
+  //ltop : document.getElementById("ltop"),
   source : document.getElementById("source"),
   codearea : document.getElementById("codearea"),
   lbot : document.getElementById("lbot"),
   right : document.getElementById("right"),
-  rtop : document.getElementById("rtop"),
-  presbtn : document.getElementById("presbtn"),
+  //rtop : document.getElementById("rtop"),
   preview : document.getElementById("preview"),
   showarea : document.getElementById("showarea"),
   rbot : document.getElementById("rbot")
@@ -77,6 +81,7 @@ jaxedit.doResize = function() {
   var childs = jaxedit.childs,
       html = childs.html,
       body = childs.body,
+      header = childs.header,
       left = childs.left,
       ltop = childs.ltop,
       source = childs.source,
@@ -105,32 +110,34 @@ jaxedit.doResize = function() {
     var realheight = pageHeight - 11;
   else
     var realheight = pageHeight - 4;
-  var topheight = 36;
+  var headheight = 42;
+  var topheight = 0;
   var botheight = 24;
  
   html.style.width = pageWidth - 8 + "px";
   body.style.width = pageWidth - 8 + "px";
- 
+
+  header.style.width = pageWidth - 12 + "px";
   left.style.width = halfwidth + "px";
-  left.style.height = realheight + "px";
-  ltop.style.width = halfwidth - 6 + "px";
+  left.style.height = realheight - headheight + "px";
+  //ltop.style.width = halfwidth - 6 + "px";
   source.style.width = halfwidth - 2 + "px";
-  source.style.height = realheight - topheight - botheight + "px";
+  source.style.height = realheight - headheight - topheight - botheight + "px";
   if (jaxedit.editor) {
-    jaxedit.editor.getScrollerElement().style.height = realheight - topheight - botheight - 20 + "px";
+    jaxedit.editor.getScrollerElement().style.height = realheight - headheight - topheight - botheight - 20 + "px";
   } else {
     codearea.style.width = halfwidth - 8 + "px";
-    codearea.style.height = realheight - topheight - botheight - 10 + "px";
+    codearea.style.height = realheight - headheight - topheight - botheight - 10 + "px";
   }
   lbot.style.width = halfwidth - 6 + "px";
   
   right.style.width = halfwidth + "px";
-  right.style.height = realheight + "px";
-  rtop.style.width = halfwidth - 6 + "px";  
+  right.style.height = realheight - headheight + "px";
+  //rtop.style.width = halfwidth - 6 + "px";  
   preview.style.width = halfwidth - 6 + "px";
-  preview.style.height = realheight - topheight - botheight - 8 + "px";
+  preview.style.height = realheight - headheight - topheight - botheight - 8 + "px";
   showarea.style.width = halfwidth - 6 + "px";
-  showarea.style.height = realheight - topheight - botheight - 10 + "px";
+  showarea.style.height = realheight - headheight - topheight - botheight - 10 + "px";
   rbot.style.width = halfwidth - 6 + "px";  
 };
 
@@ -405,66 +412,115 @@ jaxedit.doScroll = function(isForward) {
 
 jaxedit.addButtons = function() {
   var browser = corejax.browser, codearea = this.childs.codearea, showarea = this.childs.showarea;
-  var loginbtn = document.getElementById("loginbtn"),
+  var newbtn = document.getElementById("newbtn"),
       openbtn = document.getElementById("openbtn"),
       opensel = document.getElementById("opensel"),
       savebtn = document.getElementById("savebtn"),
-      presbtn = document.getElementById("presbtn");
+      presbtn = document.getElementById("presbtn"),
+      loginbtn = document.getElementById("loginbtn"),
+      drivesel = document.getElementById("drivesel");
 
-  if (location.protocol == "file:" || location.search.length == 0) {
-    loginbtn.style.display = "none";
-  } else {
-    corejax.loadScript("http://js.live.net/v5.0/wl.js", function(){
-      corejax.loadScript("editor/skydrive.js", function(){
-        loginbtn.onclick = skydrive.signUserInOut;
-      });
-    });
-  }
+  var doOpen = function(evt) {
+    var files = evt.target.files,
+        reader = new FileReader();
+    reader.onload = function() {
+      //console.log(this.readyState);
+      codearea.value = this.result;
+      jaxedit.initParser(this.result, this.result.length, showarea);
+    };
+    reader.readAsText(files[0]);
+  };
+  
+  var fileOpen = function(event) {
+    var ev = event ? event : window.event;  
+    switch (jaxedit.useDrive) {
+      case "localdrive":
+        opensel.click();
+        ev.preventDefault();
+        break;
+      case "skydrive":
+        skydrive.getFilesList("open");
+        break;
+    }
+  };
+
+  var doSave = function() {
+    var BlobBuilder = window.BlobBuilder || window.MozBlobBuilder || window.WebKitBlobBuilder || window.MSBlobBuilder;
+    var URL = window.URL || window.webkitURL;
+    var bb = new BlobBuilder;
+    bb.append(codearea.value);
+    var blob = bb.getBlob("text/latex"); 
+    var bloburl = URL.createObjectURL(blob);
+    location.href = bloburl;
+    //URL.revokeObjectURL(bloburl); // doesn't work in chrome
+  };
+  
+  var fileSave = function() {
+    switch (jaxedit.useDrive) {
+      case "localdrive":
+        doSave();
+        break;
+      case "skydrive":
+        skydrive.getFilesList("save");
+        break;
+    }
+  };
+
+  var addFileHandler = function() {
+    newbtn.style.display = "inline-block";
+    newbtn.disabled = true;
+    openbtn.style.display = "inline-block";
+    savebtn.style.display = "inline-block";
+    openbtn.onclick = fileOpen;
+    savebtn.onclick = fileSave;
+  };
+  
+  var changeDrive = function(event) {
+    var ev = event ? event : window.event,
+        sel = ev.target || ev.srcElement;
+    var olddrive = jaxedit.useDrive,
+        newdrive = sel.options[sel.selectedIndex].value;
+    if (newdrive == olddrive) return;
+    jaxedit.useDrive = newdrive; 
+    switch (newdrive) {
+      case "localdrive":
+        skydrive.signUserOut();
+        break;
+      case "skydrive":
+        skydrive.signUserIn();
+    }
+  };
+
   var dlgclose = document.getElementById("dlgclose");
   dlgclose.onclick = jaxedit.toggleModal;
-  
-  function fileOpen() {
-    var doOpen = function(evt) {
-      var files = evt.target.files,
-          reader = new FileReader();
-      reader.onload = function() {
-        //console.log(this.readyState);
-        codearea.value = this.result;
-        jaxedit.initParser(this.result, this.result.length, showarea);
-      };
-      reader.readAsText(files[0]);
-    }
-    openbtn.addEventListener("click", function (e) {
-      opensel.click();
-      e.preventDefault();
-    }, false);
-    opensel.addEventListener("change", doOpen, false);
-  }
-  
-  function fileSave() {
-    var doSave = function() {
-      var BlobBuilder = window.BlobBuilder || window.MozBlobBuilder || window.WebKitBlobBuilder || window.MSBlobBuilder;
-      var URL = window.URL || window.webkitURL;
-      var bb = new BlobBuilder;
-      bb.append(codearea.value);
-      var blob = bb.getBlob("text/latex"); 
-      var bloburl = URL.createObjectURL(blob);
-      location.href = bloburl;
-      //URL.revokeObjectURL(bloburl); // doesn't work in chrome
-    }
-    savebtn.addEventListener("click", doSave, false);
-  }
   
   // chrome browser will prevent file reading and saving at local
   // unless --allow-file-access-from-files switch was added to it
   if ((browser.firefox && browser.firefox >= 6) ||
       (browser.chrome && browser.chrome >= 8 && location.protocol != "file:") ||
       (browser.msie && browser.msie >= 10)) {
-    fileOpen(); fileSave();
+    jaxedit.useDrive = "localdrive";
+    opensel.addEventListener("change", doOpen, false);
+    addFileHandler();
   } else {
-    openbtn.style.display = "none";
     opensel.style.display = "none";
-    savebtn.style.display = "none";
+  }
+
+  if (location.protocol != "file:") {
+    corejax.loadScript("http://js.live.net/v5.0/wl.js", function(){
+      corejax.loadScript("editor/skydrive.js", function(){
+        skydrive.initDrive();
+        if (jaxedit.useDrive == "localdrive") {
+          drivesel.style.display = "inline-block";
+          drivesel.onchange = changeDrive;
+        } else {
+          jaxedit.useDrive = "skydrive";
+          addFileHandler();
+          loginbtn.style.display = "inline-block";
+          loginbtn.onclick = skydrive.signUserInOut;
+        }
+      });
+    });
   }
   
   if ((browser.msie && browser.msie < 9 && location.protocol != "file:") || browser.opera) {
@@ -501,8 +557,10 @@ jaxedit.toggleLogin = function() {
 };
 
 jaxedit.toggleModal = function() {
-  var el = document.getElementById("overlay");
-  el.style.visibility = (el.style.visibility == "visible") ? "hidden" : "visible";
+  var ol = document.getElementById("overlay"),
+      ct = document.getElementById("container");
+  ol.style.visibility = (ol.style.visibility == "visible") ? "hidden" : "visible";
+  ct.style.visibility = (ct.style.visibility == "visible") ? "hidden" : "visible";
 };
 
 jaxedit.addHandler = function() {

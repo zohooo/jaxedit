@@ -7,14 +7,24 @@
 <link rel="stylesheet" type="text/css" href="editor/jaxedit.css" />
 </head>
 <body>
+<div id="header">
+  <span id="logo">JaxEdit</span>
+  <input type="file" id="opensel" />
+  <input type="button" id="newbtn" value="New" />
+  <input type="button" id="openbtn" value="Open" />
+  <input type="button" id="savebtn" value="Save" />
+  <input type="button" id="presbtn" value="Present" />
+  <input type="button" id="loginbtn" value="Login" />
+  <select id="drivesel" size="1">
+    <option value="localdrive">Local Drive</option>
+    <option value="skydrive">SkyDrive</option>
+  </select>
+</div>
 <div id="left">
+<!--
   <div id="ltop">
-    <span id="llogo">JaxEdit</span>
-    <input type="button" id="loginbtn" value="Login" />
-    <input type="button" id="openbtn" value="Open" />
-    <input type="file" id="opensel" />
-    <input type="button" id="savebtn" value="Save" />
   </div>
+-->
   <div id="source">
     <textarea id="codearea">
 \documentclass{beamer}
@@ -56,16 +66,17 @@ Then there exists $\xi\in(a,b)$ such that $f'(\xi)=\frac{f(b)-f(a)}{b-a}$.
   <div id="lbot"></div>
 </div>
 <div id="right">
+<!--
   <div id="rtop">
-    <span id="rlogo">TypeJax</span>
-    <input type="button" id="presbtn" value="Present" />
   </div>
+-->
   <div id="preview">
     <div id="showarea"></div>
   </div>
   <div id="rbot"></div>
 </div>
-<div id="overlay">
+<div id="overlay"></div>
+<div id="container">
   <div id="dialog">
     <div id="dlghead"></div>
     <div id="dlgbody"></div>

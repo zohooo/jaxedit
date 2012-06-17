@@ -2,6 +2,8 @@
 // Copyright (c) 2012 JaxEdit Project
 
 var skydrive = {
+  homeid: null,
+
   initDrive: function() {
     var cid, url;
     switch(location.hostname) {
@@ -88,14 +90,13 @@ var skydrive = {
           console.log(data.type, data.name);
           if (data.type == "folder" && data.name == "jaxedit") {
             exist = true;
-            id = data.id;
+            skydrive.homeid = data.id;
+            console.log("skydrive: homeid = ", data.id);
             break;
           }
         }
         if (!exist) {
           skydrive.createMainFolder();
-        } else {
-          skydrive.getFilesList(id);
         }
       } else {
         alert('Error in reading skydrive files!');
@@ -113,34 +114,38 @@ var skydrive = {
     },
     function(response){
       if (!response.error) {
-        var id = response.id;
-        skydrive.getFilesList(id);
+        skydrive.homeid = response.id;
+        console.log("skydrive: homeid = ", response.id);
       } else {
         alert('Error in creating jaxedit folder!');
       }
     });
   },
 
-  getFilesList: function(id) {
+  getFilesList: function(mode) {
+    console.log("skydrive: getFilesList with mode = ", mode);
     WL.api(
     {
-      path: id + "/files",
+      path: skydrive.homeid + "/files",
       method: "GET"
     },
     function(response) {
       if (!response.error) {
         jaxedit.toggleModal();
-        var div = document.getElementById('dlgbody');
-        div.innerHTML = "<br/>Files in JaxEdit folder:<br/>";
+        var dlghead = document.getElementById('dlghead');
+        var dlgbody = document.getElementById('dlgbody');
+        var headtext = (mode == "open") ? "Open File" : "Save File";
+        dlghead.innerHTML = headtext;
+        dlgbody.innerHTML = "<br/>Files in JaxEdit folder:<br/>";
           for (var i = 0; i < response.data.length; i++) {
             var data = response.data[i];
             if (data.type == "file") {
-              div.innerHTML += "<a href='" + data.source + "' target='_blank'>" + data.name + "</a><br/>";
+              dlgbody.innerHTML += "<a href='" + data.source + "' target='_blank'>" + data.name + "</a><br/>";
             }
           }
       }
       else {
-        alert('error in reading latex files!');
+        alert('Error in reading LaTeX files!');
       }
     });
   },
@@ -151,18 +156,19 @@ var skydrive = {
       alert("Error signing in: " + session.error);
     }
     else {
+      alert("You have been logged into SkyDrive.");
       skydrive.getFoldersList();
     }
   },
 
   onLogoutComplete: function() {
-    alert("You have completed the sign-out process.");
+    alert("You have been logged out of SkyDrive.");
   },
 
   onSessionChange: function() {
     var session = WL.getSession();
     if (session) {
-        console.log("Your session has changed.");
+      console.log("Your session has changed.");
     }
   },
 
@@ -180,5 +186,3 @@ var skydrive = {
     alert("Error in Skydrive!");
   }
 };
-
-skydrive.initDrive();
