@@ -570,8 +570,8 @@ jaxedit.addButtons = function() {
   };
   
   var addFileHandler = function() {
-    newbtn.style.display = "inline-block";
-    newbtn.disabled = true;
+    /*newbtn.style.display = "inline-block";
+    newbtn.disabled = true;*/
     openbtn.style.display = "inline-block";
     savebtn.style.display = "inline-block";
     openbtn.onclick = fileOpen;
