@@ -122,34 +122,23 @@ var skydrive = {
     });
   },
 
-  getFilesList: function(mode) {
-    console.log("skydrive: getFilesList with mode = ", mode);
+  getFilesList: function(fid, callback) {
+    console.log("skydrive: getFilesList with fid = ", fid);
     WL.api(
     {
-      path: skydrive.homeid + "/files",
+      path: fid + "/files",
       method: "GET"
-    },
-    function(response) {
-      if (!response.error) {
-        jaxedit.toggleModal();
-        var dlghead = document.getElementById('dlghead');
-        var dlgbody = document.getElementById('dlgbody');
-        var headtext = (mode == "open") ? "Open File" : "Save File";
-        dlghead.innerHTML = headtext;
-        dlgbody.innerHTML = "<br/>Files in JaxEdit folder:<br/>";
-          for (var i = 0; i < response.data.length; i++) {
-            var data = response.data[i];
-            if (data.type == "file") {
-              dlgbody.innerHTML += "<a href='" + data.source + "' target='_blank'>" + data.name + "</a><br/>";
-            }
-          }
-      }
-      else {
-        alert('Error in reading LaTeX files!');
-      }
-    });
+    }, callback);
   },
 
+  getFileUrl: function(fid, callback) {
+    WL.api(
+    {
+      path: fid + "/content",//?suppress_redirects=true",
+      method: "GET"
+    }, callback);
+  },
+  
   onLoginComplete: function() {
     var session = WL.getSession();
     if (session.error) {

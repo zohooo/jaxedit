@@ -187,7 +187,7 @@ body {
 
 #dialog {
   width: 480px;
-  height: 300px;
+  height: 360px;
   margin: 100px auto;
   border: 1px solid #000;
   border-radius: 2px;
@@ -196,21 +196,61 @@ body {
 
 #dlghead {
   height: 30px;
+  line-height: 30px;
   padding: 0 15px;
   color: white;
   background-color: #5D7685;
+  font-family: Arial, Helvetica, sans-serif;
 }
 
 #dlgbody {
-  height: 240px;
+  height: 300px;
+  line-height: 24px;
   padding: 0 15px;
   background-color: white;
+  overflow: auto;
+}
+
+#loading {
+  height: 300px;
+  line-height: 300px;
+  text-align: center;
+  background-color: white;
+  display: none;
 }
 
 #dlgfoot {
   height: 30px;
+  line-height: 30px;
   padding: 0 15px;
   background-color: #E9F1F4;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+#dlgbody table {
+  width: 100%;
+  margin: 16px 0;
+}
+
+#dlgbody th {
+  text-align: left;
+}
+
+#dlgbody .finfo {
+  background-color: #F5F5F5;
+}
+
+#dlgbody .folder {
+  background-color: #FFFFE1;
+}
+
+#dlgbody .file {
+  background-color: #FFF;
+}
+
+#dlgbody table, #dlgbody tr, #dlgbody th, #dlgbody td
+{
+  border-color: #DCDCDC;
 }
 
 #dlgclose {
