@@ -632,21 +632,22 @@ jaxedit.addButtons = function() {
     jaxedit.canPresent = false;
   } else {
     presbtn.onclick = function() {
-      var w, doc, showarea;
+      var w, doc;
+      var showarea = jaxedit.childs.showarea;
+      var content = ['<!DOCTYPE html><html><head><title>JaxEdit Beamer Presentation</title>',
+                     '<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />',
+                     '<link rel="stylesheet" type="text/css" href="typejax/showjax.css" />',
+                     '<script type="text/javascript" src="typejax/corejax.js"></scr' + 'ipt>',
+                     '<script type="text/javascript" src="typejax/showjax.js"></scr' + 'ipt></head><body>',
+                     '<div id="showarea">' + showarea.innerHTML + '</div>',
+                     '</body></html>'].join('');
       if (document.exitFullscreen || document.mozCancelFullScreen || document.webkitCancelFullScreen) {
         w = window.open("", "showjax");
       } else {
         w = window.open("", "showjax", "fullscreen");
       }
       doc = w.document;
-      showarea = jaxedit.childs.showarea;
-      doc.write('<!DOCTYPE html><html><head><title>JaxEdit Beamer Presentation</title>');
-      doc.write('<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />');
-      doc.write('<link rel="stylesheet" type="text/css" href="typejax/showjax.css" />');
-      doc.write('<script type="text/javascript" src="typejax/corejax.js"></scr' + 'ipt>');
-      doc.write('<script type="text/javascript" src="typejax/showjax.js"></scr' + 'ipt></head><body>');
-      doc.write('<div id="showarea">' + showarea.innerHTML + '</div>');
-      doc.write('</body></html>');
+      doc.write(content);
       doc.close();
     }
   }
