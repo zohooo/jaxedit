@@ -613,7 +613,7 @@ jaxedit.addButtons = function() {
 
   if (location.protocol != "file:" && location.search.length > 0) {
     corejax.loadScript("http://js.live.net/v5.0/wl.js", function(){
-      corejax.loadScript("editor/skydrive.js", function(){
+      corejax.loadScript("editor/webdrive/skydrive.js", function(){
         skydrive.initDrive();
         if (jaxedit.useDrive == "localdrive") {
           drivesel.style.display = "inline-block";

@@ -31,7 +31,7 @@ var skydrive = {
 
     WL.init({
       client_id: cid,
-      redirect_uri: url + "editor/skydrive.htm",
+      redirect_uri: url + "editor/webdrive/skydrive.htm",
       scope: ["wl.signin", "wl.skydrive", "wl.skydrive_update"],
       response_type: "token",
       logging: true
