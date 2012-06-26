@@ -469,9 +469,21 @@ jaxedit.addButtons = function() {
   var driveOpenSave = function(mode) {
     var dlghead = document.getElementById('dlghead'),
         dlgbody = document.getElementById('dlgbody'),
-        loading = document.getElementById('loading');
-    var headtext = (mode == "open") ? "Open File" : "Save File";
-    dlghead.innerHTML = headtext;
+        loading = document.getElementById('loading'),
+        dlgfname = document.getElementById('dlgfname'),
+        dlgsave = document.getElementById('dlgsave');
+    if (mode == "open") {
+      dlghead.innerHTML = "Open File";
+      dlgbody.onclick = dialogClick;
+      dlgfname.style.display = "none";
+      dlgsave.style.display = "none";
+    } else {
+      dlghead.innerHTML = "Save File";
+      dlgbody.onclick = null;
+      dlgfname.style.display = "inline";
+      dlgsave.style.display = "inline-block";
+      dlgsave.onclick = driveSave;
+    }
     dlgbody.style.display = "none";
     loading.style.display = "block";
     jaxedit.toggleModal();
@@ -484,7 +496,7 @@ jaxedit.addButtons = function() {
     if (!response.error) {
       var bodytext = "", data, type, name, fid, url, size, time; 
       bodytext = "<br/>Files in jaxedit folder:<br/>";
-      bodytext += "<table frame='box' rules='rows'><thead><tr class='finfo'><th>Type</th><th>Name</th><th>Size</th><th>Modified</th></tr></thead><tbody>";
+      bodytext += "<div><table frame='box' rules='rows'><thead><tr class='finfo'><th>Type</th><th>Name</th><th>Size</th><th>Modified</th></tr></thead><tbody>";
       for (var i = 0; i < response.data.length; i++) {
         data = response.data[i];
         type = data.type; name = data.name; fid = data.id; time = data.updated_time.slice(0, 10);
@@ -494,7 +506,7 @@ jaxedit.addButtons = function() {
           bodytext += "<tr class='" + type + "'><td>" + type + "</td><td><a href='#' data-fid='" + fid + "' data-url='" + url + "'>" + name + "</a></td><td>" + size + "</td><td>" + time + "</td></tr>";
         }
       }
-      bodytext += "</tbody></table>";
+      bodytext += "</tbody></table></div>";
       dlgbody.innerHTML = bodytext;
       loading.style.display = "none";
       dlgbody.style.display = "block";
@@ -533,18 +545,69 @@ jaxedit.addButtons = function() {
     console.log("fetch file: " + url);
     var dlgbody = document.getElementById('dlgbody'),
         loading = document.getElementById('loading');
-    var request = createCORSRequest("get", url);
+    var path = 'http://gate.jaxedit.com/?path=' + encodeURIComponent(url);
+    var request = createCORSRequest("get", path);
     dlgbody.style.display = "none";
     loading.style.display = "block";
     if (request) {
       request.onload = function(){
-      alert(request.responseText);
-      jaxedit.toggleModal();
+        codearea.value = request.responseText;
+        jaxedit.initParser();
+        jaxedit.toggleModal();
       };
       request.onerror = function(){
         alert("An error occurred.");
+        jaxedit.toggleModal();
       };
     request.send();
+    }
+  };
+
+  var saveFileContent = function(data, name) {
+    var hostpath = 'https://apis.live.net/v5.0/' + skydrive.thisid + '/files',
+        querystr = '?access_token=' + encodeURIComponent(skydrive.access_token),
+        gatepath = 'http://gate.jaxedit.com/';
+    var url, path, boundary, content, request;
+    if (location.search == "?put") { // using PUT method
+      var url = hostpath + '/' + name + querystr,
+          path = gatepath + '?path=' + encodeURIComponent(url),
+          content = data;
+      request = createCORSRequest('PUT', path);
+      request.setRequestHeader('Content-Type', 'text/plain; charset=utf-8');
+    } else { // using POST method
+      var url = hostpath + querystr,
+          path = gatepath + '?path=' + encodeURIComponent(url),
+          boundary = 'jjaaxxeeddiitt',
+          content = ['--' + boundary,
+                     'Content-Disposition: form-data; name="file"; filename="' + name + '"',
+                     'Content-Type: text/plain; charset=utf-8',
+                     '',
+                     data,
+                     '--' + boundary + '--'].join('\r\n');
+      request = createCORSRequest('POST', path);
+      request.setRequestHeader('Content-Type', 'multipart/form-data; boundary=' + boundary);
+    }
+    if (request) {
+      request.onload = function(){
+        alert("File successfully saved.");
+        jaxedit.toggleModal();
+      };
+      request.onerror = function(){
+        alert("An error occurred.");
+        jaxedit.toggleModal();
+      };
+    request.send(content);
+    }
+  };
+
+  var driveSave = function() {
+    var fname = document.getElementById('savename').value;
+    if (fname === "") {
+      alert('Filename is empty!');
+      return;
+    } else {
+      saveFileContent(codearea.value, fname + '.tex');
+      jaxedit.toggleModal();
     }
   };
 
@@ -594,8 +657,6 @@ jaxedit.addButtons = function() {
     }
   };
 
-  var dlgbody = document.getElementById("dlgbody");
-  dlgbody.onclick = dialogClick;
   var dlgclose = document.getElementById("dlgclose");
   dlgclose.onclick = jaxedit.toggleModal;
   

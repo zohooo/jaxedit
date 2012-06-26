@@ -81,7 +81,13 @@ Then there exists $\xi\in(a,b)$ such that $f'(\xi)=\frac{f(b)-f(a)}{b-a}$.
     <div id="dlghead"></div>
     <div id="dlgbody"></div>
     <div id="loading">Loading...</div>
-    <div id="dlgfoot"><input type="button" id="dlgclose" value="Close" /></div>
+    <div id="dlgfoot">
+      <span id="dlgbtns">
+        <span id="dlgfname">File Name: <input type="text" size="20" id="savename" value="hello" />.tex</span>
+        <input type="button" id="dlgsave" value="Save" />
+        <input type="button" id="dlgclose" value="Cancel" />
+      </span>
+    </div>
   </div>
 </div>
 <script type="text/javascript" src="typejax/corejax.js"></script>

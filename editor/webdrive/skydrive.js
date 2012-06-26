@@ -3,6 +3,7 @@
 
 var skydrive = {
   homeid: null,
+  thisid: null,
 
   initDrive: function() {
     var cid, url;
@@ -88,7 +89,7 @@ var skydrive = {
         for (var i = 0; i < response.data.length; i++) {
           data = response.data[i];
           console.log(data.type, data.name);
-          if (data.type == "folder" && data.name == "jaxedit") {
+          if (data.type == "folder" && data.name == "JaxEdit") {
             exist = true;
             skydrive.homeid = data.id;
             console.log("skydrive: homeid = ", data.id);
@@ -109,7 +110,7 @@ var skydrive = {
       path: "me/skydrive",
       method: "POST",
       body: {
-        name: "jaxedit"
+        name: "JaxEdit"
       }
     },
     function(response){
@@ -129,6 +130,7 @@ var skydrive = {
       path: fid + "/files",
       method: "GET"
     }, callback);
+    skydrive.thisid = fid;
   },
 
   getFileUrl: function(fid, callback) {
@@ -146,6 +148,7 @@ var skydrive = {
     }
     else {
       alert("You have been logged into SkyDrive.");
+      skydrive.access_token = session.access_token;
       skydrive.getFoldersList();
     }
   },
@@ -157,6 +160,7 @@ var skydrive = {
   onSessionChange: function() {
     var session = WL.getSession();
     if (session) {
+      skydrive.access_token = session.access_token;
       console.log("Your session has changed.");
     }
   },

@@ -253,6 +253,10 @@ body {
   border-color: #DCDCDC;
 }
 
-#dlgclose {
+#dlgbtns {
   float: right;
+}
+
+#savename {
+  text-align: right;
 }
