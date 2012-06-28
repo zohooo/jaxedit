@@ -418,6 +418,7 @@ jaxedit.addButtons = function() {
       opensel = document.getElementById("opensel"),
       savebtn = document.getElementById("savebtn"),
       presbtn = document.getElementById("presbtn"),
+      helpbtn = document.getElementById("helpbtn"),
       loginbtn = document.getElementById("loginbtn"),
       drivesel = document.getElementById("drivesel");
 
@@ -717,6 +718,11 @@ jaxedit.addButtons = function() {
       doc.close();
     }
   }
+
+  helpbtn.onclick = function() {
+    window.open("https://github.com/zohooo/jaxedit/wiki", "_blank");
+  };
+  helpbtn.style.display = "inline-block";
 };
 
 jaxedit.changeLoginButton = function(value) {

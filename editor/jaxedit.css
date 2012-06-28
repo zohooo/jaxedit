@@ -35,7 +35,7 @@ body {
   width:0px; height:0px; margin: 0; padding: 0;
 }
 
-#newbtn, #openbtn, #savebtn, #presbtn, #loginbtn {
+#newbtn, #openbtn, #savebtn, #presbtn, #helpbtn, #loginbtn {
   position: relative;
   bottom: 3px;
   border: 1px solid #777777;
@@ -45,13 +45,13 @@ body {
   font-family: Arial, Helvetica, sans-serif;
 }
 
-#newbtn:hover[disabled=false], #openbtn:hover, #savebtn:hover, #presbtn:hover, #loginbtn:hover {
+#newbtn:hover[disabled=false], #openbtn:hover, #savebtn:hover, #presbtn:hover, #helpbtn:hover, #loginbtn:hover {
   color: white;
   border: 1px solid #222280;
   background: #3069B6;
 }
 
-#openbtn, #presbtn {
+#openbtn, #presbtn, #helpbtn {
   margin-left: 20px;
 }
 
