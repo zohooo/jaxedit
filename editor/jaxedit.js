@@ -8,7 +8,8 @@ var jaxedit = {
   hasParser: false,
   autoScroll: false,
   canPresent: true,
-  useDrive: null
+  useDrive: null,
+  dialogMode: null
 };
 
 jaxedit.childs = {
@@ -473,17 +474,18 @@ jaxedit.addButtons = function() {
         dlgfname = document.getElementById('dlgfname'),
         dlgsave = document.getElementById('dlgsave');
     if (mode == "open") {
+      jaxedit.dialogMode = "open";
       dlghead.innerHTML = "Open File";
-      dlgbody.onclick = dialogClick;
       dlgfname.style.display = "none";
       dlgsave.style.display = "none";
     } else {
+      jaxedit.dialogMode = "save";
       dlghead.innerHTML = "Save File";
-      dlgbody.onclick = null;
       dlgfname.style.display = "inline";
       dlgsave.style.display = "inline-block";
       dlgsave.onclick = driveSave;
     }
+    dlgbody.onclick = dialogClick;
     dlgbody.style.display = "none";
     loading.style.display = "block";
     jaxedit.toggleModal();
@@ -494,7 +496,7 @@ jaxedit.addButtons = function() {
     var dlgbody = document.getElementById('dlgbody'),
         loading = document.getElementById('loading');
     if (!response.error) {
-      var bodytext = "", data, type, name, fid, url, size, time; 
+      var bodytext = "", data, type, name, fid, url, size, time, ftype;
       bodytext = "<br/>Files in jaxedit folder:<br/>";
       bodytext += "<div><table frame='box' rules='rows'><thead><tr class='finfo'><th>Type</th><th>Name</th><th>Size</th><th>Modified</th></tr></thead><tbody>";
       for (var i = 0; i < response.data.length; i++) {
@@ -503,7 +505,8 @@ jaxedit.addButtons = function() {
         if (type == "file" || type == "folder") {
           url = (type == "file") ? data.source : "#";
           size = (type == "file") ? data.size : "---";
-          bodytext += "<tr class='" + type + "'><td>" + type + "</td><td><a href='#' data-fid='" + fid + "' data-url='" + url + "'>" + name + "</a></td><td>" + size + "</td><td>" + time + "</td></tr>";
+          ftype = (type == "file") ? "File" : "Folder";
+          bodytext += "<tr class='" + type + "'><td>" + ftype + "</td><td><a href='javascript:void(0)' data-fid='" + fid + "' data-url='" + url + "'>" + name + "</a></td><td>" + size + "</td><td>" + time + "</td></tr>";
         }
       }
       bodytext += "</tbody></table></div>";
@@ -516,17 +519,7 @@ jaxedit.addButtons = function() {
       jaxedit.toggleModal();
     }
   };
-  
-  var handleUrlResponse = function(response) {
-    console.log(response);
-    if (!response.error) {
-      getFileContent(response.location);
-    } else {
-      alert('Error in getting file url!');
-      jaxedit.toggleModal();
-    }
-  };
-  
+
   var createCORSRequest = function(method, url) {
     var xhr = new XMLHttpRequest();
     if ("withCredentials" in xhr) {
@@ -551,9 +544,14 @@ jaxedit.addButtons = function() {
     loading.style.display = "block";
     if (request) {
       request.onload = function(){
-        codearea.value = request.responseText;
-        jaxedit.initParser();
-        jaxedit.toggleModal();
+        var status = request.status;
+        if ((status >= 200 && status <300) || status == 304) {
+          codearea.value = request.responseText;
+          jaxedit.initParser();
+          jaxedit.toggleModal();
+        } else {
+          alert("Unable to open file: " + status + " error!");
+        }
       };
       request.onerror = function(){
         alert("An error occurred.");
@@ -589,12 +587,15 @@ jaxedit.addButtons = function() {
     }
     if (request) {
       request.onload = function(){
-        alert("File successfully saved.");
-        jaxedit.toggleModal();
+        var status = request.status;
+        if ((status >= 200 && status <300) || status == 304) {
+          alert("File successfully saved.");
+        } else {
+          alert("Unable to save file: " + status + " error!");
+        }
       };
       request.onerror = function(){
         alert("An error occurred.");
-        jaxedit.toggleModal();
       };
     request.send(content);
     }
@@ -606,7 +607,8 @@ jaxedit.addButtons = function() {
       alert('Filename is empty!');
       return;
     } else {
-      saveFileContent(codearea.value, fname + '.tex');
+      //skydrive api doesn't support .tex file, use .txt instead
+      saveFileContent(codearea.value, fname + '.txt');
       jaxedit.toggleModal();
     }
   };
@@ -621,7 +623,9 @@ jaxedit.addButtons = function() {
       console.log("clicked: fid = " + fid);
       switch (target.parentNode.parentNode.className) {
         case "file":
-          skydrive.getFileUrl(fid, handleUrlResponse);
+          if (jaxedit.dialogMode == 'open') {
+            getFileContent(target.getAttribute("data-url"));
+          }
           break;
         case "folder":
           dlgbody.style.display = "none";
@@ -672,7 +676,8 @@ jaxedit.addButtons = function() {
     opensel.style.display = "none";
   }
 
-  if (location.protocol != "file:" && location.search.length > 0) {
+  if (location.protocol != "file:" && (typeof XDomainRequest !== "undefined" ||
+    (typeof XMLHttpRequest !== "undefined" && 'withCredentials' in new XMLHttpRequest()))) {
     corejax.loadScript("http://js.live.net/v5.0/wl.js", function(){
       corejax.loadScript("editor/webdrive/skydrive.js", function(){
         skydrive.initDrive();

@@ -6,27 +6,22 @@ var skydrive = {
   thisid: null,
 
   initDrive: function() {
-    var cid, url;
+    var cid, url = location.protocol + '//' + location.host + location.pathname;
     switch(location.hostname) {
       case "jaxedit.sourceforge.net":
         cid = "000000004C0BD522";
-        url = "http://jaxedit.sourceforge.net/";
         break;
       case "jaxedit.com":
         cid = "000000004C0BD523";
-        url = "http://jaxedit.com/";
         break;
       case "www.jaxedit.com":
         cid = "000000004C0BD524";
-        url = "http://www.jaxedit.com/";
         break;
       case "zohooo.github.com":
         cid = "000000004C0BDA05";
-        url = "http://zohooo.github.com/jaxedit/";
         break;
       case "jaxedit.googlecode.com":
         cid = "00000000400A3032";
-        url = "http://jaxedit.googlecode.com/svn/trunk/jaxedit/";
         break;
     }
 
@@ -133,14 +128,6 @@ var skydrive = {
     skydrive.thisid = fid;
   },
 
-  getFileUrl: function(fid, callback) {
-    WL.api(
-    {
-      path: fid + "/content",//?suppress_redirects=true",
-      method: "GET"
-    }, callback);
-  },
-  
   onLoginComplete: function() {
     var session = WL.getSession();
     if (session.error) {
