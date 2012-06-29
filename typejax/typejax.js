@@ -1321,10 +1321,12 @@ typejax.parser = function(input, modstart, modend){
     envPreamble : function(node) {
       var doccls = node.argarray[1].childs[0].value;
       this.cmdvalues["documentclass"] = doccls;
-      if (doccls == "beamer" && window.jaxedit && jaxedit.canPresent) {
-        jaxedit.childs.presbtn.style.display = "inline-block";
-      } else {
-        jaxedit.childs.presbtn.style.display = "none";
+      if (window.jaxedit && jaxedit.canPresent) {
+        if (doccls == "beamer") {
+          jaxedit.childs.presbtn.style.display = "inline-block";
+        } else {
+          jaxedit.childs.presbtn.style.display = "none";
+        }
       }
     },
     
