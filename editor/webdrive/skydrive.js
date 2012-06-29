@@ -4,6 +4,7 @@
 var skydrive = {
   homeid: null,
   thisid: null,
+  status: null,
 
   initDrive: function() {
     var cid, url = location.protocol + '//' + location.host + location.pathname;
@@ -25,19 +26,20 @@ var skydrive = {
         break;
     }
 
-    WL.init({
-      client_id: cid,
-      redirect_uri: url + "editor/webdrive/skydrive.htm",
-      scope: ["wl.signin", "wl.skydrive", "wl.skydrive_update"],
-      response_type: "token",
-      logging: true
-    });
-
     WL.Event.subscribe("auth.login", this.onLoginComplete);
     WL.Event.subscribe("auth.logout", this.onLogoutComplete);
     WL.Event.subscribe("auth.sessionChange", this.onSessionChange);
     WL.Event.subscribe("auth.statusChange", this.onStatusChange);
     WL.Event.subscribe("wl.log", this.onErrorOccur);
+
+    WL.init({
+      client_id: cid,
+      redirect_uri: url + "editor/webdrive/skydrive.htm",
+      scope: ["wl.signin", "wl.skydrive", "wl.skydrive_update"],
+      response_type: "token",
+      status: true,
+      logging: true
+    });
   },
 
   signUserIn: function() {
@@ -49,11 +51,10 @@ var skydrive = {
   },
 
   signUserInOut: function() {
-    var el = document.getElementById("loginbtn");
-    if (el.value == "Login") {
-      WL.login();
-    } else {
+    if (skydrive.status == "connected") {
       WL.logout();
+    } else {
+      WL.login();
     }
   },
   
@@ -137,32 +138,33 @@ var skydrive = {
       alert("You have been logged into SkyDrive.");
       skydrive.access_token = session.access_token;
       skydrive.getFoldersList();
+      jaxedit.changeStatus("connected");
     }
   },
 
   onLogoutComplete: function() {
     alert("You have been logged out of SkyDrive.");
+    jaxedit.changeStatus("notConnected");
+    skydrive.homeid = null;
   },
 
   onSessionChange: function() {
     var session = WL.getSession();
     if (session) {
       skydrive.access_token = session.access_token;
-      console.log("Your session has changed.");
+      console.log("skydrive: your session has changed.");
     }
   },
 
   onStatusChange: function() {
     WL.getLoginStatus(function(response) {
-      if (response.status == "connected") {
-        jaxedit.changeLoginButton("Logout");
-      } else {
-        jaxedit.changeLoginButton("Login");
-      };
+      skydrive.status = response.status;
+      jaxedit.changeStatus(response.status);
+      console.log("skydrive: your status has changed.");
     });
   },
 
   onErrorOccur: function() {
-    alert("Error in Skydrive!");
+    console.log("skydrive: error in skydrive!");
   }
 };
