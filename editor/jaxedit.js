@@ -473,27 +473,28 @@ jaxedit.addButtons = function() {
     var dlghead = document.getElementById('dlghead'),
         dlgbody = document.getElementById('dlgbody'),
         loading = document.getElementById('loading'),
-        dlgfname = document.getElementById('dlgfname'),
+        dlgflist = document.getElementById('dlgflist'),
+        savespan = document.getElementById('savespan'),
         dlgsave = document.getElementById('dlgsave');
     if (mode == "open") {
       jaxedit.dialogMode = "open";
       dlghead.innerHTML = "Open File";
-      dlgfname.style.display = "none";
+      savespan.style.display = "none";
       dlgsave.style.display = "none";
     } else {
       jaxedit.dialogMode = "save";
       dlghead.innerHTML = "Save File";
-      dlgfname.style.display = "inline";
+      savespan.style.display = "inline";
       dlgsave.style.display = "inline-block";
       dlgsave.onclick = checkSave;
     }
-    dlgbody.onclick = dialogClick;
+    dlgflist.onclick = dialogClick;
     dlgbody.style.display = "none";
     loading.style.display = "block";
     jaxedit.toggleModal();
     (function(){
       if (skydrive.homeid){
-        skydrive.getFilesList(skydrive.homeid, handleResponse);
+        skydrive.getFilesList(handleResponse);
       } else {
         setTimeout(arguments.callee, 100);
       }
@@ -502,11 +503,20 @@ jaxedit.addButtons = function() {
   
   var handleResponse = function(response) {
     var dlgbody = document.getElementById('dlgbody'),
-        loading = document.getElementById('loading');
+        loading = document.getElementById('loading'),
+        dlginside = document.getElementById('dlginside'),
+        dlgwalkup = document.getElementById('dlgwalkup'),
+        dlgflist = document.getElementById('dlgflist');
     if (!response.error) {
       var bodytext = "", data, type, name, fid, url, size, time, ftype;
-      bodytext = "<br/>Files in jaxedit folder:<br/>";
-      bodytext += "<div><table frame='box' rules='rows'><thead><tr class='finfo'><th>Type</th><th>Name</th><th>Size</th><th>Modified</th></tr></thead><tbody>";
+      var finside = skydrive.finside;
+      dlginside.innerHTML = finside[finside.length - 1].name;
+      if (finside.length <= 1) {
+        dlgwalkup.style.display = "none";
+      } else {
+        dlgwalkup.style.display = "inline";
+      }
+      bodytext += '<table frame="box" rules="rows"><thead><tr class="finfo"><th>Type</th><th>Name</th><th class="fsize">Size</th><th class="ftime">Modified</th></tr></thead><tbody>';
       for (var i = 0; i < response.data.length; i++) {
         data = response.data[i];
         type = data.type; name = data.name; fid = data.id; time = data.updated_time.slice(0, 10);
@@ -514,11 +524,11 @@ jaxedit.addButtons = function() {
           url = (type == "file") ? data.source : "#";
           size = (type == "file") ? data.size : "---";
           ftype = (type == "file") ? "File" : "Folder";
-          bodytext += "<tr class='" + type + "'><td>" + ftype + "</td><td><a href='javascript:void(0)' data-fid='" + fid + "' data-url='" + url + "'>" + name + "</a></td><td>" + size + "</td><td>" + time + "</td></tr>";
+          bodytext += '<tr class="' + type + '"><td>' + ftype + '</td><td><a href="javascript:void(0)" data-fid="' + fid + '" data-url="' + url + '">' + name + '</a></td><td class="fsize">' + size + '</td><td class="ftime">' + time + '</td></tr>';
         }
       }
-      bodytext += "</tbody></table></div>";
-      dlgbody.innerHTML = bodytext;
+      bodytext += '</tbody></table>';
+      dlgflist.innerHTML = bodytext;
       loading.style.display = "none";
       dlgbody.style.display = "block";
     }
@@ -570,7 +580,8 @@ jaxedit.addButtons = function() {
   };
 
   var saveFileContent = function(data, name) {
-    var hostpath = 'https://apis.live.net/v5.0/' + skydrive.thisid + '/files',
+    var fid = skydrive.finside[skydrive.finside.length - 1].fid,
+        hostpath = 'https://apis.live.net/v5.0/' + fid + '/files',
         querystr = '?access_token=' + encodeURIComponent(skydrive.access_token),
         gatepath = 'http://gate.jaxedit.com/';
     var url, path, boundary, content, request;
@@ -638,12 +649,22 @@ jaxedit.addButtons = function() {
         case "folder":
           dlgbody.style.display = "none";
           loading.style.display = "block";
-          skydrive.getFilesList(fid, handleResponse);
+          skydrive.finside.push({fid: fid, name: target.innerHTML});
+          skydrive.getFilesList(handleResponse);
           break;
       }
     }
   };
   
+  var dialogWalkup = function() {
+    var dlgbody = document.getElementById('dlgbody'),
+        loading = document.getElementById('loading');
+    dlgbody.style.display = "none";
+    loading.style.display = "block";
+    skydrive.finside.pop();
+    skydrive.getFilesList(handleResponse);
+  };
+
   var addFileHandler = function() {
     openbtn.onclick = fileOpen;
     savebtn.onclick = fileSave;
@@ -665,7 +686,9 @@ jaxedit.addButtons = function() {
     sel.selectedIndex = 0;
   };
 
+  var dlgwalkup = document.getElementById("dlgwalkup");
   var dlgclose = document.getElementById("dlgclose");
+  dlgwalkup.onclick = dialogWalkup;
   dlgclose.onclick = jaxedit.toggleModal;
   
   // chrome browser will prevent file reading and saving at local

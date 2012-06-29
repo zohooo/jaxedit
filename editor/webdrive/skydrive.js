@@ -2,8 +2,8 @@
 // Copyright (c) 2012 JaxEdit Project
 
 var skydrive = {
+  finside: [],
   homeid: null,
-  thisid: null,
   status: null,
 
   initDrive: function() {
@@ -73,7 +73,7 @@ var skydrive = {
     });
   },
 
-  getFoldersList: function() {
+  findMainFolder: function() {
     WL.api(
     {
       path: "/me/skydrive/files",
@@ -87,6 +87,7 @@ var skydrive = {
           console.log(data.type, data.name);
           if (data.type == "folder" && data.name == "JaxEdit") {
             exist = true;
+            skydrive.finside.push({fid: data.id, name: "JaxEdit"});
             skydrive.homeid = data.id;
             console.log("skydrive: homeid = ", data.id);
             break;
@@ -111,6 +112,7 @@ var skydrive = {
     },
     function(response){
       if (!response.error) {
+        skydrive.finside.push({fid: response.id, name: "JaxEdit"});
         skydrive.homeid = response.id;
         console.log("skydrive: homeid = ", response.id);
       } else {
@@ -119,14 +121,14 @@ var skydrive = {
     });
   },
 
-  getFilesList: function(fid, callback) {
+  getFilesList: function(callback) {
+    var fid = skydrive.finside[skydrive.finside.length - 1].fid;
     console.log("skydrive: getFilesList with fid = ", fid);
     WL.api(
     {
       path: fid + "/files",
       method: "GET"
     }, callback);
-    skydrive.thisid = fid;
   },
 
   onLoginComplete: function() {
@@ -137,7 +139,9 @@ var skydrive = {
     else {
       alert("You have been logged into SkyDrive.");
       skydrive.access_token = session.access_token;
-      skydrive.getFoldersList();
+      skydrive.homeid = null;
+      skydrive.finside = [];
+      skydrive.findMainFolder();
       jaxedit.changeStatus("connected");
     }
   },
@@ -146,6 +150,7 @@ var skydrive = {
     alert("You have been logged out of SkyDrive.");
     jaxedit.changeStatus("notConnected");
     skydrive.homeid = null;
+    skydrive.finside = [];
   },
 
   onSessionChange: function() {
