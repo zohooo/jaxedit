@@ -706,8 +706,7 @@ jaxedit.addButtons = function() {
     opensel.style.display = "none";
   }
 
-  if (location.protocol != "file:" && (typeof XDomainRequest !== "undefined" ||
-    (typeof XMLHttpRequest !== "undefined" && 'withCredentials' in new XMLHttpRequest()))) {
+  if (location.protocol != "file:" && window.XMLHttpRequest && 'withCredentials' in new XMLHttpRequest()) {
     corejax.loadScript("http://js.live.net/v5.0/wl.js", function(){ // wl.debug.js
       corejax.loadScript("editor/webdrive/skydrive.js", function(){
         if (jaxedit.localDrive) {
