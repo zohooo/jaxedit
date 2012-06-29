@@ -725,7 +725,7 @@ jaxedit.addButtons = function() {
     });
   }
   
-  if ((browser.msie && browser.msie < 9 && location.protocol != "file:") || browser.opera) {
+  if (location.search == "?present=off") {
     jaxedit.canPresent = false;
   } else {
     presbtn.onclick = function() {
