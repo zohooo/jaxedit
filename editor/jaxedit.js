@@ -737,6 +737,7 @@ jaxedit.addButtons = function() {
       var showarea = jaxedit.childs.showarea;
       var content = ['<!DOCTYPE html><html><head><title>JaxEdit Beamer Presentation</title>',
                      '<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />',
+                     '<link rel="stylesheet" type="text/css" href="typejax/typejax.css" />',
                      '<link rel="stylesheet" type="text/css" href="typejax/showjax.css" />',
                      '<script type="text/x-mathjax-config">',
                         'MathJax.Hub.Config({\n',

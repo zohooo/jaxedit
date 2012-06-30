@@ -29,16 +29,7 @@ showjax.initShow = function() {
     window.close();
   } else {
     this.frameidx = 0;
-    body.style.overflow = "hidden";
-    body.style.backgroundColor = "black";
-    body.style.margin = "0";
-    body.style.border = "0 none";
-    body.style.padding = "0";
     showarea.childNodes[this.frameall[0]].style.display = "block";
-    showarea.style.margin = "0";
-    showarea.style.border = "0 none";
-    showarea.style.padding = "0.8em";
-    showarea.style.backgroundColor = "#141428";
     if (browser.firefox >= 3.6) {
       prefix = "-moz-";
     } else if (browser.chrome >= 10 || browser.safari >= 5.1) {
@@ -49,9 +40,8 @@ showjax.initShow = function() {
       prefix = "-o-";
     }
     if (prefix) {
-      showarea.style.background = prefix + "linear-gradient(top, #000 0%, #141428 50%, #514C60 100%)";
+      body.style.background = prefix + "linear-gradient(top, #000 0%, #141428 50%, #514C60 100%)";
     }
-    showarea.style.color = "white";
     this.showResize();
   }
   window.onresize = showjax.showResize;
@@ -61,8 +51,7 @@ showjax.initShow = function() {
 };
 
 showjax.showResize = function() {
-  var html = document.documentElement, body = document.body,
-      showarea = document.getElementById("showarea");
+  var body = document.body, showarea = document.getElementById("showarea");
   var pageWidth = window.innerWidth;
   var pageHeight = window.innerHeight;
   if (typeof pageWidth != "number" ){
@@ -82,14 +71,9 @@ showjax.showResize = function() {
     showWidth = pageWidth;
     showHeight = 3 * showWidth / 4;
   }
-  
-  html.style.width = pageWidth + "px";
-  body.style.width = pageWidth + "px";
-  showarea.style.width = showWidth + "px";
-  showarea.style.height = showHeight + "px";
-  showarea.style.marginLeft = (pageWidth - showWidth) / 2 + "px";
 
-  body.style.fontSize = "250%";
+  body.style.width = showWidth + "px"; body.style.height = showHeight + "px";
+  body.style.marginLeft = body.style.marginRight = (pageWidth - showWidth) / 2 + "px";
 };
   
 showjax.showNavigate = function(event) {
