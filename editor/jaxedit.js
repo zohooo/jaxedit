@@ -244,6 +244,11 @@ jaxedit.doChange = function(event) {
   
   if (browser.msie && browser.msie <= 8) {
     var range1 = document.selection.createRange();
+    var parent = range1.parentElement();
+    if (parent != codearea) {
+      console.log('TextRange: parent element is of tagName ' + parent.tagName);
+      return;
+    }
     var range2 = range1.duplicate();
     range2.moveToElementText(codearea);
     range2.setEndPoint('EndToEnd',range1);
