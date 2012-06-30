@@ -750,10 +750,10 @@ jaxedit.addButtons = function() {
                      '<script type="text/javascript" src="typejax/showjax.js"></scr' + 'ipt></head><body>',
                      '<div id="showarea">' + showarea.innerHTML + '</div>',
                      '</body></html>'].join('');
-      if (document.exitFullscreen || document.mozCancelFullScreen || document.webkitCancelFullScreen) {
-        w = window.open("", "showjax");
-      } else {
+      if (corejax.browser.msie) {
         w = window.open("", "showjax", "fullscreen");
+      } else {
+        w = window.open("", "showjax");
       }
       doc = w.document;
       doc.write(content);

@@ -119,6 +119,14 @@ showjax.showNavigate = function(event) {
   showarea.childNodes[showjax.frameall[showjax.frameidx]].style.border = "none";
 };
 
+showjax.showFullInfo = function() {
+  var fulldiv = document.createElement("div");
+  fulldiv.innerHTML = "<span>Press F11 to enter/exit fullscreen mode</span>";
+  fulldiv.style.cssText = "position:absolute; top:0; right: 0; padding:6px; border-radius:4px; font-size:16px; font-family:arial; background-color:white;";
+  document.body.appendChild(fulldiv);
+  setTimeout(function(){document.body.removeChild(fulldiv);}, 5000);
+};
+
 showjax.addExport = function() {
   var infodiv = document.createElement("div");
   infodiv.innerHTML = "<span>Export</span>";
@@ -140,12 +148,10 @@ showjax.addExport = function() {
 };
 
 window.onload = function(){
-  var body = document.body;
-  // firefox 10, chrome 15 and safari 5.1
-  var requestFullScreen = body.requestFullScreen || body.mozRequestFullScreen || body.webkitRequestFullScreen;
-  if (requestFullScreen) requestFullScreen.call(body);
   showjax.startParser();
   if (corejax.browser.msie) {
     showjax.addExport();
+  } else {
+    showjax.showFullInfo();
   }
 }
