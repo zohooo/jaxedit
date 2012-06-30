@@ -6,23 +6,9 @@ var showjax = {
   frameidx: 0
 };
 
-showjax.loadParser = function() {
-  var script = document.createElement("script");
-  script.type = "text/x-mathjax-config";
-  script[(window.opera ? "innerHTML" : "text")] =
-    "MathJax.Hub.Config({\n" +
-    //"  skipStartupTypeset: true,\n" +
-    "  TeX: { extensions: ['color.js', 'extpfeil.js'] },\n" +
-    "  'HTML-CSS': { imageFont: null }\n" +
-    "});"
-  document.body.appendChild(script);
-
-  corejax.loadScript("mathjax/MathJax.js?config=TeX-AMS_HTML", function(){
-    MathJax.Hub.processUpdateTime = 200;
-    MathJax.Hub.processUpdateDelay = 15;
-    MathJax.Hub.Queue(["Process", MathJax.Hub, document.body]);
-    MathJax.Hub.Queue(["initShow", showjax]);
-  });
+showjax.startParser = function() {
+  MathJax.Hub.Queue(["Process", MathJax.Hub, document.body]);
+  MathJax.Hub.Queue(["initShow", showjax]);
 };
 
 showjax.initShow = function() {
@@ -174,7 +160,7 @@ window.onload = function(){
   // firefox 10, chrome 15 and safari 5.1
   var requestFullScreen = body.requestFullScreen || body.mozRequestFullScreen || body.webkitRequestFullScreen;
   if (requestFullScreen) requestFullScreen.call(body);
-  showjax.loadParser();
+  showjax.startParser();
   if (corejax.browser.msie) {
     showjax.addExport();
   }
