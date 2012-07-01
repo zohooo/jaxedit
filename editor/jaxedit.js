@@ -8,6 +8,7 @@ var jaxedit = {
   hasParser: false,
   autoScroll: false,
   canPresent: true,
+  fileName: 'noname.tex',
   useDrive: null,
   localDrive: false,
   dialogMode: null
@@ -427,14 +428,15 @@ jaxedit.addButtons = function() {
       drivesel = document.getElementById("drivesel");
 
   var doOpen = function(evt) {
-    var files = evt.target.files,
+    var file = evt.target.files[0],
         reader = new FileReader();
     reader.onload = function() {
       //console.log(this.readyState);
       codearea.value = this.result;
       jaxedit.initParser(this.result, this.result.length, showarea);
     };
-    reader.readAsText(files[0]);
+    document.getElementById('filename').innerHTML = jaxedit.fileName = name;
+    reader.readAsText(file);
   };
   
   var fileOpen = function(event) {
@@ -476,6 +478,7 @@ jaxedit.addButtons = function() {
     var dlghead = document.getElementById('dlghead'),
         dlgflist = document.getElementById('dlgflist'),
         savespan = document.getElementById('savespan'),
+        savename = document.getElementById('savename'),
         dlgsave = document.getElementById('dlgsave');
     if (mode == "open") {
       jaxedit.dialogMode = "open";
@@ -486,6 +489,7 @@ jaxedit.addButtons = function() {
       jaxedit.dialogMode = "save";
       dlghead.innerHTML = "Save File";
       savespan.style.display = "inline";
+      savename.value = jaxedit.fileName.split(/\.[^.]+$/)[0];
       dlgsave.style.display = "inline-block";
       dlgsave.onclick = checkSave;
     }
@@ -548,7 +552,7 @@ jaxedit.addButtons = function() {
     return xhr;
   };
   
-  var getFileContent = function(url) {
+  var getFileContent = function(url, name) {
     console.log("fetch file: " + url);
     var path = 'http://gate.jaxedit.com/?path=' + encodeURIComponent(url);
     var request = createCORSRequest("get", path);
@@ -558,6 +562,7 @@ jaxedit.addButtons = function() {
         var status = request.status;
         if ((status >= 200 && status <300) || status == 304) {
           codearea.value = request.responseText;
+          document.getElementById('filename').innerHTML = jaxedit.fileName = name;
           jaxedit.initParser();
           jaxedit.toggleModal(false);
         } else {
@@ -579,21 +584,21 @@ jaxedit.addButtons = function() {
     var url, path, boundary, content, request;
     jaxedit.toggleLoading(true, 'Saving file...');
     if (location.search == "?put") { // using PUT method
-      var url = hostpath + '/' + name + querystr,
-          path = gatepath + '?path=' + encodeURIComponent(url),
-          content = data;
+      url = hostpath + '/' + name + querystr;
+      path = gatepath + '?path=' + encodeURIComponent(url);
+      content = data;
       request = createCORSRequest('PUT', path);
       request.setRequestHeader('Content-Type', 'text/plain; charset=utf-8');
     } else { // using POST method
-      var url = hostpath + querystr,
-          path = gatepath + '?path=' + encodeURIComponent(url),
-          boundary = 'jjaaxxeeddiitt',
-          content = ['--' + boundary,
-                     'Content-Disposition: form-data; name="file"; filename="' + name + '"',
-                     'Content-Type: text/plain; charset=utf-8',
-                     '',
-                     data,
-                     '--' + boundary + '--'].join('\r\n');
+      url = hostpath + querystr;
+      path = gatepath + '?path=' + encodeURIComponent(url);
+      boundary = 'jjaaxxeeddiitt';
+      content = ['--' + boundary,
+                 'Content-Disposition: form-data; name="file"; filename="' + name + '"',
+                 'Content-Type: text/plain; charset=utf-8',
+                 '',
+                 data,
+                 '--' + boundary + '--'].join('\r\n');
       request = createCORSRequest('POST', path);
       request.setRequestHeader('Content-Type', 'multipart/form-data; boundary=' + boundary);
     }
@@ -601,6 +606,7 @@ jaxedit.addButtons = function() {
       request.onload = function(){
         var status = request.status;
         if ((status >= 200 && status <300) || status == 304) {
+          document.getElementById('filename').innerHTML = jaxedit.fileName = name;
           jaxedit.toggleModal(false);
         } else {
           jaxedit.toggleLoading(true, status + ' error in saving file!');
@@ -635,7 +641,7 @@ jaxedit.addButtons = function() {
       switch (target.parentNode.parentNode.className) {
         case "file":
           if (jaxedit.dialogMode == 'open') {
-            getFileContent(target.getAttribute("data-url"));
+            getFileContent(target.getAttribute("data-url"), target.innerHTML);
           }
           break;
         case "folder":
