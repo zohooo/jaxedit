@@ -2,17 +2,15 @@
 /* copyright (c) 2011-2012 JaxEdit project */
 
 html, body {
-  /*height: 550px;*/
-  /*width: auto;*/
   margin: 0px;
-  /*background: #C1C1C1;*/
+  overflow: hidden;
 }
 
 body {
   visibility: hidden;
 }
 
-#header {
+#head {
   width: 964px;
   height: 30px;
   padding: 6px 0 6px 4px;
@@ -62,56 +60,40 @@ body {
   display: none;
 }
 
-#left {
+#main {
+  position: relative;
+  width: 968px;
+  height: 538px;
+  padding: 0;
+  margin: 0;
+}
+
+#left, #right {
+  position: absolute;
+  top: 0;
   width: 480px;
-  float: left;
-  /*height: 550px;*/
   border: 2px solid #C1C1C1;
 }
 
-#right {
-  width: 480px;
-  float: left;
-  /*height: 550px;*/
-  border: 2px solid #C1C1C1;  
+#left {
+  left: 0;
 }
-/*
-#ltop {
+
+#right {
+  right: 0;
+}
+
+#ltop, #rtop {
   width: 474px;
-  height: 22px;
-  padding: 6px 0 6px 4px;
-  border: 1px solid #000080;
-  font-weight: bold;
-  background: #E6F3FF;
-  background: linear-gradient(top, #FFFFFF 0%, #E6F3FF 100%);
-  background: -moz-linear-gradient(top, #FFFFFF 0%, #E6F3FF 100%);
-  background: -webkit-linear-gradient(top, #FFFFFF 0%, #E6F3FF 100%);
-  background: -ms-linear-gradient(top, #FFFFFF 0%, #E6F3FF 100%);
-  background: -o-linear-gradient(top, #FFFFFF 0%, #E6F3FF 100%);
+  height: 16px;
+  padding: 3px 0 5px 4px;
+  border: 1px solid rgb(128,128,128);
+  background: #F3F3F3;
+  overflow: hidden;
   font-family: Arial, Helvetica, sans-serif;
 }
-*/
-#source {
-  width: 478px;
-  height: 510px;
-  padding: 0px;
-  margin: 0px;
-  border-left: 1px solid #C1C1C1;
-  border-right: 1px solid #C1C1C1;
-  /*border-bottom: 1px solid #C1C1C1;*/
-}
 
-#codearea {
-  width: 472px;
-  height: 500px;
-  border: 0px;
-  margin: 0px;
-  padding: 4px 0px 4px 4px;
-  resize: none;
-  font-family: monospace;
-}
-
-#lbot {
+#lbot, #rbot {
   width: 474px;
   height: 14px;
   padding: 3px 0 5px 4px;
@@ -119,21 +101,26 @@ body {
   background: #F3F3F3;
   overflow: hidden;
 }
-/*
-#rtop {
-  width: 474px;
-  height: 22px;
-  padding: 6px 0 6px 4px;
-  border: 1px solid #004000;
-  font-weight: bold;
-  background: #E6FFF3;
-  background: -moz-linear-gradient(top, #FFFFFF 0%, #E6FFF3 100%);
-  background: -webkit-linear-gradient(top, #FFFFFF 0%, #E6FFF3 100%);
-  background: -ms-linear-gradient(top, #FFFFFF 0%, #E6FFF3 100%);
-  background: -o-linear-gradient(top, #FFFFFF 0%, #E6FFF3 100%);
-  font-family: Arial, Helvetica, sans-serif;
+
+#source {
+  width: 478px;
+  height: 510px;
+  padding: 0px;
+  margin: 0px;
+  border-left: 1px solid #C1C1C1;
+  border-right: 1px solid #C1C1C1;
 }
-*/
+
+#codearea {
+  width: 472px;
+  height: 500px;
+  border: 0 none;
+  margin: 0px;
+  padding: 4px 0px 4px 4px;
+  resize: none;
+  font-family: monospace;
+}
+
 #preview {
   width: 474px;
   height: 502px;
@@ -148,15 +135,6 @@ body {
   overflow: auto;
   position: relative;
   font-family: Georgia, "Times New Roman", Times, serif;
-}
-
-#rbot {
-  width: 474px;
-  height: 14px;
-  padding: 3px 0 5px 4px;
-  border: 1px solid rgb(128,128,128);
-  background: #F3F3F3;
-  overflow: hidden;
 }
 
 #overlay {

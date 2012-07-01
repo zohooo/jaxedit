@@ -7,7 +7,7 @@
 <link rel="stylesheet" type="text/css" href="editor/jaxedit.css" />
 </head>
 <body>
-<div id="header">
+<div id="head">
   <span id="logo">JaxEdit</span>
   <input type="file" id="opensel" />
   <input type="button" id="newbtn" value="New" />
@@ -21,13 +21,13 @@
     <option value="skydrive">SkyDrive</option>
   </select>
 </div>
-<div id="left">
-<!--
-  <div id="ltop">
-  </div>
--->
-  <div id="source">
-    <textarea id="codearea">
+<div id="main">
+  <div id="left">
+    <div id="ltop">
+      <span>Source</span>
+    </div>
+    <div id="source">
+      <textarea id="codearea">
 \documentclass{beamer}
 
 \newtheorem{thm}{Theorem}
@@ -62,19 +62,19 @@ Then there exists $\xi\in(a,b)$ such that $f'(\xi)=\frac{f(b)-f(a)}{b-a}$.
 \end{frame}
 
 \end{document}
-    </textarea>
+      </textarea>
+    </div>
+    <div id="lbot"></div>
   </div>
-  <div id="lbot"></div>
-</div>
-<div id="right">
-<!--
-  <div id="rtop">
+  <div id="right">
+    <div id="rtop">
+      <span>Preview</span>
+    </div>
+    <div id="preview">
+      <div id="showarea"></div>
+    </div>
+    <div id="rbot"></div>
   </div>
--->
-  <div id="preview">
-    <div id="showarea"></div>
-  </div>
-  <div id="rbot"></div>
 </div>
 <div id="overlay"></div>
 <div id="container">

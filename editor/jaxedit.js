@@ -16,20 +16,21 @@ var jaxedit = {
 jaxedit.childs = {
   html : document.documentElement,
   body : document.body,
-  header : document.getElementById("header"),
+  head : document.getElementById("head"),
   newbtn : document.getElementById("newbtn"),
   openbtn : document.getElementById("openbtn"),
   savebtn : document.getElementById("savebtn"),
   presbtn : document.getElementById("presbtn"),
   loginbtn : document.getElementById("loginbtn"),
   drivesel: document.getElementById("drivesel"),
+  main : document.getElementById("main"),
   left : document.getElementById("left"),
-  //ltop : document.getElementById("ltop"),
+  ltop : document.getElementById("ltop"),
   source : document.getElementById("source"),
   codearea : document.getElementById("codearea"),
   lbot : document.getElementById("lbot"),
   right : document.getElementById("right"),
-  //rtop : document.getElementById("rtop"),
+  rtop : document.getElementById("rtop"),
   preview : document.getElementById("preview"),
   showarea : document.getElementById("showarea"),
   rbot : document.getElementById("rbot")
@@ -83,7 +84,8 @@ jaxedit.doResize = function() {
   var childs = jaxedit.childs,
       html = childs.html,
       body = childs.body,
-      header = childs.header,
+      head = childs.head,
+      main = childs.main,
       left = childs.left,
       ltop = childs.ltop,
       source = childs.source,
@@ -106,41 +108,37 @@ jaxedit.doResize = function() {
         pageHeight = document.body.clientHeight; 
      } 
   }
-  
-  var halfwidth = pageWidth / 2 - 8;
-  if (corejax.browser.msie && corejax.browser.msie <= 6)
-    var realheight = pageHeight - 11;
-  else
-    var realheight = pageHeight - 4;
-  var headheight = 42;
-  var topheight = 0;
-  var botheight = 24;
- 
-  html.style.width = pageWidth - 8 + "px";
-  body.style.width = pageWidth - 8 + "px";
 
-  header.style.width = pageWidth - 12 + "px";
-  left.style.width = halfwidth + "px";
-  left.style.height = realheight - headheight + "px";
-  //ltop.style.width = halfwidth - 6 + "px";
-  source.style.width = halfwidth - 2 + "px";
-  source.style.height = realheight - headheight - topheight - botheight + "px";
-  if (jaxedit.editor) {
-    jaxedit.editor.getScrollerElement().style.height = realheight - headheight - topheight - botheight - 20 + "px";
-  } else {
-    codearea.style.width = halfwidth - 8 + "px";
-    codearea.style.height = realheight - headheight - topheight - botheight - 10 + "px";
-  }
-  lbot.style.width = halfwidth - 6 + "px";
+  var headHeight = 42, topHeight = 26, botHeight = 24, halfBorder = 4;
+  var mainWidth = pageWidth, mainHeight = pageHeight - headHeight,
+      halfWidth = Math.ceil(pageWidth / 2) - halfBorder, halfHeight = mainHeight - halfBorder,
+      wrapWidth = halfWidth, wrapHeight = halfHeight - topHeight - botHeight;
+
+  html.style.width = body.style.width = pageWidth + "px";
+  head.style.width = pageWidth - 4 + "px";
+  main.style.width = mainWidth + "px";
+  main.style.height = mainHeight + "px";
+
+  left.style.width = right.style.width = halfWidth + "px";
+  left.style.height = right.style.height = halfHeight + "px";
   
-  right.style.width = halfwidth + "px";
-  right.style.height = realheight - headheight + "px";
-  //rtop.style.width = halfwidth - 6 + "px";  
-  preview.style.width = halfwidth - 6 + "px";
-  preview.style.height = realheight - headheight - topheight - botheight - 8 + "px";
-  showarea.style.width = halfwidth - 6 + "px";
-  showarea.style.height = realheight - headheight - topheight - botheight - 10 + "px";
-  rbot.style.width = halfwidth - 6 + "px";  
+  ltop.style.width = rtop.style.width = wrapWidth - 6 + "px";
+
+  source.style.width = wrapWidth - 2 + "px";
+  source.style.height = wrapHeight + "px";
+  if (jaxedit.editor) {
+    jaxedit.editor.getScrollerElement().style.height = wrapHeight - 20 + "px";
+  } else {
+    codearea.style.width = wrapWidth - 8 + "px";
+    codearea.style.height = wrapHeight - 10 + "px";
+  }
+  
+  preview.style.width = wrapWidth - 6 + "px";
+  preview.style.height = wrapHeight - 8 + "px";
+  showarea.style.width = wrapWidth - 6 + "px";
+  showarea.style.height = wrapHeight - 10 + "px";
+
+  lbot.style.width = rbot.style.width = wrapWidth - 6 + "px";
 };
 
 jaxedit.loadParser = function() {
