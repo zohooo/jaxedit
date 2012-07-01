@@ -757,6 +757,15 @@ jaxedit.addButtons = function() {
     window.open("https://github.com/zohooo/jaxedit/wiki", "_blank");
   };
   helpbtn.style.display = "inline-block";
+  /*
+  window.onbeforeunload = function() {
+    if (jaxedit.useDrive == 'skydrive') {
+      if (corejax.browser.chrome || confirm('Do you want to logout from SkyDrive?')) {
+        skydrive.signUserOut();
+      }
+    }
+  }
+  */
 };
 
 jaxedit.changeFileDisplay = function(display) {
