@@ -474,8 +474,6 @@ jaxedit.addButtons = function() {
   
   var driveOpenSave = function(mode) {
     var dlghead = document.getElementById('dlghead'),
-        dlgbody = document.getElementById('dlgbody'),
-        loading = document.getElementById('loading'),
         dlgflist = document.getElementById('dlgflist'),
         savespan = document.getElementById('savespan'),
         dlgsave = document.getElementById('dlgsave');
@@ -492,9 +490,8 @@ jaxedit.addButtons = function() {
       dlgsave.onclick = checkSave;
     }
     dlgflist.onclick = dialogClick;
-    dlgbody.style.display = "none";
-    loading.style.display = "block";
-    jaxedit.toggleModal();
+    jaxedit.toggleLoading(true, 'Loading...');
+    jaxedit.toggleModal(true);
     (function(){
       if (skydrive.homeid){
         skydrive.getFilesList(handleResponse);
@@ -505,9 +502,7 @@ jaxedit.addButtons = function() {
   };
   
   var handleResponse = function(response) {
-    var dlgbody = document.getElementById('dlgbody'),
-        loading = document.getElementById('loading'),
-        dlginside = document.getElementById('dlginside'),
+    var dlginside = document.getElementById('dlginside'),
         dlgwalkup = document.getElementById('dlgwalkup'),
         dlgflist = document.getElementById('dlgflist');
     if (!response.error) {
@@ -532,12 +527,10 @@ jaxedit.addButtons = function() {
       }
       bodytext += '</tbody></table>';
       dlgflist.innerHTML = bodytext;
-      loading.style.display = "none";
-      dlgbody.style.display = "block";
+      jaxedit.toggleLoading(false);
     }
     else {
-      alert('Error in reading LaTeX files!');
-      jaxedit.toggleModal();
+      jaxedit.toggleLoading(true, 'Error in reading LaTeX files!');
     }
   };
 
@@ -557,26 +550,22 @@ jaxedit.addButtons = function() {
   
   var getFileContent = function(url) {
     console.log("fetch file: " + url);
-    var dlgbody = document.getElementById('dlgbody'),
-        loading = document.getElementById('loading');
     var path = 'http://gate.jaxedit.com/?path=' + encodeURIComponent(url);
     var request = createCORSRequest("get", path);
-    dlgbody.style.display = "none";
-    loading.style.display = "block";
+    jaxedit.toggleLoading(true, 'Opening file...');
     if (request) {
       request.onload = function(){
         var status = request.status;
         if ((status >= 200 && status <300) || status == 304) {
           codearea.value = request.responseText;
           jaxedit.initParser();
-          jaxedit.toggleModal();
+          jaxedit.toggleModal(false);
         } else {
-          alert("Unable to open file: " + status + " error!");
+          jaxedit.toggleLoading(true, status + ' error in opening file!');
         }
       };
       request.onerror = function(){
-        alert("An error occurred.");
-        jaxedit.toggleModal();
+        jaxedit.toggleLoading(true, 'An error occurred!');
       };
     request.send();
     }
@@ -588,6 +577,7 @@ jaxedit.addButtons = function() {
         querystr = '?access_token=' + encodeURIComponent(skydrive.access_token),
         gatepath = 'http://gate.jaxedit.com/';
     var url, path, boundary, content, request;
+    jaxedit.toggleLoading(true, 'Saving file...');
     if (location.search == "?put") { // using PUT method
       var url = hostpath + '/' + name + querystr,
           path = gatepath + '?path=' + encodeURIComponent(url),
@@ -611,13 +601,13 @@ jaxedit.addButtons = function() {
       request.onload = function(){
         var status = request.status;
         if ((status >= 200 && status <300) || status == 304) {
-          alert("File successfully saved.");
+          jaxedit.toggleModal(false);
         } else {
-          alert("Unable to save file: " + status + " error!");
+          jaxedit.toggleLoading(true, status + ' error in saving file!');
         }
       };
       request.onerror = function(){
-        alert("An error occurred.");
+        jaxedit.toggleLoading(true, 'An error occurred!');
       };
     request.send(content);
     }
@@ -631,7 +621,6 @@ jaxedit.addButtons = function() {
     } else {
       //skydrive api doesn't support .tex file, use .txt instead
       saveFileContent(codearea.value, fname + '.txt');
-      jaxedit.toggleModal();
     }
   };
 
@@ -650,8 +639,7 @@ jaxedit.addButtons = function() {
           }
           break;
         case "folder":
-          dlgbody.style.display = "none";
-          loading.style.display = "block";
+          jaxedit.toggleLoading(true, 'Loading...');
           skydrive.finside.push({fid: fid, name: target.innerHTML});
           skydrive.getFilesList(handleResponse);
           break;
@@ -692,7 +680,7 @@ jaxedit.addButtons = function() {
   var dlgwalkup = document.getElementById("dlgwalkup");
   var dlgclose = document.getElementById("dlgclose");
   dlgwalkup.onclick = dialogWalkup;
-  dlgclose.onclick = jaxedit.toggleModal;
+  dlgclose.onclick = function(){ jaxedit.toggleModal(false); };
   
   // chrome browser will prevent file reading and saving at local
   // unless --allow-file-access-from-files switch was added to it
@@ -801,11 +789,29 @@ jaxedit.changeStatus = function(status) {
   }
 };
 
-jaxedit.toggleModal = function() {
+jaxedit.toggleModal = function(view) {
   var ol = document.getElementById("overlay"),
       ct = document.getElementById("container");
-  ol.style.visibility = (ol.style.visibility == "visible") ? "hidden" : "visible";
-  ct.style.visibility = (ct.style.visibility == "visible") ? "hidden" : "visible";
+  if (view) {
+    ol.style.visibility = "visible";
+    ct.style.visibility = "visible";
+  } else {
+    ol.style.visibility = "hidden";
+    ct.style.visibility = "hidden";
+  }
+};
+
+jaxedit.toggleLoading = function(load, info) {
+  var dlgbody = document.getElementById('dlgbody'),
+      loading = document.getElementById('loading');
+  if (load) {
+    dlgbody.style.display = "none";
+    loading.style.display = "block";
+    loading.innerHTML = info;
+  } else {
+    dlgbody.style.display = "block";
+    loading.style.display = "none";
+  }
 };
 
 jaxedit.addHandler = function() {
