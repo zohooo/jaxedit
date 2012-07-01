@@ -49,7 +49,7 @@ body {
   background: #3069B6;
 }
 
-#openbtn, #presbtn, #helpbtn {
+.btngroup {
   margin-left: 20px;
 }
 
