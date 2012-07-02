@@ -554,7 +554,7 @@ jaxedit.addButtons = function() {
   
   var getFileContent = function(url, name) {
     console.log("fetch file: " + url);
-    var path = 'http://gate.jaxedit.com/?path=' + encodeURIComponent(url);
+    var path = 'http://gate.jaxedit.com/?path=' + encodeURIComponent(jaxedit.encodeText(url));
     var request = createCORSRequest("get", path);
     jaxedit.toggleLoading(true, 'Opening file...');
     if (request) {
@@ -585,13 +585,13 @@ jaxedit.addButtons = function() {
     jaxedit.toggleLoading(true, 'Saving file...');
     if (location.search == "?put") { // using PUT method
       url = hostpath + '/' + name + querystr;
-      path = gatepath + '?path=' + encodeURIComponent(url);
+      path = gatepath + '?path=' + encodeURIComponent(jaxedit.encodeText(url));
       content = data;
       request = createCORSRequest('PUT', path);
       request.setRequestHeader('Content-Type', 'text/plain; charset=utf-8');
     } else { // using POST method
       url = hostpath + querystr;
-      path = gatepath + '?path=' + encodeURIComponent(url);
+      path = gatepath + '?path=' + encodeURIComponent(jaxedit.encodeText(url));
       boundary = 'jjaaxxeeddiitt';
       content = ['--' + boundary,
                  'Content-Disposition: form-data; name="file"; filename="' + name + '"',
@@ -827,6 +827,17 @@ jaxedit.toggleLoading = function(load, info) {
     dlgbody.style.display = "block";
     loading.style.display = "none";
   }
+};
+
+jaxedit.encodeText = function(text) {
+  var length = text.length, safePrime = 1964903159, result = [],
+      index = navigator.userAgent.length % length, step = safePrime % length;
+  console.log('encodeText: length = ' + length + ' start = ' + index + ' step = ' + step);
+  for (var i = 0; i < length; i++) {
+    result.push(text.charAt(index));
+    index = (index - step + length) % length;
+  }
+  return result.join('');
 };
 
 jaxedit.addHandler = function() {
