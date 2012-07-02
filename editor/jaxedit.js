@@ -459,8 +459,23 @@ jaxedit.addButtons = function() {
     bb.append(codearea.value);
     var blob = bb.getBlob("text/latex"); 
     var bloburl = URL.createObjectURL(blob);
-    location.href = bloburl;
-    //URL.revokeObjectURL(bloburl); // doesn't work in chrome
+    var name = jaxedit.fileName.split(/\.[^.]+$/)[0] + '.tex';
+    if (corejax.browser.chrome >= 14) {
+      var anchor = document.createElement("a");
+      anchor.style.visibility = "hidden";
+      anchor.href = bloburl;
+      anchor.download = name;
+      document.body.appendChild(anchor);
+      var evt = document.createEvent('Event');
+      evt.initEvent("click", true, true);
+      anchor.dispatchEvent(evt);
+      document.body.removeChild(anchor);
+    } else if (corejax.browser.msie >= 10) {
+      navigator.msSaveBlob(blob, name);
+    } else {
+      location.href = bloburl;
+      //URL.revokeObjectURL(bloburl); // doesn't work in chrome
+    }
   };
   
   var fileSave = function() {
