@@ -12,6 +12,7 @@ div.par {
  
 div.frame {
   border: 1px solid #000000;
+  padding: 0.4em;
 }
 
 div.frametitle {
@@ -49,6 +50,7 @@ div.preamble {
 div.tableofcontents {
   margin: 2em 0em 1em 0em;
   border: 1px dashed #C1C1C1;
+  padding: 0.2em;
 }
 
 div.contentname {
