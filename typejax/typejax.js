@@ -1305,6 +1305,15 @@ typejax.parser = function(input, modstart, modend){
       //  environment contents
       //  \end{frame
       var argarray = node.argarray, subnode;
+      if (argarray[0]) {
+        argarray[0].childs[0].value = "";
+      }
+      if (argarray[1]) {
+        argarray[1].childs[0].value = "";
+      }
+      if (argarray[2]) {
+        argarray[2].childs[0].value = "";
+      }
       if (argarray[3]) {
         argarray[3].name = "frametitle", argarray[3].mode = "block";
         if (argarray[4]) {
