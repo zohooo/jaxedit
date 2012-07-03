@@ -1004,8 +1004,10 @@ typejax.parser = function(input, modstart, modend){
     },
 
     cmdTextbf : function(node) {
-      node.value = "<b>" + node.argarray[0].childs[0].value + "</b>";
-      node.childs = [];
+      if (node.argarray[0].childs[0]) {
+        node.value = "<b>" + node.argarray[0].childs[0].value + "</b>";
+        node.childs = [];
+      }
     },
 
     cmdsTitle : function(node) {
