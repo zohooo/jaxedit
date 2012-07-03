@@ -241,7 +241,8 @@ body {
   margin-bottom: 15px;
   padding: 0;
   padding-right: 0px;
-  overflow: auto;
+  overflow-x: hidden;
+  overflow-y: auto;
 }
 
 #dlgbody table {
