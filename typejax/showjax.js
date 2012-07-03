@@ -120,8 +120,24 @@ showjax.showNavigate = function(event) {
 };
 
 showjax.showFullInfo = function() {
+  var shortcut;
+  switch (corejax.platform) {
+    case 'windows':
+    case 'linux':
+      shortcut = 'F11';
+      break;
+    case 'macos':
+      if (corejax.browser.safari) {
+        return;
+      } else {
+        shortcut = 'Cmd+Shift+F';
+      }
+      break;
+    default:
+      return;
+  }
   var fulldiv = document.createElement("div");
-  fulldiv.innerHTML = "<span>Press F11 to enter/exit fullscreen mode</span>";
+  fulldiv.innerHTML = '<span>Press ' + shortcut + ' to enter/exit fullscreen mode</span>';
   fulldiv.style.cssText = "position:absolute; top:0; right: 0; padding:6px; border-radius:4px; font-size:16px; font-family:arial; background-color:white;";
   document.body.appendChild(fulldiv);
   setTimeout(function(){document.body.removeChild(fulldiv);}, 5000);

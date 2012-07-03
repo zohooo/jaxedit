@@ -30,6 +30,19 @@ corejax.browser = (function() {
   };
 })();
 
+corejax.platform = (function() {
+  var pl = navigator.platform;
+  if (pl.indexOf('Win') == 0) {
+    return 'windows';
+  } else if (pl.indexOf('Mac') == 0) {
+    return 'macos';
+  } else if (pl.indexOf('Linux') == 0 || pl.indexOf('X11') == 0) {
+    return 'linux';
+  } else {
+    return 'unknown';
+  }
+})();
+
 corejax.loadStyles = function(url) {
   var link = document.createElement("link");
   link.rel = "stylesheet";
