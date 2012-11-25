@@ -1366,6 +1366,7 @@ typejax.parser = function(input, modstart, modend){
     },
     
     envsTheorem : function(node) {
+      if (node.childs.length == 0) return; //fix for empty content in theorems
       var envname = node.name, thmname = this.thmnames[envname];
       var cname = (envname.slice(-1) == '*') ? envname.slice(0, -1) : envname;
       if (!thmname) {
