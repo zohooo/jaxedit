@@ -27,6 +27,8 @@ body {
   border: 0 none;
   color: white;
   font-family: Georgia, "Times New Roman", Times, serif;
+  /* http://www.quirksmode.org/blog/archives/2010/10/click_event_del_1.html */
+  cursor: pointer; /* fix for click event in ios */
 }
 
 div.frame {
