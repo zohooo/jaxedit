@@ -1326,6 +1326,7 @@ typejax.parser = function(input, modstart, modend){
 
     envsList : function(node) {
       // itemize, enumerate
+      if (node.childs.length == 0) return; //fix for empty content in lists
       if (node.childs[0].mode == "inline") node.childs.shift();
     },
 
