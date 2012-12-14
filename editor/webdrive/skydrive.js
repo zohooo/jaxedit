@@ -18,6 +18,9 @@ var skydrive = {
       case "www.jaxedit.com":
         cid = "000000004C0BD524";
         break;
+      case "home.jaxedit.com":
+        cid = "000000004C0DE288";
+        break;
       case "zohooo.github.com":
         cid = "000000004C0BDA05";
         break;
