@@ -4,7 +4,6 @@
 if (!window.console) console = {log : function() {}};
 
 var jaxedit = {
-  highlight: false,
   hasParser: false,
   autoScroll: false,
   canPresent: true,
@@ -12,6 +11,11 @@ var jaxedit = {
   useDrive: null,
   localDrive: false,
   dialogMode: null
+};
+
+jaxedit.options = {
+  highlight: false,
+  debug: false
 };
 
 jaxedit.childs = {
@@ -49,6 +53,41 @@ jaxedit.scrollers = {
 jaxedit.textdata = {
   oldtextvalue : "", oldtextsize : 0, oldselstart : 0, oldselend : 0, oldseltext : "",
   newtextvalue : "", newtextsize : 0, newselstart : 0, newselend : 0, newseltext : ""
+};
+
+jaxedit.getOptions = function() {
+  var options = this.options, browser = corejax.browser;
+
+  if (browser.chrome || browser.firefox >= 3 || browser.msie >=8 || browser.safari >= 5.2 || browser.opera >= 9) {
+    options.highlight = true;
+  }
+
+  var qs = location.search.length > 0 ? location.search.substring(1) : '';
+  var items = qs.split('&'), pair, name, value;
+
+  for (var i=0; i<items.length; i++) {
+    pair = items[i].split('=');
+    name = decodeURIComponent(pair[0]);
+    value = pair[1] ? decodeURIComponent(pair[1]) : "";
+    switch (typeof options[name]) {
+      case 'boolean':
+        if (value == 'true' || value == '1') {
+          options[name] = true;
+        } else if (value == 'false' || value == '0') {
+          options[name] = false;
+        }
+        break;
+      case 'number':
+        value = parseFloat(value);
+        if (!isNaN(value)) {
+          options[name] = value;
+        }
+        break;
+      case 'string':
+        options[name] = value;
+        break;
+    }
+  }
 };
 
 jaxedit.doResize = function() {
@@ -113,7 +152,7 @@ jaxedit.doResize = function() {
 };
 
 jaxedit.loadEditor = function() {
-  if (jaxedit.highlight) {
+  if (this.options.highlight) {
     corejax.loadStyles("codemirror/lib/codemirror.css");
     corejax.loadScript("editor/textarea/colorful.js", function(){
       corejax.loadScript("codemirror/lib/codemirror.js", function(){
@@ -179,6 +218,7 @@ jaxedit.doLoad = function() {
   var codearea = jaxedit.childs.codearea,
       showarea = jaxedit.childs.showarea;
 
+  jaxedit.getOptions();
   jaxedit.autoScroll = false;
   jaxedit.doResize();
   jaxedit.loadEditor();
