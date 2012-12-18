@@ -7,18 +7,29 @@ jaxedit.cmChange = function(editor, change) {
   data.oldtextvalue = data.newtextvalue;
   data.oldtextsize  = data.newtextsize;
   var textvalue = editor.getValue(),
-      textsize = textvalue.length,
-      instext = change.text.join('\n'),
-      delstart = editor.indexFromPos(change.from),
-      delend = delstart + data.oldtextsize + instext.length - textsize,
-      deltext = data.oldtextvalue.substring(delstart, delend);
+      textsize = textvalue.length;
+  var delstart, delend, deltext, instext, start;
+  delstart = editor.indexFromPos(change.from);
+  if (change.next) {
+    do {
+      change = change.next;
+      start = editor.indexFromPos(change.from);
+      if (start < delstart) delstart = start;
+    } while (change.next);
+    delend = data.oldtextsize;
+    while (textvalue.charAt(delend-1) == data.oldtextvalue.charAt(delend-1) && delstart < delend){
+      delend -= 1;
+    }
+    instext = textvalue.substring(delstart, delend + textsize - data.oldtextsize);
+  } else {
+    instext = change.text.join('\n');
+    delend = delstart + data.oldtextsize + instext.length - textsize;
+  }
+  deltext = data.oldtextvalue.substring(delstart, delend);
   console.log(delstart, delend, deltext, instext, textsize);
   data.newtextvalue = textvalue;
   data.newtextsize = textsize;
   typejax.updater.puttask(delstart, delend, deltext, instext, textsize, jaxedit.childs.showarea);
-  if (change.next) {
-    arguments.callee.call(this, editor, change.next);
-  }
 };
 
 jaxedit.addCodeMirror = function() {
