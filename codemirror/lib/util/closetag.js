@@ -1,174 +1,85 @@
 /**
  * Tag-closer extension for CodeMirror.
  *
- * This extension adds a "closeTag" utility function that can be used with key bindings to 
- * insert a matching end tag after the ">" character of a start tag has been typed.  It can
- * also complete "</" if a matching start tag is found.  It will correctly ignore signal
- * characters for empty tags, comments, CDATA, etc.
+ * This extension adds an "autoCloseTags" option that can be set to
+ * either true to get the default behavior, or an object to further
+ * configure its behavior.
  *
- * The function depends on internal parser state to identify tags.  It is compatible with the
- * following CodeMirror modes and will ignore all others:
- * - htmlmixed
- * - xml
- * - xmlpure
+ * These are supported options:
+ *
+ * `whenClosing` (default true)
+ *   Whether to autoclose when the '/' of a closing tag is typed.
+ * `whenOpening` (default true)
+ *   Whether to autoclose the tag when the final '>' of an opening
+ *   tag is typed.
+ * `dontCloseTags` (default is empty tags for HTML, none for XML)
+ *   An array of tag names that should not be autoclosed.
+ * `indentTags` (default is block tags for HTML, none for XML)
+ *   An array of tag names that should, when opened, cause a
+ *   blank line to be added inside the tag, and the blank line and
+ *   closing line to be indented.
  *
  * See demos/closetag.html for a usage example.
- * 
- * @author Nathan Williams <nathan@nlwillia.net>
- * Contributed under the same license terms as CodeMirror.
  */
+
 (function() {
-	/** Option that allows tag closing behavior to be toggled.  Default is true. */
-	CodeMirror.defaults['closeTagEnabled'] = true;
-	
-	/** Array of tag names to add indentation after the start tag for.  Default is the list of block-level html tags. */
-	CodeMirror.defaults['closeTagIndent'] = ['applet', 'blockquote', 'body', 'button', 'div', 'dl', 'fieldset', 'form', 'frameset', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'head', 'html', 'iframe', 'layer', 'legend', 'object', 'ol', 'p', 'select', 'table', 'ul'];
+  CodeMirror.defineOption("autoCloseTags", false, function(cm, val, old) {
+    if (val && (old == CodeMirror.Init || !old)) {
+      var map = {name: "autoCloseTags"};
+      if (typeof val != "object" || val.whenClosing)
+        map["'/'"] = function(cm) { autoCloseTag(cm, '/'); };
+      if (typeof val != "object" || val.whenOpening)
+        map["'>'"] = function(cm) { autoCloseTag(cm, '>'); };
+      cm.addKeyMap(map);
+    } else if (!val && (old != CodeMirror.Init && old)) {
+      cm.removeKeyMap("autoCloseTags");
+    }
+  });
 
-	/**
-	 * Call during key processing to close tags.  Handles the key event if the tag is closed, otherwise throws CodeMirror.Pass.
-	 * - cm: The editor instance.
-	 * - ch: The character being processed.
-	 * - indent: Optional.  Omit or pass true to use the default indentation tag list defined in the 'closeTagIndent' option.
-	 *   Pass false to disable indentation.  Pass an array to override the default list of tag names.
-	 */
-	CodeMirror.defineExtension("closeTag", function(cm, ch, indent) {
-		if (!cm.getOption('closeTagEnabled')) {
-			throw CodeMirror.Pass;
-		}
-		
-		var mode = cm.getOption('mode');
-		
-		if (mode == 'text/html') {
-		
-			/*
-			 * Relevant structure of token:
-			 *
-			 * htmlmixed
-			 * 		className
-			 * 		state
-			 * 			htmlState
-			 * 				type
-			 * 				context
-			 * 					tagName
-			 * 			mode
-			 * 
-			 * xml
-			 * 		className
-			 * 		state
-			 * 			tagName
-			 * 			type
-			 */
-		
-			var pos = cm.getCursor();
-			var tok = cm.getTokenAt(pos);
-			var state = tok.state;
-			
-			if (state.mode && state.mode != 'html') {
-				throw CodeMirror.Pass; // With htmlmixed, we only care about the html sub-mode.
-			}
-			
-			if (ch == '>') {
-				var type = state.htmlState ? state.htmlState.type : state.type; // htmlmixed : xml
-				
-				if (tok.className == 'tag' && type == 'closeTag') {
-					throw CodeMirror.Pass; // Don't process the '>' at the end of an end-tag.
-				}
-			
-				cm.replaceSelection('>'); // Mode state won't update until we finish the tag.
-				pos = {line: pos.line, ch: pos.ch + 1};
-				cm.setCursor(pos);
-		
-				tok = cm.getTokenAt(cm.getCursor());
-				state = tok.state;
-				type = state.htmlState ? state.htmlState.type : state.type; // htmlmixed : xml
+  var htmlDontClose = ["area", "base", "br", "col", "command", "embed", "hr", "img", "input", "keygen", "link", "meta", "param",
+                       "source", "track", "wbr"];
+  var htmlIndent = ["applet", "blockquote", "body", "button", "div", "dl", "fieldset", "form", "frameset", "h1", "h2", "h3", "h4",
+                    "h5", "h6", "head", "html", "iframe", "layer", "legend", "object", "ol", "p", "select", "table", "ul"];
 
-				if (tok.className == 'tag' && type != 'selfcloseTag') {
-					var tagName = state.htmlState ? state.htmlState.context.tagName : state.tagName; // htmlmixed : xml
-					if (tagName.length > 0) {
-						insertEndTag(cm, indent, pos, tagName);
-					}
-					return;
-				}
-				
-				// Undo the '>' insert and allow cm to handle the key instead.
-				cm.setSelection({line: pos.line, ch: pos.ch - 1}, pos);
-				cm.replaceSelection("");
-			
-			} else if (ch == '/') {
-				if (tok.className == 'tag' && tok.string == '<') {
-					var tagName = state.htmlState ? (state.htmlState.context ? state.htmlState.context.tagName : '') : state.context.tagName; // htmlmixed : xml # extra htmlmized check is for '</' edge case
-					if (tagName.length > 0) {
-						completeEndTag(cm, pos, tagName);
-						return;
-					}
-				}
-			}
-		
-		} else if (mode == 'xmlpure') {
+  function autoCloseTag(cm, ch) {
+    var pos = cm.getCursor(), tok = cm.getTokenAt(pos);
+    var inner = CodeMirror.innerMode(cm.getMode(), tok.state), state = inner.state;
+    if (inner.mode.name != "xml") throw CodeMirror.Pass;
 
-			var pos = cm.getCursor();
-			var tok = cm.getTokenAt(pos);
-			var tagName = tok.state.context.tagName;
+    var opt = cm.getOption("autoCloseTags"), html = inner.mode.configuration == "html";
+    var dontCloseTags = (typeof opt == "object" && opt.dontCloseTags) || (html && htmlDontClose);
+    var indentTags = (typeof opt == "object" && opt.indentTags) || (html && htmlIndent);
 
-			if (ch == '>') {
-				// <foo>			tagName=foo, string=foo
-				// <foo />			tagName=foo, string=/		# ignore
-				// <foo></foo>		tagName=foo, string=/foo	# ignore
-				if (tok.string == tagName) {
-					cm.replaceSelection('>'); // parity w/html modes
-					pos = {line: pos.line, ch: pos.ch + 1};
-					cm.setCursor(pos);
-					
-					insertEndTag(cm, indent, pos, tagName);
-					return;
-				}
-				
-			} else if (ch == '/') {
-				// <foo /			tagName=foo, string= 		# ignore
-				// <foo></			tagName=foo, string=<
-				if (tok.string == '<') {
-					completeEndTag(cm, pos, tagName);
-					return;
-				}
-			}
-		}
-		
-		throw CodeMirror.Pass; // Bubble if not handled
-	});
+    if (ch == ">" && state.tagName) {
+      var tagName = state.tagName;
+      if (tok.end > pos.ch) tagName = tagName.slice(0, tagName.length - tok.end + pos.ch);
+      var lowerTagName = tagName.toLowerCase();
+      // Don't process the '>' at the end of an end-tag or self-closing tag
+      if (tok.type == "tag" && state.type == "closeTag" ||
+          /\/\s*$/.test(tok.string) ||
+          dontCloseTags && indexOf(dontCloseTags, lowerTagName) > -1)
+        throw CodeMirror.Pass;
 
-	function insertEndTag(cm, indent, pos, tagName) {
-		if (shouldIndent(cm, indent, tagName)) {
-			cm.replaceSelection('\n\n</' + tagName + '>', 'end');
-			cm.indentLine(pos.line + 1);
-			cm.indentLine(pos.line + 2);
-			cm.setCursor({line: pos.line + 1, ch: cm.getLine(pos.line + 1).length});
-		} else {
-			cm.replaceSelection('</' + tagName + '>');
-			cm.setCursor(pos);
-		}
-	}
-	
-	function shouldIndent(cm, indent, tagName) {
-		if (typeof indent == 'undefined' || indent == null || indent == true) {
-			indent = cm.getOption('closeTagIndent');
-		}
-		if (!indent) {
-			indent = [];
-		}
-		return indexOf(indent, tagName.toLowerCase()) != -1;
-	}
-	
-	// C&P from codemirror.js...would be nice if this were visible to utilities.
-	function indexOf(collection, elt) {
-		if (collection.indexOf) return collection.indexOf(elt);
-		for (var i = 0, e = collection.length; i < e; ++i)
-			if (collection[i] == elt) return i;
-		return -1;
-	}
+      var doIndent = indentTags && indexOf(indentTags, lowerTagName) > -1;
+      cm.replaceSelection(">" + (doIndent ? "\n\n" : "") + "</" + tagName + ">",
+                          doIndent ? {line: pos.line + 1, ch: 0} : {line: pos.line, ch: pos.ch + 1});
+      if (doIndent) {
+        cm.indentLine(pos.line + 1);
+        cm.indentLine(pos.line + 2);
+      }
+      return;
+    } else if (ch == "/" && tok.type == "tag" && tok.string == "<") {
+      var tagName = state.context && state.context.tagName;
+      if (tagName) cm.replaceSelection("/" + tagName + ">", "end");
+      return;
+    }
+    throw CodeMirror.Pass;
+  }
 
-	function completeEndTag(cm, pos, tagName) {
-		cm.replaceSelection('/' + tagName + '>');
-		cm.setCursor({line: pos.line, ch: pos.ch + tagName.length + 2 });
-	}
-	
+  function indexOf(collection, elt) {
+    if (collection.indexOf) return collection.indexOf(elt);
+    for (var i = 0, e = collection.length; i < e; ++i)
+      if (collection[i] == elt) return i;
+    return -1;
+  }
 })();
