@@ -27,6 +27,7 @@ jaxedit.cmChange = function(editor, change) {
   }
   deltext = data.oldtextvalue.substring(delstart, delend);
   console.log(delstart, delend, deltext, instext, textsize);
+  this.childs.lbot.innerHTML = "size: " + textsize + "; oldsize: " + data.oldtextsize + "; change: " + delstart + " to " + delend;
   data.newtextvalue = textvalue;
   data.newtextsize = textsize;
   typejax.updater.puttask(delstart, delend, deltext, instext, textsize, jaxedit.childs.showarea);
