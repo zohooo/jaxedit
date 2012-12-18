@@ -173,3 +173,31 @@ jaxedit.addHandler = function() {
     jaxedit.doScroll(false);
   };
 };
+
+jaxedit.initEditor = function() {
+  var childs = jaxedit.childs,
+      codearea = childs.codearea,
+      lbot = childs.lbot,
+      showarea = childs.showarea;
+  var data = jaxedit.textdata;
+
+  if (corejax.browser.msie) codearea.setActive();
+
+  data.newtextvalue = codearea.value;
+  data.newtextsize = codearea.value.length;
+  data.newselstart = codearea.selectionStart;
+  data.newselend = codearea.selectionEnd;
+
+  lbot.innerHTML = "size: " + data.newtextsize + "; textarea: initialized";
+  this.scrollers.codelength = data.newtextsize;
+  this.scrollers.codechange = 0;
+  this.scrollers.codescroll = 0;
+  this.scrollers.showscroll = 0;
+  this.scrollers.showheight = 1;
+  this.scrollers.divheights = [];
+
+  codearea.readOnly = true;
+  typejax.updater.init(data.newtextvalue, data.newtextsize, showarea);
+  this.addHandler();
+  codearea.readOnly = false;
+};

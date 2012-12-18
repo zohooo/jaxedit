@@ -30,14 +30,48 @@ jaxedit.cmChange = function(editor, change) {
   this.childs.lbot.innerHTML = "size: " + textsize + "; oldsize: " + data.oldtextsize + "; change: " + delstart + " to " + delend;
   data.newtextvalue = textvalue;
   data.newtextsize = textsize;
+
+  if (window.localStorage) {alert(textvalue);
+    //IE8 sometimes crashes when writing empty value to a localStorage item
+    if (textvalue != "") {
+      localStorage.setItem("texcode", textvalue);
+    } else {
+      localStorage.removeItem("texcode");
+    }
+  }
+
   typejax.updater.puttask(delstart, delend, deltext, instext, textsize, jaxedit.childs.showarea);
 };
 
 jaxedit.addCodeMirror = function() {
-  jaxedit.editor = CodeMirror.fromTextArea(jaxedit.childs.codearea, {
+  this.editor = CodeMirror.fromTextArea(this.childs.codearea, {
     lineNumbers: true,
     lineWrapping: true,
-    matchBrackets: true,
-    onChange : function(editor, change) {jaxedit.cmChange(editor, change);}
+    matchBrackets: true
   });
+  this.doResize();
+};
+
+jaxedit.initEditor = function() {
+  var childs = jaxedit.childs,
+      codearea = childs.codearea,
+      lbot = childs.lbot,
+      showarea = childs.showarea;
+  var data = jaxedit.textdata;
+
+  data.newtextvalue = this.editor.getValue();
+  data.newtextsize = data.newtextvalue.length;
+
+  lbot.innerHTML = "size: " + data.newtextsize + "; textarea: initialized";
+  this.scrollers.codelength = data.newtextsize;
+  this.scrollers.codechange = 0;
+  this.scrollers.codescroll = 0;
+  this.scrollers.showscroll = 0;
+  this.scrollers.showheight = 1;
+  this.scrollers.divheights = [];
+
+  this.editor.readOnly = true;
+  typejax.updater.init(data.newtextvalue, data.newtextsize, showarea);
+  this.editor.on('change', function(editor, change) {jaxedit.cmChange(editor, change);});
+  this.editor.readOnly = false;
 };

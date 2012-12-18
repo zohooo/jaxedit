@@ -4,6 +4,7 @@
 if (!window.console) console = {log : function() {}};
 
 var jaxedit = {
+  hasEditor: false,
   hasParser: false,
   autoScroll: false,
   canPresent: true,
@@ -137,7 +138,7 @@ jaxedit.doResize = function() {
   source.style.width = wrapWidth - 2 + "px";
   source.style.height = wrapHeight + "px";
   if (jaxedit.editor) {
-    jaxedit.editor.getScrollerElement().style.height = wrapHeight - 20 + "px";
+    jaxedit.editor.getWrapperElement().style.height = wrapHeight - 20 + "px";
   } else {
     codearea.style.width = wrapWidth - 8 + "px";
     codearea.style.height = wrapHeight - 10 + "px";
@@ -158,13 +159,15 @@ jaxedit.loadEditor = function() {
       corejax.loadScript("codemirror/lib/codemirror.js", function(){
         corejax.loadScript("codemirror/mode/stex/stex.js", function(){
           jaxedit.addCodeMirror();
-          jaxedit.doResize();
+          jaxedit.hasEditor = true;
+          jaxedit.initialize();
         });
       });
     });
   } else {
     corejax.loadScript("editor/textarea/simple.js", function(){
-      jaxedit.addHandler();
+      jaxedit.hasEditor = true;
+      jaxedit.initialize();
     });
   }
 };
@@ -185,33 +188,17 @@ jaxedit.loadParser = function() {
     corejax.loadScript("mathjax/MathJax.js?config=TeX-AMS_HTML", function(){
       MathJax.Hub.processUpdateTime = 200;
       MathJax.Hub.processUpdateDelay = 15;
-      jaxedit.initParser();
       jaxedit.hasParser = true;
+      jaxedit.initialize();
       jaxedit.autoScroll = true;
     });
   });
 };
 
-jaxedit.initParser = function() {
-  var childs = jaxedit.childs,
-      codearea = childs.codearea,
-      lbot = childs.lbot,
-      showarea = childs.showarea;
-  var data = jaxedit.textdata;
-
-  data.newtextvalue = codearea.value;
-  data.newtextsize = codearea.value.length;
-  data.newselstart = codearea.selectionStart;
-  data.newselend = codearea.selectionEnd;
-
-  lbot.innerHTML = "size: " + data.newtextsize + "; textarea: initialized";  
-  this.scrollers.codelength = data.newtextsize;
-  this.scrollers.codechange = 0;
-  this.scrollers.codescroll = 0;
-  this.scrollers.showscroll = 0;
-  this.scrollers.showheight = 1;
-  this.scrollers.divheights = [];
-  typejax.updater.init(data.newtextvalue, data.newtextsize, showarea);
+jaxedit.initialize = function() {
+  if (this.hasEditor && this.hasParser) {
+    this.initEditor();
+  }
 };
 
 jaxedit.doLoad = function() {
@@ -221,7 +208,6 @@ jaxedit.doLoad = function() {
   jaxedit.getOptions();
   jaxedit.autoScroll = false;
   jaxedit.doResize();
-  jaxedit.loadEditor();
   
   if (window.localStorage) {
     if (localStorage.getItem("texcode")) {
@@ -234,11 +220,9 @@ jaxedit.doLoad = function() {
 
   document.body.style.visibility = "visible";
   showarea.innerHTML = '<div style="font-size:1em;margin-top:6em;text-align:center;">Loading TypeJax and MathJax...</div>';
- 
+  jaxedit.loadEditor();
   jaxedit.loadParser();
   jaxedit.addButtons();
-
-  if (!jaxedit.editor && corejax.browser.msie) codearea.setActive();
 };
 
 jaxedit.doScroll = function(isForward) {
