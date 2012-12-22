@@ -31,7 +31,7 @@ jaxedit.cmChange = function(editor, change) {
   data.newtextvalue = textvalue;
   data.newtextsize = textsize;
 
-  if (window.localStorage) {alert(textvalue);
+  if (window.localStorage) {
     //IE8 sometimes crashes when writing empty value to a localStorage item
     if (textvalue != "") {
       localStorage.setItem("texcode", textvalue);
