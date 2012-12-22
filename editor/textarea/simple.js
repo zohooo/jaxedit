@@ -174,7 +174,7 @@ jaxedit.addHandler = function() {
   };
 };
 
-jaxedit.initEditor = function() {
+jaxedit.initEditor = function(value) {
   var childs = jaxedit.childs,
       codearea = childs.codearea,
       lbot = childs.lbot,
@@ -183,8 +183,12 @@ jaxedit.initEditor = function() {
 
   if (corejax.browser.msie) codearea.setActive();
 
-  data.newtextvalue = codearea.value;
-  data.newtextsize = codearea.value.length;
+  if (typeof value == 'string') {
+    data.newtextvalue = codearea.value = value;
+  } else {
+    data.newtextvalue = codearea.value;
+  }
+  data.newtextsize = data.newtextvalue.length;
   data.newselstart = codearea.selectionStart;
   data.newselend = codearea.selectionEnd;
 
@@ -200,4 +204,8 @@ jaxedit.initEditor = function() {
   typejax.updater.init(data.newtextvalue, data.newtextsize, showarea);
   this.addHandler();
   codearea.readOnly = false;
+};
+
+jaxedit.getTextValue = function() {
+  return this.childs.codearea.value;
 };

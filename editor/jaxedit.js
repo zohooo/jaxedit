@@ -308,8 +308,7 @@ jaxedit.addButtons = function() {
         reader = new FileReader();
     reader.onload = function() {
       //console.log(this.readyState);
-      codearea.value = this.result;
-      jaxedit.initParser(this.result, this.result.length, showarea);
+      jaxedit.initEditor(this.result);
     };
     document.getElementById('filename').innerHTML = jaxedit.fileName = name;
     reader.readAsText(file);
@@ -332,7 +331,7 @@ jaxedit.addButtons = function() {
     var BlobBuilder = window.BlobBuilder || window.MozBlobBuilder || window.WebKitBlobBuilder || window.MSBlobBuilder;
     var URL = window.URL || window.webkitURL;
     var bb = new BlobBuilder;
-    bb.append(codearea.value);
+    bb.append(jaxedit.getTextValue());
     var blob = bb.getBlob("text/latex"); 
     var bloburl = URL.createObjectURL(blob);
     var name = jaxedit.fileName.split(/\.[^.]+$/)[0] + '.tex';
@@ -452,9 +451,8 @@ jaxedit.addButtons = function() {
       request.onload = function(){
         var status = request.status;
         if ((status >= 200 && status <300) || status == 304) {
-          codearea.value = request.responseText;
           document.getElementById('filename').innerHTML = jaxedit.fileName = name;
-          jaxedit.initParser();
+          jaxedit.initEditor(request.responseText);
           jaxedit.toggleModal(false);
         } else {
           jaxedit.toggleLoading(true, status + ' error in opening file!');
@@ -517,7 +515,7 @@ jaxedit.addButtons = function() {
       return;
     } else {
       //skydrive api doesn't support .tex file, use .txt instead
-      saveFileContent(codearea.value, fname + '.txt');
+      saveFileContent(jaxedit.getTextValue(), fname + '.txt');
     }
   };
 

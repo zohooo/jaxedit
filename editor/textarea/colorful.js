@@ -52,14 +52,19 @@ jaxedit.addCodeMirror = function() {
   this.doResize();
 };
 
-jaxedit.initEditor = function() {
+jaxedit.initEditor = function(value) {
   var childs = jaxedit.childs,
       codearea = childs.codearea,
       lbot = childs.lbot,
       showarea = childs.showarea;
   var data = jaxedit.textdata;
 
-  data.newtextvalue = this.editor.getValue();
+  if (typeof value == 'string') {
+    this.editor.setValue(value);
+    data.newtextvalue = value;
+  } else {
+    data.newtextvalue = this.editor.getValue();
+  }
   data.newtextsize = data.newtextvalue.length;
 
   lbot.innerHTML = "size: " + data.newtextsize + "; textarea: initialized";
@@ -74,4 +79,8 @@ jaxedit.initEditor = function() {
   typejax.updater.init(data.newtextvalue, data.newtextsize, showarea);
   this.editor.on('change', function(editor, change) {jaxedit.cmChange(editor, change);});
   this.editor.readOnly = false;
+};
+
+jaxedit.getTextValue = function() {
+  return this.editor.getValue();
 };
