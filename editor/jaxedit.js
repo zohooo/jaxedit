@@ -158,9 +158,11 @@ jaxedit.loadEditor = function() {
     corejax.loadScript("editor/textarea/colorful.js", function(){
       corejax.loadScript("codemirror/lib/codemirror.js", function(){
         corejax.loadScript("codemirror/mode/stex/stex.js", function(){
-          jaxedit.addCodeMirror();
-          jaxedit.hasEditor = true;
-          jaxedit.initialize();
+          corejax.loadScript("codemirror/lib/util/matchbrackets.js", function(){
+            jaxedit.addCodeMirror();
+            jaxedit.hasEditor = true;
+            jaxedit.initialize();
+          });
         });
       });
     });
