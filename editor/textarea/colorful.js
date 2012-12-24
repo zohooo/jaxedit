@@ -60,6 +60,7 @@ jaxedit.initEditor = function(value) {
   var data = jaxedit.textdata;
 
   if (typeof value == 'string') {
+    value = value.replace(/\r\n?/g,'\n');
     this.editor.setValue(value);
     data.newtextvalue = value;
   } else {
