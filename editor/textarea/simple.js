@@ -137,6 +137,75 @@ jaxedit.doChange = function(event) {
   }
 };
 
+jaxedit.doScroll = function(isForward) {
+  if (!jaxedit.autoScroll) return;
+  var scrollers = this.scrollers, divheights = scrollers.divheights;
+  if (!divheights.length) return;
+  var codearea = this.childs.codearea, showarea = this.childs.showarea,
+      leftpos = codearea.scrollTop, rightpos = showarea.scrollTop;
+  var length, newpos, thatpos, thatarea;
+
+  // leftpos <--> length <--> height <--> rightpos
+
+  if (isForward) { // left to right
+    length = this.getLeftScroll();
+    newpos = this.setRightScroll(length);
+    //console.log("left2right:", leftpos, Math.round(length), Math.round(newpos));
+    thatpos = rightpos, thatarea = showarea;
+  } else { // right to left
+    length = this.getRightScroll();
+    newpos = this.setLeftScroll(length);
+    //console.log("right2left:", rightpos, Math.round(length), Math.round(newpos));
+    thatpos = leftpos, thatarea = codearea;
+  }
+
+  if (Math.abs(newpos - thatpos) > 10) {
+    jaxedit.autoScroll = false;
+    thatarea.scrollTop = newpos;
+    setTimeout(function(){jaxedit.autoScroll = true;}, 20);
+  }
+};
+
+jaxedit.getLeftScroll = function() {
+  var scrollers = this.scrollers,
+      codescroll = scrollers.codescroll,
+      codelength = scrollers.codelength,
+      codechange = scrollers.codechange;
+  var codearea = this.childs.codearea,
+      leftpos = codearea.scrollTop,
+      leftscroll = codearea.scrollHeight,
+      leftclient = codearea.clientHeight,
+      leftsize = leftscroll - leftclient;
+  var length;
+  /* length = codelength * (leftpos / leftsize); */
+  if (leftpos <= codescroll) {
+    length = (codescroll <= 0) ? 0 : codechange * leftpos / codescroll;
+  } else {
+    length = (codescroll >= leftsize) ? codelength : codechange + (codelength - codechange) * (leftpos - codescroll) / (leftsize - codescroll)
+  }
+  return length;
+};
+
+jaxedit.setLeftScroll = function(length) {
+  var scrollers = this.scrollers,
+      codescroll = scrollers.codescroll,
+      codelength = scrollers.codelength,
+      codechange = scrollers.codechange;
+  var codearea = this.childs.codearea,
+      leftpos = codearea.scrollTop,
+      leftscroll = codearea.scrollHeight,
+      leftclient = codearea.clientHeight,
+      leftsize = leftscroll - leftclient;
+  var newpos;
+  /* newpos = leftsize * length / codelength; */
+  if (length <= codechange) {
+    newpos = (codechange <= 0) ? 0 : codescroll * length / codechange;
+  } else {
+    newpos = (codechange >= codelength) ? leftsize : codescroll + (leftsize - codescroll) * (length - codechange) / (codelength - codechange);
+  }
+  return newpos;
+};
+
 jaxedit.addHandler = function() {
   var codearea = this.childs.codearea,
       showarea = this.childs.showarea;

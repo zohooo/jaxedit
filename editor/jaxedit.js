@@ -227,71 +227,56 @@ jaxedit.doLoad = function() {
   jaxedit.addButtons();
 };
 
-jaxedit.doScroll = function(isForward) {
-  if (!jaxedit.autoScroll) return;
-  var scrollers = this.scrollers, divheights = scrollers.divheights;
-  if (!divheights.length) return;
-  var codescroll = scrollers.codescroll, codelength = scrollers.codelength, codechange = scrollers.codechange,
-      showscoll = scrollers.showscroll, showheight = scrollers.showheight;   
-  var codearea = this.childs.codearea, showarea = this.childs.showarea,
-      leftpos = codearea.scrollTop, rightpos = showarea.scrollTop,
-      leftscroll = codearea.scrollHeight, rightscroll = showarea.scrollHeight,
-      leftclient = codearea.clientHeight, rightclient = showarea.clientHeight,
-      leftsize = leftscroll - leftclient, rightsize = rightscroll - rightclient;
-  var length, height, data, h, i, newpos, thatpos, thatarea;
-  
-  //console.log("leftsize:", leftsize, "rightsize:", rightsize);
-  // leftpos <--> length <--> height <--> rightpos
-  if (isForward) { // left to right
-    /* length = codelength * (leftpos / leftsize); */
-    if (leftpos <= codescroll) {
-      length = (codescroll <= 0) ? 0 : codechange * leftpos / codescroll;
+jaxedit.getRightScroll = function() {
+  var scrollers = this.scrollers,
+      divheights = scrollers.divheights,
+      showscoll = scrollers.showscroll,
+      showheight = scrollers.showheight;
+  var showarea = this.childs.showarea,
+      rightpos = showarea.scrollTop,
+      rightscroll = showarea.scrollHeight,
+      rightclient = showarea.clientHeight,
+      rightsize = rightscroll - rightclient;
+  var length, data, i;
+  var height = showheight * rightpos / rightsize;
+  for (i = 1; i < divheights.length; i++) {
+    data = divheights[i];
+    if (height > data[2]) {
+      height -= data[2];
     } else {
-      length = (codescroll >= leftsize) ? codelength : codechange + (codelength - codechange) * (leftpos - codescroll) / (leftsize - codescroll)
-    }
-    height = 0;
-    for (i = 0; i < divheights.length; i++) {
-      data = divheights[i];
-      if (length > data[1]) {
-        height += data[2];
+      if (data[2] > 0) {
+        length = data[0] + (data[1] - data[0]) * height / data[2];
       } else {
-        height += data[2] * (length - data[0]) / (data[1] - data[0]);
-        break;
+        length = data[0];
       }
+      break;
     }
-    newpos = rightsize * (height / showheight);
-    //console.log("left2right:", leftpos, Math.round(length), Math.round(height), Math.round(newpos));
-    thatpos = rightpos, thatarea = showarea;
-  } else { // right to left
-    h = height = showheight * rightpos / rightsize;
-    for (i = 1; i < divheights.length; i++) {
-      data = divheights[i];
-      if (h > data[2]) {
-        h -= data[2];
-      } else {
-        if (data[2] > 0) {
-          length = data[0] + (data[1] - data[0]) * h / data[2];
-        } else {
-          length = data[0];
-        }
-        break;
-      }
-    }
-    /* newpos = leftsize * length / codelength; */
-    if (length <= codechange) {
-      newpos = (codechange <= 0) ? 0 : codescroll * length / codechange;
+  }
+  return length;
+};
+
+jaxedit.setRightScroll = function(length) {
+  var scrollers = this.scrollers,
+      divheights = scrollers.divheights,
+      showscoll = scrollers.showscroll,
+      showheight = scrollers.showheight;
+  var showarea = this.childs.showarea,
+      rightpos = showarea.scrollTop,
+      rightscroll = showarea.scrollHeight,
+      rightclient = showarea.clientHeight,
+      rightsize = rightscroll - rightclient;
+  var height = 0, data, i;
+  for (i = 0; i < divheights.length; i++) {
+    data = divheights[i];
+    if (length > data[1]) {
+      height += data[2];
     } else {
-      newpos = (codechange >= codelength) ? leftsize : codescroll + (leftsize - codescroll) * (length - codechange) / (codelength - codechange);
+      height += data[2] * (length - data[0]) / (data[1] - data[0]);
+      break;
     }
-    //console.log("right2left:", rightpos, Math.round(height), Math.round(length), Math.round(newpos));
-    thatpos = leftpos, thatarea = codearea;
   }
-  
-  if (Math.abs(newpos - thatpos) > 10) {
-    jaxedit.autoScroll = false;
-    thatarea.scrollTop = newpos;
-    setTimeout(function(){jaxedit.autoScroll = true;}, 20);
-  }
+  var newpos = rightsize * (height / showheight);
+  return newpos;
 };
 
 jaxedit.addButtons = function() {

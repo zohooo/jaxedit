@@ -43,6 +43,81 @@ jaxedit.cmChange = function(editor, change) {
   typejax.updater.puttask(delstart, delend, deltext, instext, textsize, jaxedit.childs.showarea);
 };
 
+jaxedit.doScroll = function(isForward) {
+  if (!jaxedit.autoScroll) return;
+  var scrollers = this.scrollers, divheights = scrollers.divheights;
+  if (!divheights.length) return;
+  var codeedit = this.editor, showarea = this.childs.showarea,
+      leftpos = codeedit.getScrollInfo().top, rightpos = showarea.scrollTop;
+  var length, newpos, thatpos, thatarea;
+
+  // leftpos <--> length <--> height <--> rightpos
+
+  if (isForward) { // left to right
+    length = this.getLeftScroll();
+    newpos = this.setRightScroll(length);
+    //console.log("left2right:", leftpos, Math.round(length), Math.round(newpos));
+    thatpos = rightpos, thatarea = showarea;
+  } else { // right to left
+    length = this.getRightScroll();
+    newpos = this.setLeftScroll(length);
+    //console.log("right2left:", rightpos, Math.round(length), Math.round(newpos));
+    thatpos = leftpos, thatarea = codeedit;
+  }
+
+  if (Math.abs(newpos - thatpos) > 10) {
+    jaxedit.autoScroll = false;
+    if (isForward) {
+      thatarea.scrollTop = newpos;
+    } else {
+      thatarea.scrollTo(0, newpos);
+    }
+    setTimeout(function(){jaxedit.autoScroll = true;}, 20);
+  }
+};
+
+jaxedit.getLeftScroll = function() {
+  var scrollers = this.scrollers,
+      codescroll = scrollers.codescroll,
+      codelength = scrollers.codelength,
+      codechange = scrollers.codechange;
+  var codeedit = this.editor,
+      editinfo = codeedit.getScrollInfo(),
+      leftpos = editinfo.top,
+      leftscroll = editinfo.height,
+      leftclient = editinfo.clientHeight,
+      leftsize = leftscroll - leftclient;
+  var length;
+  /* length = codelength * (leftpos / leftsize); */
+  if (leftpos <= codescroll) {
+    length = (codescroll <= 0) ? 0 : codechange * leftpos / codescroll;
+  } else {
+    length = (codescroll >= leftsize) ? codelength : codechange + (codelength - codechange) * (leftpos - codescroll) / (leftsize - codescroll)
+  }
+  return length;
+};
+
+jaxedit.setLeftScroll = function(length) {
+  var scrollers = this.scrollers,
+      codescroll = scrollers.codescroll,
+      codelength = scrollers.codelength,
+      codechange = scrollers.codechange;
+  var codeedit = this.editor,
+      editinfo = codeedit.getScrollInfo(),
+      leftpos = editinfo.top,
+      leftscroll = editinfo.height,
+      leftclient = editinfo.clientHeight,
+      leftsize = leftscroll - leftclient;
+  var newpos;
+  /* newpos = leftsize * length / codelength; */
+  if (length <= codechange) {
+    newpos = (codechange <= 0) ? 0 : codescroll * length / codechange;
+  } else {
+    newpos = (codechange >= codelength) ? leftsize : codescroll + (leftsize - codescroll) * (length - codechange) / (codelength - codechange);
+  }
+  return newpos;
+};
+
 jaxedit.addCodeMirror = function() {
   this.editor = CodeMirror.fromTextArea(this.childs.codearea, {
     lineNumbers: true,
@@ -50,6 +125,24 @@ jaxedit.addCodeMirror = function() {
     matchBrackets: true
   });
   this.doResize();
+};
+
+jaxedit.addHandler = function() {
+  var codearea = this.childs.codearea,
+      showarea = this.childs.showarea;
+
+  this.editor.on('change', function(editor, change) {jaxedit.cmChange(editor, change);});
+
+  this.editor.on('scroll', function(editor) {
+    if (window.localStorage) {
+      localStorage.setItem("scroll", editor.getScrollInfo().top);
+    }
+    jaxedit.doScroll(true);
+  });
+
+  showarea.onscroll = function() {
+    jaxedit.doScroll(false);
+  };
 };
 
 jaxedit.initEditor = function(value) {
@@ -78,7 +171,7 @@ jaxedit.initEditor = function(value) {
 
   this.editor.readOnly = true;
   typejax.updater.init(data.newtextvalue, data.newtextsize, showarea);
-  this.editor.on('change', function(editor, change) {jaxedit.cmChange(editor, change);});
+  this.addHandler();
   this.editor.readOnly = false;
 };
 
