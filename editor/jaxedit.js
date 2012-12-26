@@ -129,6 +129,7 @@ jaxedit.doResize = function() {
       wrapWidth = halfWidth, wrapHeight = halfHeight - topHeight - botHeight;
 
   wsizes.push([html, pageWidth]);
+  wsizes.push([body, pageWidth]);
   wsizes.push([head, pageWidth - 4]);
   wsizes.push([main, mainWidth]); hsizes.push([main, mainHeight]);
 
