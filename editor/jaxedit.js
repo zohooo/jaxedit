@@ -159,7 +159,7 @@ jaxedit.loadEditor = function() {
       corejax.loadScript("codemirror/lib/codemirror.js", function(){
         corejax.loadScript("codemirror/mode/stex/stex.js", function(){
           corejax.loadScript("codemirror/lib/util/matchbrackets.js", function(){
-            jaxedit.addCodeMirror();
+            jaxedit.addEditor();
             jaxedit.hasEditor = true;
             jaxedit.initialize();
           });
@@ -204,6 +204,47 @@ jaxedit.initialize = function() {
   }
 };
 
+jaxedit.initEditor = function(value) {
+  var childs = this.childs,
+      codearea = childs.codearea,
+      lbot = childs.lbot,
+      showarea = childs.showarea;
+  var editor = this.editor,
+      scrollers = this.scrollers,
+      data = this.textdata;
+  var highlight = this.options.highlight;
+
+  if (!highlight && corejax.browser.msie) codearea.setActive();
+
+  if (typeof value == 'string') {
+    if (highlight) {
+      value = value.replace(/\r\n?/g,'\n');
+    }
+    editor.setValue(value);
+    data.newtextvalue = value;
+  } else {
+    data.newtextvalue = editor.getValue();
+  }
+  data.newtextsize = data.newtextvalue.length;
+  if (!highlight) {
+    data.newselstart = codearea.selectionStart;
+    data.newselend = codearea.selectionEnd;
+  }
+
+  lbot.innerHTML = "size: " + data.newtextsize + "; textarea: initialized";
+  scrollers.codelength = data.newtextsize;
+  scrollers.codechange = 0;
+  scrollers.codescroll = 0;
+  scrollers.showscroll = 0;
+  scrollers.showheight = 1;
+  scrollers.divheights = [];
+
+  editor.setReadOnly(true);
+  typejax.updater.init(data.newtextvalue, data.newtextsize, showarea);
+  this.addHandler();
+  editor.setReadOnly(false);
+};
+
 jaxedit.doLoad = function() {
   var codearea = jaxedit.childs.codearea,
       showarea = jaxedit.childs.showarea;
@@ -239,13 +280,13 @@ jaxedit.doScroll = function(isForward) {
   // leftpos <--> length <--> height <--> rightpos
 
   if (isForward) { // left to right
-    length = this.getLeftScroll();
-    newpos = this.setRightScroll(length);
+    length = this.getLeftIndex();
+    newpos = this.getRightScroll(length);
     //console.log("left2right:", leftpos, Math.round(length), Math.round(newpos));
     thatpos = rightpos, thatarea = showarea;
   } else { // right to left
-    length = this.getRightScroll();
-    newpos = this.setLeftScroll(length);
+    length = this.getRightIndex();
+    newpos = this.getLeftScroll(length);
     //console.log("right2left:", rightpos, Math.round(length), Math.round(newpos));
     thatpos = leftpos, thatarea = editor;
   }
@@ -261,7 +302,7 @@ jaxedit.doScroll = function(isForward) {
   }
 };
 
-jaxedit.getLeftScroll = function() {
+jaxedit.getLeftIndex = function() {
   var scrollers = this.scrollers,
       codescroll = scrollers.codescroll,
       codelength = scrollers.codelength,
@@ -282,7 +323,7 @@ jaxedit.getLeftScroll = function() {
   return length;
 };
 
-jaxedit.setLeftScroll = function(length) {
+jaxedit.getLeftScroll = function(length) {
   var scrollers = this.scrollers,
       codescroll = scrollers.codescroll,
       codelength = scrollers.codelength,
@@ -303,7 +344,7 @@ jaxedit.setLeftScroll = function(length) {
   return newpos;
 };
 
-jaxedit.getRightScroll = function() {
+jaxedit.getRightIndex = function() {
   var scrollers = this.scrollers,
       divheights = scrollers.divheights,
       showscoll = scrollers.showscroll,
@@ -331,7 +372,7 @@ jaxedit.getRightScroll = function() {
   return length;
 };
 
-jaxedit.setRightScroll = function(length) {
+jaxedit.getRightScroll = function(length) {
   var scrollers = this.scrollers,
       divheights = scrollers.divheights,
       showscoll = scrollers.showscroll,
@@ -394,7 +435,7 @@ jaxedit.addButtons = function() {
     var BlobBuilder = window.BlobBuilder || window.MozBlobBuilder || window.WebKitBlobBuilder || window.MSBlobBuilder;
     var URL = window.URL || window.webkitURL;
     var bb = new BlobBuilder;
-    bb.append(jaxedit.getTextValue());
+    bb.append(jaxedit.editor.getValue());
     var blob = bb.getBlob("text/latex"); 
     var bloburl = URL.createObjectURL(blob);
     var name = jaxedit.fileName.split(/\.[^.]+$/)[0] + '.tex';
@@ -578,7 +619,7 @@ jaxedit.addButtons = function() {
       return;
     } else {
       //skydrive api doesn't support .tex file, use .txt instead
-      saveFileContent(jaxedit.getTextValue(), fname + '.txt');
+      saveFileContent(jaxedit.editor.getValue(), fname + '.txt');
     }
   };
 

@@ -149,6 +149,10 @@ jaxedit.addEditor = function() {
       codearea.value = value;
     },
 
+    setReadOnly : function(bool) {
+      codearea.readOnly = bool;
+    },
+
     getScrollInfo : function() {
       return {
         left :         codearea.scrollLeft,
@@ -211,40 +215,4 @@ jaxedit.addHandler = function() {
   showarea.onscroll = function() {
     jaxedit.doScroll(false);
   };
-};
-
-jaxedit.initEditor = function(value) {
-  var childs = jaxedit.childs,
-      codearea = childs.codearea,
-      lbot = childs.lbot,
-      showarea = childs.showarea;
-  var data = jaxedit.textdata;
-
-  if (corejax.browser.msie) codearea.setActive();
-
-  if (typeof value == 'string') {
-    data.newtextvalue = codearea.value = value;
-  } else {
-    data.newtextvalue = codearea.value;
-  }
-  data.newtextsize = data.newtextvalue.length;
-  data.newselstart = codearea.selectionStart;
-  data.newselend = codearea.selectionEnd;
-
-  lbot.innerHTML = "size: " + data.newtextsize + "; textarea: initialized";
-  this.scrollers.codelength = data.newtextsize;
-  this.scrollers.codechange = 0;
-  this.scrollers.codescroll = 0;
-  this.scrollers.showscroll = 0;
-  this.scrollers.showheight = 1;
-  this.scrollers.divheights = [];
-
-  codearea.readOnly = true;
-  typejax.updater.init(data.newtextvalue, data.newtextsize, showarea);
-  this.addHandler();
-  codearea.readOnly = false;
-};
-
-jaxedit.getTextValue = function() {
-  return this.childs.codearea.value;
 };

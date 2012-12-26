@@ -1,7 +1,7 @@
 
 // copyright (c) 2012 JaxEdit project
 
-jaxedit.cmChange = function(editor, change) {
+jaxedit.doChange = function(editor, change) {
   console.log(change.from, change.to, change.text, change.next);
   var data = this.textdata;
   data.oldtextvalue = data.newtextvalue;
@@ -43,12 +43,17 @@ jaxedit.cmChange = function(editor, change) {
   typejax.updater.puttask(delstart, delend, deltext, instext, textsize, jaxedit.childs.showarea);
 };
 
-jaxedit.addCodeMirror = function() {
+jaxedit.addEditor = function() {
   this.editor = CodeMirror.fromTextArea(this.childs.codearea, {
     lineNumbers: true,
     lineWrapping: true,
     matchBrackets: true
   });
+
+  this.editor.setReadOnly = function(bool) {
+    jaxedit.editor.readOnly = bool;
+  };
+
   this.doResize();
 };
 
@@ -56,7 +61,7 @@ jaxedit.addHandler = function() {
   var codearea = this.childs.codearea,
       showarea = this.childs.showarea;
 
-  this.editor.on('change', function(editor, change) {jaxedit.cmChange(editor, change);});
+  this.editor.on('change', function(editor, change) {jaxedit.doChange(editor, change);});
 
   this.editor.on('scroll', function(editor) {
     if (window.localStorage) {
@@ -68,38 +73,4 @@ jaxedit.addHandler = function() {
   showarea.onscroll = function() {
     jaxedit.doScroll(false);
   };
-};
-
-jaxedit.initEditor = function(value) {
-  var childs = jaxedit.childs,
-      codearea = childs.codearea,
-      lbot = childs.lbot,
-      showarea = childs.showarea;
-  var data = jaxedit.textdata;
-
-  if (typeof value == 'string') {
-    value = value.replace(/\r\n?/g,'\n');
-    this.editor.setValue(value);
-    data.newtextvalue = value;
-  } else {
-    data.newtextvalue = this.editor.getValue();
-  }
-  data.newtextsize = data.newtextvalue.length;
-
-  lbot.innerHTML = "size: " + data.newtextsize + "; textarea: initialized";
-  this.scrollers.codelength = data.newtextsize;
-  this.scrollers.codechange = 0;
-  this.scrollers.codescroll = 0;
-  this.scrollers.showscroll = 0;
-  this.scrollers.showheight = 1;
-  this.scrollers.divheights = [];
-
-  this.editor.readOnly = true;
-  typejax.updater.init(data.newtextvalue, data.newtextsize, showarea);
-  this.addHandler();
-  this.editor.readOnly = false;
-};
-
-jaxedit.getTextValue = function() {
-  return this.editor.getValue();
 };
