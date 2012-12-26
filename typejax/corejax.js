@@ -30,17 +30,30 @@ corejax.browser = (function() {
   };
 })();
 
-corejax.platform = (function() {
+(function() {
   var pl = navigator.platform;
+  var system, computer;
   if (pl.indexOf('Win') == 0) {
-    return 'windows';
+    system = 'windows';
+    computer = 'desktop';
   } else if (pl.indexOf('Mac') == 0) {
-    return 'macos';
+    system = 'macos';
+    computer = 'desktop';
   } else if (pl.indexOf('Linux') == 0 || pl.indexOf('X11') == 0) {
-    return 'linux';
+    system = 'linux';
+    computer = 'desktop';
+  } else if (pl.indexOf('iPhone') == 0 || pl.indexOf('iPad') == 0) {
+    system = 'ios';
+    computer = 'mobile';
+  } else if (pl.indexOf('android') == 0) {
+    system = 'android';
+    computer = 'mobile';
   } else {
-    return 'unknown';
+    system = 'unknown';
+    computer = 'unknown';
   }
+  corejax.system = system;
+  corejax.computer = computer;
 })();
 
 corejax.loadStyles = function(url) {

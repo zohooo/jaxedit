@@ -57,10 +57,12 @@ jaxedit.textdata = {
 };
 
 jaxedit.getOptions = function() {
-  var options = this.options, browser = corejax.browser;
+  var options = this.options, browser = corejax.browser, computer = corejax.computer;
 
   if (browser.chrome || browser.firefox >= 3 || browser.msie >=8 || browser.safari >= 5.2 || browser.opera >= 9) {
-    options.highlight = true;
+    if (computer == 'desktop') {
+      options.highlight = true;
+    }
   }
 
   var qs = location.search.length > 0 ? location.search.substring(1) : '';

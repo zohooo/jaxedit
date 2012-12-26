@@ -121,7 +121,7 @@ showjax.showNavigate = function(event) {
 
 showjax.showFullInfo = function() {
   var shortcut;
-  switch (corejax.platform) {
+  switch (corejax.system) {
     case 'windows':
     case 'linux':
       shortcut = 'F11';
