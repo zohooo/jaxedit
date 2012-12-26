@@ -109,6 +109,7 @@ jaxedit.doResize = function() {
       preview = childs.preview,
       showarea = childs.showarea,
       rbot = childs.rbot;  
+  var wsizes = [], hsizes = [];
 
   var pageWidth = window.innerWidth;
   var pageHeight = window.innerHeight;
@@ -127,32 +128,39 @@ jaxedit.doResize = function() {
       halfWidth = Math.ceil(pageWidth / 2) - halfBorder, halfHeight = mainHeight - halfBorder,
       wrapWidth = halfWidth, wrapHeight = halfHeight - topHeight - botHeight;
 
-  html.style.width = body.style.width = pageWidth + "px";
-  head.style.width = pageWidth - 4 + "px";
-  main.style.width = mainWidth + "px";
-  main.style.height = mainHeight + "px";
+  wsizes.push([html, pageWidth]);
+  wsizes.push([head, pageWidth - 4]);
+  wsizes.push([main, mainWidth]); hsizes.push([main, mainHeight]);
 
-  left.style.width = right.style.width = halfWidth + "px";
-  left.style.height = right.style.height = halfHeight + "px";
+  wsizes.push([left, halfWidth]); wsizes.push([right, halfWidth]);
+  hsizes.push([left, halfHeight]); hsizes.push([right, halfHeight]);
   
-  ltop.style.width = rtop.style.width = wrapWidth - 6 + "px";
+  wsizes.push([ltop, wrapWidth - 6]); wsizes.push([rtop, wrapWidth - 6]);
 
-  source.style.width = wrapWidth - 2 + "px";
-  source.style.height = wrapHeight + "px";
+  wsizes.push([source, wrapWidth - 2]); hsizes.push([source, wrapHeight]);
   if (jaxedit.options.highlight && jaxedit.editor) {
-    jaxedit.editor.getWrapperElement().style.width = wrapWidth - 8 + "px";
-    jaxedit.editor.getWrapperElement().style.height = wrapHeight - 10 + "px";
+    wsizes.push([jaxedit.editor.getWrapperElement(), wrapWidth - 8]);
+    hsizes.push([jaxedit.editor.getWrapperElement(), wrapHeight - 10]);
   } else {
-    codearea.style.width = wrapWidth - 8 + "px";
-    codearea.style.height = wrapHeight - 10 + "px";
+    wsizes.push([codearea, wrapWidth - 8]);
+    hsizes.push([codearea, wrapHeight - 10]);
   }
   
-  preview.style.width = wrapWidth - 6 + "px";
-  preview.style.height = wrapHeight - 8 + "px";
-  showarea.style.width = wrapWidth - 6 + "px";
-  showarea.style.height = wrapHeight - 10 + "px";
+  wsizes.push([preview, wrapWidth - 6]); hsizes.push([preview, wrapHeight - 8]);
+  wsizes.push([showarea, wrapWidth - 6]); hsizes.push([showarea, wrapHeight - 10]);
 
-  lbot.style.width = rbot.style.width = wrapWidth - 6 + "px";
+  wsizes.push([lbot, wrapWidth - 6]); wsizes.push([rbot, wrapWidth - 6]);
+
+  jaxedit.resizeElements(wsizes, hsizes);
+};
+
+jaxedit.resizeElements = function(wsizes, hsizes) {
+  for (var i = 0; i < wsizes.length; i++) {
+    wsizes[i][0].style.width = wsizes[i][1] + "px";
+  };
+  for (i = 0; i < hsizes.length; i++) {
+    hsizes[i][0].style.height = hsizes[i][1] + "px";
+  };
 };
 
 jaxedit.loadEditor = function() {
