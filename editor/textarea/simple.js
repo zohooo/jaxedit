@@ -129,12 +129,8 @@ jaxedit.doChange = function(event) {
     }
   }
 
-  if (jaxedit.hasParser) {
-    jaxedit.scrollers.codelength = newtextsize;
-    jaxedit.scrollers.codechange = delstart;
-    jaxedit.scrollers.codescroll = codearea.scrollTop;
-    typejax.updater.puttask(delstart, delend, deltext, instext, newtextsize, showarea);
-  }
+  jaxedit.setScrollers(newtextsize, delstart, codearea.scrollTop);
+  typejax.updater.puttask(delstart, delend, deltext, instext, newtextsize, showarea);
 };
 
 jaxedit.addEditor = function() {

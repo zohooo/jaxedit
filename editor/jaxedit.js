@@ -396,6 +396,13 @@ jaxedit.getRightScroll = function(length) {
   return newpos;
 };
 
+jaxedit.setScrollers = function(length, change, scroll) {
+  var scrollers = this.scrollers;
+  scrollers.codelength = length;
+  scrollers.codechange = change;
+  scrollers.codescroll = scroll;
+};
+
 jaxedit.addButtons = function() {
   var browser = corejax.browser, codearea = this.childs.codearea, showarea = this.childs.showarea;
   var newbtn = document.getElementById("newbtn"),

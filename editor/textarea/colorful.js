@@ -40,6 +40,7 @@ jaxedit.doChange = function(editor, change) {
     }
   }
 
+  jaxedit.setScrollers(textsize, delstart, editor.getScrollInfo().top);
   typejax.updater.puttask(delstart, delend, deltext, instext, textsize, jaxedit.childs.showarea);
 };
 
