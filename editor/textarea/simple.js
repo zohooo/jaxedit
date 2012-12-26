@@ -137,6 +137,10 @@ jaxedit.addEditor = function() {
   var codearea = this.childs.codearea;
 
   this.editor = {
+    getWrapperElement : function() {
+      return codearea;
+    },
+
     getValue : function() {
       return codearea.value;
     },

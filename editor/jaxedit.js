@@ -137,8 +137,9 @@ jaxedit.doResize = function() {
 
   source.style.width = wrapWidth - 2 + "px";
   source.style.height = wrapHeight + "px";
-  if (this.options.highlight && this.editor) {
-    jaxedit.editor.getWrapperElement().style.height = wrapHeight - 20 + "px";
+  if (jaxedit.options.highlight && jaxedit.editor) {
+    jaxedit.editor.getWrapperElement().style.width = wrapWidth - 8 + "px";
+    jaxedit.editor.getWrapperElement().style.height = wrapHeight - 10 + "px";
   } else {
     codearea.style.width = wrapWidth - 8 + "px";
     codearea.style.height = wrapHeight - 10 + "px";
