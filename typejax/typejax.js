@@ -1994,14 +1994,14 @@ typejax.builder = function(tree, flag){
     if (tree.mode == "inline") {
       open = "<span class='" + tree.name + "'>", close = "</span>";
       if (tree.name == "imath") {
-        open += "<span class='MathJax_Preview'>" + tree.value + "</span>";
+        open += "<span class='MathJax_Preview'>" + this.escapeText(tree.value) + "</span>";
         open += "<script type='math/tex'>", close = "</script>" + close; 
       }
     } else {
       open = "<div class='envblock " + tree.name + "'>", close = "</div>";
       switch (tree.name) {
         case "bmath":
-          open += "<div class='MathJax_Preview'>" + tree.value + "</div>";
+          open += "<div class='MathJax_Preview'>" + this.escapeText(tree.value) + "</div>";
           open += "<script type='math/tex; mode=display'>", close = "</script>" + close;
           break;
         case "enumerate":
@@ -2018,7 +2018,7 @@ typejax.builder = function(tree, flag){
   } else {
     switch (tree.name) {
       case "bmath":
-        open = "<div class='MathJax_Preview'>" + tree.value + "</div>";
+        open = "<div class='MathJax_Preview'>" + this.escapeText(tree.value) + "</div>";
         open += "<script type='math/tex; mode=display'>", close = "</script>";
         break;
       case "enumerate":
@@ -2047,6 +2047,12 @@ typejax.builder = function(tree, flag){
   } else {
     return open + html + close;
   }
+};
+
+typejax.escapeText = function(text) {
+  return text.replace(/[<>\&\"\']/g, function(c) {
+    return '&#' + c.charCodeAt(0) + ';';
+  });
 };
 
 typejax.latex = {
