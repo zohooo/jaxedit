@@ -57,7 +57,7 @@ jaxedit.textdata = {
 };
 
 jaxedit.getOptions = function() {
-  var options = this.options, browser = corejax.browser, computer = corejax.computer;
+  var options = this.options, browser = $.browser, computer = $.computer;
 
   if (browser.chrome || browser.firefox >= 3 || browser.msie >=8 || browser.safari >= 5.2 || browser.opera >= 9) {
     if (computer == 'desktop') {
@@ -166,11 +166,11 @@ jaxedit.resizeElements = function(wsizes, hsizes) {
 
 jaxedit.loadEditor = function() {
   if (this.options.highlight) {
-    corejax.loadStyles("library/codemirror/lib/codemirror.css");
-    corejax.loadScript("editor/textarea/colorful.js", function(){
-      corejax.loadScript("library/codemirror/lib/codemirror.js", function(){
-        corejax.loadScript("library/codemirror/mode/stex/stex.js", function(){
-          corejax.loadScript("library/codemirror/lib/util/matchbrackets.js", function(){
+    $.loadStyles("library/codemirror/lib/codemirror.css");
+    $.loadScript("editor/textarea/colorful.js", function(){
+      $.loadScript("library/codemirror/lib/codemirror.js", function(){
+        $.loadScript("library/codemirror/mode/stex/stex.js", function(){
+          $.loadScript("library/codemirror/lib/util/matchbrackets.js", function(){
             jaxedit.addEditor();
             jaxedit.hasEditor = true;
             jaxedit.initialize();
@@ -179,7 +179,7 @@ jaxedit.loadEditor = function() {
       });
     });
   } else {
-    corejax.loadScript("editor/textarea/simple.js", function(){
+    $.loadScript("editor/textarea/simple.js", function(){
       jaxedit.addEditor();
       jaxedit.hasEditor = true;
       jaxedit.initialize();
@@ -200,9 +200,9 @@ jaxedit.loadParser = function() {
 
   var mathdir = (window.location.protocol == "file:") ?
                 "library/mathjax/unpacked/" : "http://cdn.mathjax.org/mathjax/2.1-latest/";
-  corejax.loadStyles("typejax/typejax.css");
-  corejax.loadScript("typejax/typejax.js", function(){
-    corejax.loadScript(mathdir + "MathJax.js?config=TeX-AMS_HTML", function(){
+  $.loadStyles("typejax/typejax.css");
+  $.loadScript("typejax/typejax.js", function(){
+    $.loadScript(mathdir + "MathJax.js?config=TeX-AMS_HTML", function(){
       MathJax.Hub.processUpdateTime = 200;
       MathJax.Hub.processUpdateDelay = 15;
       jaxedit.hasParser = true;
@@ -228,7 +228,7 @@ jaxedit.initEditor = function(value) {
       data = this.textdata;
   var highlight = this.options.highlight;
 
-  if (!highlight && corejax.browser.msie) codearea.setActive();
+  if (!highlight && $.browser.msie) codearea.setActive();
 
   if (typeof value == 'string') {
     if (highlight) {
@@ -418,7 +418,7 @@ jaxedit.setScrollers = function(length, change, scroll) {
 };
 
 jaxedit.addButtons = function() {
-  var browser = corejax.browser, codearea = this.childs.codearea, showarea = this.childs.showarea;
+  var browser = $.browser, codearea = this.childs.codearea, showarea = this.childs.showarea;
   var newbtn = document.getElementById("newbtn"),
       openbtn = document.getElementById("openbtn"),
       opensel = document.getElementById("opensel"),
@@ -460,7 +460,7 @@ jaxedit.addButtons = function() {
     var blob = bb.getBlob("text/latex"); 
     var bloburl = URL.createObjectURL(blob);
     var name = jaxedit.fileName.split(/\.[^.]+$/)[0] + '.tex';
-    if (corejax.browser.chrome >= 14) {
+    if ($.browser.chrome >= 14) {
       var anchor = document.createElement("a");
       anchor.style.visibility = "hidden";
       anchor.href = bloburl;
@@ -470,7 +470,7 @@ jaxedit.addButtons = function() {
       evt.initEvent("click", true, true);
       anchor.dispatchEvent(evt);
       document.body.removeChild(anchor);
-    } else if (corejax.browser.msie >= 10) {
+    } else if ($.browser.msie >= 10) {
       navigator.msSaveBlob(blob, name);
     } else {
       location.href = bloburl;
@@ -718,8 +718,8 @@ jaxedit.addButtons = function() {
   }
 
   if (location.protocol != "file:" && window.XMLHttpRequest && 'withCredentials' in new XMLHttpRequest()) {
-    corejax.loadScript("http://js.live.net/v5.0/wl.js", function(){ // wl.debug.js
-      corejax.loadScript("editor/webdrive/skydrive.js", function(){
+    $.loadScript("http://js.live.net/v5.0/wl.js", function(){ // wl.debug.js
+      $.loadScript("editor/webdrive/skydrive.js", function(){
         if (jaxedit.localDrive) {
           drivesel.style.display = "inline-block";
           drivesel.onchange = changeDrive;
@@ -751,12 +751,12 @@ jaxedit.addButtons = function() {
                         '  "HTML-CSS": { imageFont: null }\n',
                         '});',
                      '</scr' + 'ipt>',
-                     '<script type="text/javascript" src="mathjax/MathJax.js?config=TeX-AMS_HTML"></scr' + 'ipt>',
-                     '<script type="text/javascript" src="typejax/corejax.js"></scr' + 'ipt>',
+                     '<script type="text/javascript" src="library/mathjax/unpacked/MathJax.js?config=TeX-AMS_HTML"></scr' + 'ipt>',
+                     '<script type="text/javascript" src="jsquick/jsquick.js"></scr' + 'ipt>',
                      '<script type="text/javascript" src="typejax/showjax.js"></scr' + 'ipt></head><body>',
                      '<div id="showarea">' + showarea.innerHTML + '</div>',
                      '</body></html>'].join('');
-      if (corejax.browser.msie) {
+      if ($.browser.msie) {
         w = window.open("", "showjax", "fullscreen");
       } else {
         w = window.open("", "showjax");
@@ -774,7 +774,7 @@ jaxedit.addButtons = function() {
   /*
   window.onbeforeunload = function() {
     if (jaxedit.useDrive == 'skydrive') {
-      if (corejax.browser.chrome || confirm('Do you want to logout from SkyDrive?')) {
+      if ($.browser.chrome || confirm('Do you want to logout from SkyDrive?')) {
         skydrive.signUserOut();
       }
     }

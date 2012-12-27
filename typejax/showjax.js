@@ -13,7 +13,7 @@ showjax.startParser = function() {
 
 showjax.initShow = function() {
   var body = document.body, showarea = document.getElementById("showarea");
-  var browser = corejax.browser, prefix, i, node;
+  var browser = jsquick.browser, prefix, i, node;
   
   this.frameall = [], this.frameidx = 0;
   for (i = 0; i < showarea.childNodes.length; i++) {
@@ -103,7 +103,7 @@ showjax.showNavigate = function(event) {
       }
       break;
     case "mousemove":
-      if (corejax.browser.msie) {
+      if (jsquick.browser.msie) {
         var infodiv = document.getElementById("infodiv");
         if (ev.clientY < 50) {
           infodiv.style.display = "block";
@@ -121,13 +121,13 @@ showjax.showNavigate = function(event) {
 
 showjax.showFullInfo = function() {
   var shortcut;
-  switch (corejax.system) {
+  switch (jsquick.system) {
     case 'windows':
     case 'linux':
       shortcut = 'F11';
       break;
     case 'macos':
-      if (corejax.browser.safari) {
+      if (jsquick.browser.safari) {
         return;
       } else {
         shortcut = 'Cmd+Shift+F';
@@ -152,7 +152,7 @@ showjax.addExport = function() {
   setTimeout(function(){infodiv.style.display = "none";}, 3000);
   infodiv.onclick = function(event) {
     var ev = event ? event : window.event;
-    if (corejax.browser.msie) {
+    if (jsquick.browser.msie) {
       document.execCommand("SaveAs", false, "showjax.html");
     } else {
       var text = encodeURIComponent("<!DOCTYPE html><html>" + document.documentElement.innerHTML + "</html>");
@@ -165,7 +165,7 @@ showjax.addExport = function() {
 
 window.onload = function(){
   showjax.startParser();
-  if (corejax.browser.msie) {
+  if (jsquick.browser.msie) {
     showjax.addExport();
   } else {
     showjax.showFullInfo();

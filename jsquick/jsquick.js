@@ -1,9 +1,9 @@
 
 // copyright (c) 2012 JaxEdit project
 
-var corejax = {}; 
+var jsquick = $ = {};
 
-corejax.browser = (function() {
+jsquick.browser = (function() {
   var ua = navigator.userAgent;
   var msie, firefox, opera, safari, chrome, webkit;
   if (/MSIE ([^;]+)/.test(ua)) {
@@ -52,11 +52,11 @@ corejax.browser = (function() {
     system = 'unknown';
     computer = 'unknown';
   }
-  corejax.system = system;
-  corejax.computer = computer;
+  jsquick.system = system;
+  jsquick.computer = computer;
 })();
 
-corejax.loadStyles = function(url) {
+jsquick.loadStyles = function(url) {
   var link = document.createElement("link");
   link.rel = "stylesheet";
   link.type = "text/css";
@@ -65,7 +65,7 @@ corejax.loadStyles = function(url) {
   head.appendChild(link);
 };
 
-corejax.loadScript = function(url, callback) {
+jsquick.loadScript = function(url, callback) {
   var script = document.createElement("script");
   script.type = "text/javascript";
   script.src = url;

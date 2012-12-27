@@ -3,7 +3,7 @@
 
 jaxedit.doChange = function(event) {
   var ev = event ? event : window.event; // standard or ie
-  var browser = corejax.browser;
+  var browser = $.browser;
   var childs = jaxedit.childs,
       codearea = childs.codearea,
       lbot = childs.lbot,
