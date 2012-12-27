@@ -6,6 +6,8 @@ if (!window.console) console = {log : function() {}};
 var jaxedit = {
   hasEditor: false,
   hasParser: false,
+  mathpath: '',
+  mathname: 'MathJax.js?config=TeX-AMS_HTML',
   autoScroll: false,
   canPresent: true,
   fileName: 'noname.tex',
@@ -16,6 +18,7 @@ var jaxedit = {
 
 jaxedit.options = {
   highlight: false,
+  localjs: false,
   debug: false
 };
 
@@ -65,6 +68,8 @@ jaxedit.getOptions = function() {
     }
   }
 
+  options.localjs = (location.protocol == 'file:');
+
   var qs = location.search.length > 0 ? location.search.substring(1) : '';
   var items = qs.split('&'), pair, name, value;
 
@@ -91,6 +96,8 @@ jaxedit.getOptions = function() {
         break;
     }
   }
+
+  this.mathpath = options.localjs ? 'library/mathjax/unpacked/' : 'http://cdn.mathjax.org/mathjax/2.1-latest/';
 };
 
 jaxedit.doResize = function() {
@@ -198,11 +205,9 @@ jaxedit.loadParser = function() {
     "});"
   document.body.appendChild(script);
 
-  var mathdir = (window.location.protocol == "file:") ?
-                "library/mathjax/unpacked/" : "http://cdn.mathjax.org/mathjax/2.1-latest/";
   $.loadStyles("typejax/typejax.css");
   $.loadScript("typejax/typejax.js", function(){
-    $.loadScript(mathdir + "MathJax.js?config=TeX-AMS_HTML", function(){
+    $.loadScript(jaxedit.mathpath + jaxedit.mathname, function(){
       MathJax.Hub.processUpdateTime = 200;
       MathJax.Hub.processUpdateDelay = 15;
       jaxedit.hasParser = true;
@@ -751,7 +756,7 @@ jaxedit.addButtons = function() {
                         '  "HTML-CSS": { imageFont: null }\n',
                         '});',
                      '</scr' + 'ipt>',
-                     '<script type="text/javascript" src="library/mathjax/unpacked/MathJax.js?config=TeX-AMS_HTML"></scr' + 'ipt>',
+                     '<script type="text/javascript" src="' + jaxedit.mathpath + jaxedit.mathname + '"></scr' + 'ipt>',
                      '<script type="text/javascript" src="jsquick/jsquick.js"></scr' + 'ipt>',
                      '<script type="text/javascript" src="typejax/showjax.js"></scr' + 'ipt></head><body>',
                      '<div id="showarea">' + showarea.innerHTML + '</div>',
