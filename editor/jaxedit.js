@@ -822,11 +822,11 @@ jaxedit.toggleModal = function(view) {
   var ol = document.getElementById("overlay"),
       ct = document.getElementById("container");
   if (view) {
-    ol.style.visibility = "visible";
-    ct.style.visibility = "visible";
+    ol.style.display = "block";
+    ct.style.display = "block";
   } else {
-    ol.style.visibility = "hidden";
-    ct.style.visibility = "hidden";
+    ol.style.display = "none";
+    ct.style.display = "none";
   }
 };
 
