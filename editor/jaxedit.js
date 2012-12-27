@@ -200,7 +200,7 @@ jaxedit.loadParser = function() {
 
   corejax.loadStyles("typejax/typejax.css");
   corejax.loadScript("typejax/typejax.js", function(){
-    corejax.loadScript("mathjax/MathJax.js?config=TeX-AMS_HTML", function(){
+    corejax.loadScript("library/mathjax/unpacked/MathJax.js?config=TeX-AMS_HTML", function(){
       MathJax.Hub.processUpdateTime = 200;
       MathJax.Hub.processUpdateDelay = 15;
       jaxedit.hasParser = true;
