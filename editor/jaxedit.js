@@ -198,9 +198,11 @@ jaxedit.loadParser = function() {
     "});"
   document.body.appendChild(script);
 
+  var mathdir = (window.location.protocol == "file:") ?
+                "library/mathjax/unpacked/" : "http://cdn.mathjax.org/mathjax/2.1-latest/";
   corejax.loadStyles("typejax/typejax.css");
   corejax.loadScript("typejax/typejax.js", function(){
-    corejax.loadScript("library/mathjax/unpacked/MathJax.js?config=TeX-AMS_HTML", function(){
+    corejax.loadScript(mathdir + "MathJax.js?config=TeX-AMS_HTML", function(){
       MathJax.Hub.processUpdateTime = 200;
       MathJax.Hub.processUpdateDelay = 15;
       jaxedit.hasParser = true;
