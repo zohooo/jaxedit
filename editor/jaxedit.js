@@ -166,11 +166,11 @@ jaxedit.resizeElements = function(wsizes, hsizes) {
 
 jaxedit.loadEditor = function() {
   if (this.options.highlight) {
-    corejax.loadStyles("codemirror/lib/codemirror.css");
+    corejax.loadStyles("library/codemirror/lib/codemirror.css");
     corejax.loadScript("editor/textarea/colorful.js", function(){
-      corejax.loadScript("codemirror/lib/codemirror.js", function(){
-        corejax.loadScript("codemirror/mode/stex/stex.js", function(){
-          corejax.loadScript("codemirror/lib/util/matchbrackets.js", function(){
+      corejax.loadScript("library/codemirror/lib/codemirror.js", function(){
+        corejax.loadScript("library/codemirror/mode/stex/stex.js", function(){
+          corejax.loadScript("library/codemirror/lib/util/matchbrackets.js", function(){
             jaxedit.addEditor();
             jaxedit.hasEditor = true;
             jaxedit.initialize();
