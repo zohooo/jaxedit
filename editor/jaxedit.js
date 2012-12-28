@@ -773,7 +773,7 @@ jaxedit.addButtons = function() {
   }
 
   helpbtn.onclick = function() {
-    window.open("https://github.com/zohooo/jaxedit/wiki", "_blank");
+    window.open("http://jaxedit.com/#help", "_blank");
   };
   helpbtn.style.display = "inline-block";
   /*
