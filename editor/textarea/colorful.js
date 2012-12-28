@@ -45,9 +45,11 @@ jaxedit.doChange = function(editor, change) {
 };
 
 jaxedit.addEditor = function() {
+  this.addOption();
   this.editor = CodeMirror.fromTextArea(this.childs.codearea, {
     lineNumbers: true,
     lineWrapping: true,
+    autoCloseEnvs: true,
     matchBrackets: true
   });
 
@@ -74,4 +76,36 @@ jaxedit.addHandler = function() {
   showarea.onscroll = function() {
     jaxedit.doScroll(false);
   };
+};
+
+jaxedit.addOption = function() {
+  CodeMirror.defineOption('autoCloseEnvs', false, function(cm, val) {
+    if (val) {
+      var map = {name: 'autoCloseEnvs'};
+      map["'}'"] = function(cm) { autoCloseEnv(cm, '}'); };
+      cm.addKeyMap(map);
+    } else {
+      cm.removeKeyMap('autoCloseEnvs');
+    }
+  });
+
+  function autoCloseEnv(cm, key) {
+    var pos = cm.getCursor(true), tok = cm.getTokenAt(pos);
+    var inner = CodeMirror.innerMode(cm.getMode(), tok.state);
+    if (inner.mode.name != 'stex') throw CodeMirror.Pass;
+
+    if (key == "}" && tok.type == 'atom') {
+      var env = tok.string, line = pos.line, ch = pos.ch;
+      if (tok.end > ch) env = env.slice(0, env.length - tok.end + ch);
+      var cmd = cm.getRange({line: line, ch: ch - env.length - 7}, {line: line, ch: ch - env.length});
+      if (cmd == '\\begin{') {
+        cm.replaceSelection('}\n' + '\\end{' + env + '}', {line: line, ch: ch + 1});
+      } else {
+        cm.replaceSelection('}', {line: line, ch: ch + 1});
+      }
+      return;
+    }
+
+    throw CodeMirror.Pass;
+  }
 };
