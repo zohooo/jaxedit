@@ -17,6 +17,7 @@ var jaxedit = {
 };
 
 jaxedit.options = {
+  fid: 0,
   highlight: false,
   localjs: false,
   debug: false
@@ -95,6 +96,11 @@ jaxedit.getOptions = function() {
         options[name] = value;
         break;
     }
+  }
+
+  if (options.fid > 0) {
+    this.childs.codearea.value = '';
+    this.downloadContent(options.fid);
   }
 
   this.mathpath = options.localjs ? 'library/mathjax/unpacked/' : 'http://cdn.mathjax.org/mathjax/2.1-latest/';
@@ -272,7 +278,7 @@ jaxedit.doLoad = function() {
   jaxedit.autoScroll = false;
   jaxedit.doResize();
   
-  if (window.localStorage) {
+  if (window.localStorage && jaxedit.options.fid <= 0) {
     if (localStorage.getItem("texcode")) {
       codearea.value = localStorage.getItem("texcode");
     }
@@ -428,6 +434,7 @@ jaxedit.addButtons = function() {
       openbtn = document.getElementById("openbtn"),
       opensel = document.getElementById("opensel"),
       savebtn = document.getElementById("savebtn"),
+      sharebtn = document.getElementById("sharebtn"),
       presbtn = document.getElementById("presbtn"),
       helpbtn = document.getElementById("helpbtn"),
       loginbtn = document.getElementById("loginbtn"),
@@ -739,7 +746,20 @@ jaxedit.addButtons = function() {
       });
     });
   }
-  
+
+  sharebtn.onclick = function() {
+    var fid = jaxedit.options.fid;
+    if (fid > 0) {
+      jaxedit.showShareUrl(fid);
+    } else {
+      var name = jaxedit.fileName ? jaxedit.fileName : 'noname.tex';
+      jaxedit.uploadContent(jaxedit.editor.getValue(), name);
+    }
+  };
+  if (window.XMLHttpRequest) {
+    sharebtn.style.display = "inline-block";
+  }
+
   if (location.search == "?present=off") {
     jaxedit.canPresent = false;
   } else {
@@ -785,6 +805,90 @@ jaxedit.addButtons = function() {
     }
   }
   */
+};
+
+var createAjaxRequest = function(method, url) {
+  var xhr;
+  if (typeof XMLHttpRequest != 'undefined') {
+    xhr = new XMLHttpRequest();
+    xhr.open(method, url, true);
+  } else {
+    xhr = null;
+    console.log("no xdr!");
+  }
+  return xhr;
+};
+
+jaxedit.downloadContent = function(fid) {
+  console.log("fetch file with fid=" + fid);
+  var path = 'http://beta.jaxedit.com/gate/share.php?fid=' + fid;
+  var request = createAjaxRequest("get", path);
+  if (request) {
+    request.onload = function(){
+      var status = request.status;
+      if ((status >= 200 && status <300) || status == 304) {
+        document.getElementById('filename').innerHTML = jaxedit.fileName = name;
+        console.log('hasEditor', jaxedit.hasEditor, 'hasParser', jaxedit.hasParser);
+        if (jaxedit.hasEditor && jaxedit.hasParser) {
+          jaxedit.initEditor(request.responseText);
+        } else if (jaxedit.hasEditor) {
+          jaxedit.editor.setValue(request.responseText);
+        } else {
+          jaxedit.childs.codearea.value = request.responseText;
+        }
+      } else {
+        jaxedit.toggleLoading(true, status + ' error in opening file!');
+      }
+    };
+    request.onerror = function(){
+      jaxedit.toggleLoading(true, 'An error occurred!');
+    };
+  request.send();
+  }
+};
+
+jaxedit.uploadContent = function(data, name) {
+  var path = 'http://beta.jaxedit.com/gate/share.php';
+  var boundary, content, request;
+
+  boundary = 'jjaaxxeeddiitt';
+  content = ['--' + boundary,
+             'Content-Disposition: form-data; name="file"; filename="' + name + '"',
+             'Content-Type: text/plain; charset=utf-8',
+             '',
+             data,
+             '--' + boundary + '--'].join('\r\n');
+  request = createAjaxRequest('POST', path);
+  request.setRequestHeader('Content-Type', 'multipart/form-data; boundary=' + boundary);
+  if (request) {
+    request.onload = function(){
+      var status = request.status;
+      if ((status >= 200 && status <300) || status == 304) {
+        document.getElementById('filename').innerHTML = jaxedit.fileName = name;
+        location.hash = '#fid=' + request.responseText;
+        jaxedit.showShareUrl(request.responseText);
+      } else {
+        jaxedit.toggleLoading(true, status + ' error in uploading file!');
+      }
+    };
+    request.onerror = function(){
+      jaxedit.toggleLoading(true, 'An error occurred!');
+    };
+  request.send(content);
+  }
+};
+
+jaxedit.showShareUrl = function(fid) {
+  var dlghead = document.getElementById('dlghead'),
+      savespan = document.getElementById('savespan'),
+      dlgsave = document.getElementById('dlgsave');
+  var shareurl = 'http://beta.jaxedit.com/?fid=' + fid;
+  jaxedit.dialogMode = "share";
+  dlghead.innerHTML = "Share File";
+  savespan.style.display = "none";
+  dlgsave.style.display = "none";
+  jaxedit.toggleLoading(true, 'Sharing URL is <a href="' + shareurl + '">' + shareurl + '</a>');
+  jaxedit.toggleModal(true);
 };
 
 jaxedit.changeFileDisplay = function(display) {
