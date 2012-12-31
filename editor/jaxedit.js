@@ -8,8 +8,11 @@ var jaxedit = {
   hasParser: false,
   mathpath: '',
   mathname: 'MathJax.js?config=TeX-AMS_HTML',
+  gatepath: '',
+  shareurl: '',
   autoScroll: false,
   canPresent: true,
+  fileid: 0,
   fileName: 'noname.tex',
   useDrive: null,
   localDrive: false,
@@ -17,7 +20,6 @@ var jaxedit = {
 };
 
 jaxedit.options = {
-  fid: 0,
   highlight: false,
   localjs: false,
   debug: false
@@ -98,12 +100,16 @@ jaxedit.getOptions = function() {
     }
   }
 
-  if (options.fid > 0) {
-    this.childs.codearea.value = '';
-    this.downloadContent(options.fid);
-  }
-
   this.mathpath = options.localjs ? 'library/mathjax/unpacked/' : 'http://cdn.mathjax.org/mathjax/2.1-latest/';
+  this.gatepath = (location.pathname == '/beta/') ? 'http://jaxedit.com/door/' : 'http://jaxedit.com/gate/';
+  this.shareurl = (location.pathname == '/beta/') ? 'http://jaxedit.com/beta/' : 'http://jaxedit.com/note/';
+
+  var i = parseInt(location.hash.substring(1));
+  if (isFinite(i)) this.fileid = i;
+  if (this.fileid > 0) {
+    this.childs.codearea.value = '';
+    this.downloadContent(this.fileid);
+  }
 };
 
 jaxedit.doResize = function() {
@@ -278,7 +284,7 @@ jaxedit.doLoad = function() {
   jaxedit.autoScroll = false;
   jaxedit.doResize();
   
-  if (window.localStorage && jaxedit.options.fid <= 0) {
+  if (window.localStorage && jaxedit.fileid <= 0) {
     if (localStorage.getItem("texcode")) {
       codearea.value = localStorage.getItem("texcode");
     }
@@ -581,7 +587,7 @@ jaxedit.addButtons = function() {
   
   var getFileContent = function(url, name) {
     console.log("fetch file: " + url);
-    var path = 'http://gate.jaxedit.com/?path=' + encodeURIComponent(jaxedit.encodeText(url));
+    var path = jaxedit.gatepath + '?path=' + encodeURIComponent(jaxedit.encodeText(url));
     var request = createCORSRequest("get", path);
     jaxedit.toggleLoading(true, 'Opening file...');
     if (request) {
@@ -606,7 +612,7 @@ jaxedit.addButtons = function() {
     var fid = skydrive.finside[skydrive.finside.length - 1].fid,
         hostpath = 'https://apis.live.net/v5.0/' + fid + '/files',
         querystr = '?access_token=' + encodeURIComponent(skydrive.access_token),
-        gatepath = 'http://gate.jaxedit.com/';
+        gatepath = jaxedit.gatepath;
     var url, path, boundary, content, request;
     jaxedit.toggleLoading(true, 'Saving file...');
     if (location.search == "?put") { // using PUT method
@@ -748,7 +754,7 @@ jaxedit.addButtons = function() {
   }
 
   sharebtn.onclick = function() {
-    var fid = jaxedit.options.fid;
+    var fid = jaxedit.fileid;
     if (fid > 0) {
       jaxedit.showShareUrl(fid);
     } else {
@@ -821,7 +827,7 @@ var createAjaxRequest = function(method, url) {
 
 jaxedit.downloadContent = function(fid) {
   console.log("fetch file with fid=" + fid);
-  var path = 'http://beta.jaxedit.com/gate/share.php?fid=' + fid;
+  var path = jaxedit.gatepath + 'share.php?fid=' + fid;
   var request = createAjaxRequest("get", path);
   if (request) {
     request.onload = function(){
@@ -848,7 +854,7 @@ jaxedit.downloadContent = function(fid) {
 };
 
 jaxedit.uploadContent = function(data, name) {
-  var path = 'http://beta.jaxedit.com/gate/share.php';
+  var path = jaxedit.gatepath + 'share.php';
   var boundary, content, request;
 
   boundary = 'jjaaxxeeddiitt';
@@ -865,7 +871,8 @@ jaxedit.uploadContent = function(data, name) {
       var status = request.status;
       if ((status >= 200 && status <300) || status == 304) {
         document.getElementById('filename').innerHTML = jaxedit.fileName = name;
-        location.hash = '#fid=' + request.responseText;
+        location.hash = '#' + request.responseText;
+        jaxedit.fileid = request.responseText;
         jaxedit.showShareUrl(request.responseText);
       } else {
         jaxedit.toggleLoading(true, status + ' error in uploading file!');
@@ -882,7 +889,7 @@ jaxedit.showShareUrl = function(fid) {
   var dlghead = document.getElementById('dlghead'),
       savespan = document.getElementById('savespan'),
       dlgsave = document.getElementById('dlgsave');
-  var shareurl = 'http://beta.jaxedit.com/?fid=' + fid;
+  var shareurl = this.shareurl + '#' + fid;
   jaxedit.dialogMode = "share";
   dlghead.innerHTML = "Share File";
   savespan.style.display = "none";
