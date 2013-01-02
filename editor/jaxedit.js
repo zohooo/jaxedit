@@ -13,6 +13,7 @@ var jaxedit = {
   autoScroll: false,
   canPresent: true,
   fileid: 0,
+  wcode: null,
   fileName: 'noname.tex',
   useDrive: null,
   localDrive: false,
@@ -108,7 +109,8 @@ jaxedit.getOptions = function() {
   if (isFinite(i)) this.fileid = i;
   if (this.fileid > 0) {
     this.childs.codearea.value = '';
-    this.downloadContent(this.fileid);
+    var wcode = prompt('Please enter sharing password:', '');
+    this.downloadContent(this.fileid, wcode);
   }
 };
 
@@ -755,11 +757,14 @@ jaxedit.addButtons = function() {
 
   sharebtn.onclick = function() {
     var fid = jaxedit.fileid;
+    var name = jaxedit.fileName ? jaxedit.fileName : 'noname.tex';
     if (fid > 0) {
-      jaxedit.showShareUrl(fid);
+      jaxedit.uploadContent(jaxedit.editor.getValue(), name, jaxedit.wcode, fid);
     } else {
-      var name = jaxedit.fileName ? jaxedit.fileName : 'noname.tex';
-      jaxedit.uploadContent(jaxedit.editor.getValue(), name);
+      var wcode = prompt('Please enter sharing password:', jaxedit.randomString(6));
+      if (wcode != null) {
+        jaxedit.uploadContent(jaxedit.editor.getValue(), name, wcode);
+      }
     }
   };
   if (window.XMLHttpRequest) {
@@ -825,9 +830,9 @@ var createAjaxRequest = function(method, url) {
   return xhr;
 };
 
-jaxedit.downloadContent = function(fid) {
+jaxedit.downloadContent = function(fid, wcode) {
   console.log("fetch file with fid=" + fid);
-  var path = jaxedit.gatepath + 'share.php?fid=' + fid;
+  var path = jaxedit.gatepath + 'share.php?fid=' + fid + '&wcode=' + encodeURIComponent(wcode);
   var request = createAjaxRequest("get", path);
   if (request) {
     request.onload = function(){
@@ -842,6 +847,7 @@ jaxedit.downloadContent = function(fid) {
         } else {
           jaxedit.childs.codearea.value = request.responseText;
         }
+        jaxedit.wcode = wcode;
       } else {
         jaxedit.toggleLoading(true, status + ' error in opening file!');
       }
@@ -853,8 +859,9 @@ jaxedit.downloadContent = function(fid) {
   }
 };
 
-jaxedit.uploadContent = function(data, name) {
-  var path = jaxedit.gatepath + 'share.php';
+jaxedit.uploadContent = function(data, name, wcode, fid) {
+  var path = jaxedit.gatepath + 'share.php?wcode=' + encodeURIComponent(wcode);
+  if (fid) path += '&fid=' + fid;
   var boundary, content, request;
 
   boundary = 'jjaaxxeeddiitt';
@@ -872,7 +879,7 @@ jaxedit.uploadContent = function(data, name) {
       if ((status >= 200 && status <300) || status == 304) {
         document.getElementById('filename').innerHTML = jaxedit.fileName = name;
         location.hash = '#' + request.responseText;
-        jaxedit.fileid = request.responseText;
+        jaxedit.fileid = parseInt(request.responseText);
         jaxedit.showShareUrl(request.responseText);
       } else {
         jaxedit.toggleLoading(true, status + ' error in uploading file!');
@@ -968,6 +975,13 @@ jaxedit.encodeText = function(text) {
     index = (index - step + length) % length;
   }
   return result.join('');
+};
+
+jaxedit.randomString = function(size) {
+  var text = "";
+  var possible = "abcdefghijklmnopqrstuvwxyz";
+  for (var i=0; i < size; i++) text += possible.charAt(Math.floor(Math.random() * possible.length));
+  return text;
 };
 
 window.onload = jaxedit.doLoad;
