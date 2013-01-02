@@ -101,8 +101,8 @@ jaxedit.getOptions = function() {
   }
 
   this.mathpath = options.localjs ? 'library/mathjax/unpacked/' : 'http://cdn.mathjax.org/mathjax/2.1-latest/';
-  this.gatepath = (location.pathname == '/beta/') ? 'http://jaxedit.com/door/' : 'http://jaxedit.com/gate/';
-  this.shareurl = (location.pathname == '/beta/') ? 'http://jaxedit.com/beta/' : 'http://jaxedit.com/note/';
+  this.gatepath = (location.pathname == '/note/') ? 'http://jaxedit.com/gate/' : 'http://jaxedit.com/door/';
+  this.shareurl = (location.pathname == '/note/') ? 'http://jaxedit.com/note/' : 'http://jaxedit.com/beta/';
 
   var i = parseInt(location.hash.substring(1));
   if (isFinite(i)) this.fileid = i;

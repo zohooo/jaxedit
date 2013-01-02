@@ -228,7 +228,7 @@ typejax.updater = {
           sectname = sectdiv.className.split(" ").pop();
       numstr = this.incSectionCounters(counters, sectname);
       anchor = counters.part + "_" + counters.chapter + "_" + counters.section + "_" + counters.subsection + "_" + counters.subsubsection;
-      if (numspan) numspan.innerHTML = "<a name='" + anchor + "'></a>" + numstr;
+      if (numspan) numspan.innerHTML = "<a name='#" + anchor + "'></a>" + numstr;
     }
   },
   
@@ -242,7 +242,7 @@ typejax.updater = {
       sectname = sectdata[1];
       numstr = this.incSectionCounters(counters, sectname);
       anchor = counters.part + "_" + counters.chapter + "_" + counters.section + "_" + counters.subsection + "_" + counters.subsubsection;
-      tocstr += "<div class='toc-" + sectname + "'><a href='#" + anchor + "'>" + numstr + sectdata[2] + "</a></div>";
+      tocstr += "<div class='toc-" + sectname + "'><a href='##" + anchor + "'>" + numstr + sectdata[2] + "</a></div>";
     }
     tocdiv = document.getElementById("tableofcontents");
     if (tocdiv) tocdiv.innerHTML = tocstr;
@@ -935,7 +935,7 @@ typejax.parser = function(input, modstart, modend){
       if (numstr) {
         sectintoc = value0 ? value0 : value1;
         typejax.innersect.push([typejax.innerdata.length, csname, sectintoc]);
-        var s = "<" + headstr + "><span><a name='" + anchor + "'></a>" + numstr + "</span>" + value1 + "</" + headstr + ">";
+        var s = "<" + headstr + "><span><a name='#" + anchor + "'></a>" + numstr + "</span>" + value1 + "</" + headstr + ">";
       } else {
         var s = "<" + headstr + ">" + value1 + "</" + headstr + ">";
       }
