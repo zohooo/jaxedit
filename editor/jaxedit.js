@@ -512,21 +512,21 @@ jaxedit.addButtons = function() {
   var driveOpenSave = function(mode) {
     var dlgtitle = document.getElementById('dlgtitle'),
         dlgflist = document.getElementById('dlgflist'),
-        savespan = document.getElementById('savespan'),
         savename = document.getElementById('savename'),
-        dlgsave = document.getElementById('dlgsave');
+        dbtnsave = document.getElementById('dbtnsave');
+        footsave = document.getElementById('footsave'),
+        footshare = document.getElementById('footshare');
+    footshare.style.display = "none";
     if (mode == "open") {
       jaxedit.dialogMode = "open";
       dlgtitle.innerHTML = "Open File";
-      savespan.style.display = "none";
-      dlgsave.style.display = "none";
+      footsave.style.display = "none";
     } else {
       jaxedit.dialogMode = "save";
       dlgtitle.innerHTML = "Save File";
-      savespan.style.display = "inline";
       savename.value = jaxedit.fileName.split(/\.[^.]+$/)[0];
-      dlgsave.style.display = "inline-block";
-      dlgsave.onclick = checkSave;
+      footsave.style.display = "inline-block";
+      dbtnsave.onclick = checkSave;
     }
     dlgflist.onclick = dialogClick;
     jaxedit.toggleLoading(true, 'Loading...');
@@ -665,8 +665,6 @@ jaxedit.addButtons = function() {
   };
 
   var dialogClick = function(event) {
-    var dlgbody = document.getElementById('dlgbody'),
-        loading = document.getElementById('loading');
     var ev = event ? event : window.event,
         target = ev.target || ev.srcElement;
     if (target.nodeName.toUpperCase() == "A") {
@@ -688,10 +686,10 @@ jaxedit.addButtons = function() {
   };
   
   var dialogWalkup = function() {
-    var dlgbody = document.getElementById('dlgbody'),
-        loading = document.getElementById('loading');
-    dlgbody.style.display = "none";
-    loading.style.display = "block";
+    var bodylist = document.getElementById('bodylist'),
+        bodyload = document.getElementById('bodyload');
+    bodylist.style.display = "none";
+    bodyload.style.display = "block";
     skydrive.finside.pop();
     skydrive.getFilesList(handleResponse);
   };
@@ -755,16 +753,43 @@ jaxedit.addButtons = function() {
     });
   }
 
+  var setupShare = function() {
+    var dlgtitle = document.getElementById('dlgtitle'),
+        bodyload = document.getElementById('bodyload'),
+        bodylist = document.getElementById('bodylist'),
+        bodyshare = document.getElementById('bodyshare');
+        footsave = document.getElementById('footsave'),
+        footshare = document.getElementById('footshare'),
+        dbtnshare = document.getElementById('dbtnshare'),
+        share_rcode = document.getElementById('share_rcode'),
+        share_wcode = document.getElementById('share_wcode');
+    dlgtitle.innerHTML = 'Share File';
+    bodyload.style.display = 'none';
+    bodylist.style.display = 'none';
+    bodyshare.style.display = 'block';
+    footsave.style.display = 'none';
+    footshare.style.display = 'inline-block';
+    share_rcode.value = share_wcode.value = jaxedit.randomString(4);
+    share_wcode.value += jaxedit.randomString(2);
+    dbtnshare.onclick = checkShare;
+    jaxedit.toggleModal(true);
+  };
+
+  var checkShare = function() {
+    var name = jaxedit.fileName ? jaxedit.fileName : 'noname.tex';
+    var email = document.getElementById('share_email').value,
+        rcode = document.getElementById('share_rcode').value,
+        wcode = document.getElementById('share_wcode').value;
+    jaxedit.uploadContent(jaxedit.editor.getValue(), name, null, wcode, rcode, email);
+  };
+
   sharebtn.onclick = function() {
     var fid = jaxedit.fileid;
     var name = jaxedit.fileName ? jaxedit.fileName : 'noname.tex';
     if (fid > 0) {
-      jaxedit.uploadContent(jaxedit.editor.getValue(), name, jaxedit.wcode, fid);
+      jaxedit.uploadContent(jaxedit.editor.getValue(), name, fid, jaxedit.wcode);
     } else {
-      var wcode = prompt('Please enter sharing password:', jaxedit.randomString(6));
-      if (wcode != null) {
-        jaxedit.uploadContent(jaxedit.editor.getValue(), name, wcode);
-      }
+      setupShare();
     }
   };
   if (window.XMLHttpRequest) {
@@ -859,9 +884,11 @@ jaxedit.downloadContent = function(fid, wcode) {
   }
 };
 
-jaxedit.uploadContent = function(data, name, wcode, fid) {
+jaxedit.uploadContent = function(data, name, fid, wcode, rcode, email) {
   var path = jaxedit.gatepath + 'share.php?wcode=' + encodeURIComponent(wcode);
   if (fid) path += '&fid=' + fid;
+  if (rcode) path += '&rcode=' + encodeURIComponent(wcode);
+  if (email) path += '&email=' + encodeURIComponent(email);
   var boundary, content, request;
 
   boundary = 'jjaaxxeeddiitt';
@@ -880,6 +907,7 @@ jaxedit.uploadContent = function(data, name, wcode, fid) {
         document.getElementById('filename').innerHTML = jaxedit.fileName = name;
         location.hash = '#' + request.responseText;
         jaxedit.fileid = parseInt(request.responseText);
+        jaxedit.wcode = wcode;
         jaxedit.showShareUrl(request.responseText);
       } else {
         jaxedit.toggleLoading(true, status + ' error in uploading file!');
@@ -894,13 +922,13 @@ jaxedit.uploadContent = function(data, name, wcode, fid) {
 
 jaxedit.showShareUrl = function(fid) {
   var dlgtitle = document.getElementById('dlgtitle'),
-      savespan = document.getElementById('savespan'),
-      dlgsave = document.getElementById('dlgsave');
+      footsave = document.getElementById('footsave'),
+      footshare = document.getElementById('footshare');
   var shareurl = this.shareurl + '#' + fid;
   jaxedit.dialogMode = "share";
   dlgtitle.innerHTML = "Share File";
-  savespan.style.display = "none";
-  dlgsave.style.display = "none";
+  footsave.style.display = "none";
+  footshare.style.display = "none";
   jaxedit.toggleLoading(true, 'Sharing URL is <a href="' + shareurl + '">' + shareurl + '</a>');
   jaxedit.toggleModal(true);
 };
@@ -954,15 +982,15 @@ jaxedit.toggleModal = function(view) {
 };
 
 jaxedit.toggleLoading = function(load, info) {
-  var dlgbody = document.getElementById('dlgbody'),
-      loading = document.getElementById('loading');
+  var bodylist = document.getElementById('bodylist'),
+      bodyload = document.getElementById('bodyload');
   if (load) {
-    dlgbody.style.display = "none";
-    loading.style.display = "block";
-    loading.innerHTML = info;
+    bodylist.style.display = "none";
+    bodyload.style.display = "block";
+    bodyload.innerHTML = info;
   } else {
-    dlgbody.style.display = "block";
-    loading.style.display = "none";
+    bodylist.style.display = "block";
+    bodyload.style.display = "none";
   }
 };
 

@@ -97,18 +97,31 @@ Then there exists $\xi\in(a,b)$ such that $f'(\xi)=0$.
       <span id="dlgclose">&#215;</span>
     </div>
     <div id="dlgbody">
-      <div id="dlgfinfo">
-        <span>Current folder:</span>
-        <span id="dlginside"></span>
-        <span id="dlgwalkup"><a href="javascript:void(0)">Go Up</a></span>
+      <div id="bodyload">Loading...</div>
+      <div id="bodylist">
+        <div id="dlgfinfo">
+          <span>Current folder:</span>
+          <span id="dlginside"></span>
+          <span id="dlgwalkup"><a href="javascript:void(0)">Go Up</a></span>
+        </div>
+        <div id='dlgflist'></div>
       </div>
-      <div id='dlgflist'></div>
+      <div id="bodyshare">
+        <div class="share_info">Your email address:</div>
+        <input id="share_email" type="text" placeholder="abc@example.com" class="share_input" name="email" maxlength="31" />
+        <div class="share_info">Password for reading:</div>
+        <input id="share_rcode" type="text" class="share_input" name="rcode" maxlength="15" />
+        <div class="share_info">Password for writing:</div>
+        <input id="share_wcode" type="text" class="share_input" name="wcode" maxlength="15" />
+      </div>
     </div>
-    <div id="loading">Loading...</div>
     <div id="dlgfoot">
-      <span id="dlgbtns">
+      <span id="footsave">
         <span id="savespan">save file as: <input type="text" size="20" id="savename" value="hello" />.txt</span>
-        <input type="button" id="dlgsave" value="Save" />
+        <input type="button" id="dbtnsave" value="Save" />
+      </span>
+      <span id="footshare">
+        <input type="button" id="dbtnshare" value="Share" />
       </span>
     </div>
   </div>

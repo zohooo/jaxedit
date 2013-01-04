@@ -197,14 +197,6 @@ body {
   overflow: hidden;
 }
 
-#loading {
-  height: 300px;
-  line-height: 300px;
-  text-align: center;
-  background-color: white;
-  display: none;
-}
-
 #dlgfoot {
   height: 30px;
   line-height: 30px;
@@ -222,6 +214,7 @@ body {
   float: right;
   width: 16px;
   height: 16px;
+  border: 1px solid #5D7685;
   text-align: center;
   margin: 5px 0;
 }
@@ -229,6 +222,14 @@ body {
 #dlgclose:hover {
   border: 1px solid #222280;
   background: #3069B6;
+}
+
+#bodyload {
+  height: 300px;
+  line-height: 300px;
+  text-align: center;
+  background-color: white;
+  display: none;
 }
 
 #dlgfinfo {
@@ -297,7 +298,24 @@ body {
   border-color: #DCDCDC;
 }
 
-#dlgbtns {
+#bodyshare {
+  padding: 50px 0;
+  font-size: 16px;
+}
+
+.share_info {
+  width: 100%;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+.share_input {
+  display: block;
+  height: 20px;
+  width: 100%;
+  font-family: monospace;
+}
+
+#footsave, #footshare {
   float: right;
 }
 
@@ -305,18 +323,14 @@ body {
   margin-right: 10px;
 }
 
-#savename {
-  text-align: right;
-}
-
-#dlgsave {
+#dbtnsave, #dbtnshare {
   border: 1px solid #777777;
   background: #E0E0E0;
   border-radius: 2px;
   font-family: Arial, Helvetica, sans-serif;
 }
 
-#dlgsave:hover {
+#dbtnsave:hover, #dbtnshare:hover {
   color: white;
   border: 1px solid #222280;
   background: #3069B6;
