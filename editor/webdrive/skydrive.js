@@ -7,7 +7,11 @@ var skydrive = {
   status: null,
 
   initDrive: function() {
-    var cid, url = location.protocol + '//' + location.host + location.pathname;
+    var path = location.pathname, idx = path.lastIndexOf('index.html');
+    if (idx !== -1) {
+        path = path.replace(path.slice(idx), '');
+    }
+    var cid, url = location.protocol + '//' + location.host + path;
     switch(location.hostname) {
       case "jaxedit.sourceforge.net":
         cid = "000000004C0BD522";
