@@ -92,7 +92,10 @@ Then there exists $\xi\in(a,b)$ such that $f'(\xi)=0$.
 <div id="overlay"></div>
 <div id="container">
   <div id="dialog">
-    <div id="dlghead"></div>
+    <div id="dlghead">
+      <span id="dlgtitle"></span>
+      <span id="dlgclose">&#215;</span>
+    </div>
     <div id="dlgbody">
       <div id="dlgfinfo">
         <span>Current folder:</span>
@@ -106,7 +109,6 @@ Then there exists $\xi\in(a,b)$ such that $f'(\xi)=0$.
       <span id="dlgbtns">
         <span id="savespan">save file as: <input type="text" size="20" id="savename" value="hello" />.txt</span>
         <input type="button" id="dlgsave" value="Save" />
-        <input type="button" id="dlgclose" value="Close" />
       </span>
     </div>
   </div>

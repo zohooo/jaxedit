@@ -182,10 +182,10 @@ body {
 
 #dlghead {
   height: 30px;
-  line-height: 30px;
   padding: 0 15px;
   color: white;
   background-color: #5D7685;
+  font-size: 16px;
   font-family: Arial, Helvetica, sans-serif;
 }
 
@@ -211,6 +211,24 @@ body {
   padding: 0 15px;
   background-color: #E9F1F4;
   font-family: Arial, Helvetica, sans-serif;
+}
+
+#dlgtitle {
+  float: left;
+  margin: 5px 0;
+}
+
+#dlgclose {
+  float: right;
+  width: 16px;
+  height: 16px;
+  text-align: center;
+  margin: 5px 0;
+}
+
+#dlgclose:hover {
+  border: 1px solid #222280;
+  background: #3069B6;
 }
 
 #dlgfinfo {
@@ -291,14 +309,14 @@ body {
   text-align: right;
 }
 
-#dlgsave, #dlgclose {
+#dlgsave {
   border: 1px solid #777777;
   background: #E0E0E0;
   border-radius: 2px;
   font-family: Arial, Helvetica, sans-serif;
 }
 
-#dlgsave:hover, #dlgclose:hover {
+#dlgsave:hover {
   color: white;
   border: 1px solid #222280;
   background: #3069B6;

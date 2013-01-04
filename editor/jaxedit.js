@@ -510,19 +510,19 @@ jaxedit.addButtons = function() {
   };
   
   var driveOpenSave = function(mode) {
-    var dlghead = document.getElementById('dlghead'),
+    var dlgtitle = document.getElementById('dlgtitle'),
         dlgflist = document.getElementById('dlgflist'),
         savespan = document.getElementById('savespan'),
         savename = document.getElementById('savename'),
         dlgsave = document.getElementById('dlgsave');
     if (mode == "open") {
       jaxedit.dialogMode = "open";
-      dlghead.innerHTML = "Open File";
+      dlgtitle.innerHTML = "Open File";
       savespan.style.display = "none";
       dlgsave.style.display = "none";
     } else {
       jaxedit.dialogMode = "save";
-      dlghead.innerHTML = "Save File";
+      dlgtitle.innerHTML = "Save File";
       savespan.style.display = "inline";
       savename.value = jaxedit.fileName.split(/\.[^.]+$/)[0];
       dlgsave.style.display = "inline-block";
@@ -893,12 +893,12 @@ jaxedit.uploadContent = function(data, name, wcode, fid) {
 };
 
 jaxedit.showShareUrl = function(fid) {
-  var dlghead = document.getElementById('dlghead'),
+  var dlgtitle = document.getElementById('dlgtitle'),
       savespan = document.getElementById('savespan'),
       dlgsave = document.getElementById('dlgsave');
   var shareurl = this.shareurl + '#' + fid;
   jaxedit.dialogMode = "share";
-  dlghead.innerHTML = "Share File";
+  dlgtitle.innerHTML = "Share File";
   savespan.style.display = "none";
   dlgsave.style.display = "none";
   jaxedit.toggleLoading(true, 'Sharing URL is <a href="' + shareurl + '">' + shareurl + '</a>');
