@@ -512,25 +512,22 @@ jaxedit.addButtons = function() {
   var driveOpenSave = function(mode) {
     var dlgtitle = document.getElementById('dlgtitle'),
         dlgflist = document.getElementById('dlgflist'),
+        bodyload = document.getElementById('bodyload'),
         savename = document.getElementById('savename'),
         dbtnsave = document.getElementById('dbtnsave');
-        footsave = document.getElementById('footsave'),
-        footshare = document.getElementById('footshare');
-    footshare.style.display = "none";
+    bodyload.innerHTML = 'Loading...';
+    dlgflist.onclick = dialogClick;
     if (mode == "open") {
       jaxedit.dialogMode = "open";
       dlgtitle.innerHTML = "Open File";
-      footsave.style.display = "none";
+      jaxedit.changeDialog('bodyload', 'footclose');
     } else {
       jaxedit.dialogMode = "save";
       dlgtitle.innerHTML = "Save File";
       savename.value = jaxedit.fileName.split(/\.[^.]+$/)[0];
-      footsave.style.display = "inline-block";
       dbtnsave.onclick = checkSave;
+      jaxedit.changeDialog('bodyload', 'footsave');
     }
-    dlgflist.onclick = dialogClick;
-    jaxedit.toggleLoading(true, 'Loading...');
-    jaxedit.toggleModal(true);
     (function(){
       if (skydrive.homeid){
         skydrive.getFilesList(handleResponse);
@@ -566,10 +563,10 @@ jaxedit.addButtons = function() {
       }
       bodytext += '</tbody></table>';
       dlgflist.innerHTML = bodytext;
-      jaxedit.toggleLoading(false);
+      jaxedit.changeDialog('bodylist');
     }
     else {
-      jaxedit.toggleLoading(true, 'Error in reading LaTeX files!');
+      jaxedit.toggleLoading('Error in reading LaTeX files!');
     }
   };
 
@@ -591,7 +588,7 @@ jaxedit.addButtons = function() {
     console.log("fetch file: " + url);
     var path = jaxedit.gatepath + 'drive.php?path=' + encodeURIComponent(jaxedit.encodeText(url));
     var request = createCORSRequest("get", path);
-    jaxedit.toggleLoading(true, 'Opening file...');
+    jaxedit.toggleLoading('Opening file...');
     if (request) {
       request.onload = function(){
         var status = request.status;
@@ -600,11 +597,11 @@ jaxedit.addButtons = function() {
           jaxedit.initEditor(request.responseText);
           jaxedit.toggleModal(false);
         } else {
-          jaxedit.toggleLoading(true, status + ' error in opening file!');
+          jaxedit.toggleLoading(status + ' error in opening file!');
         }
       };
       request.onerror = function(){
-        jaxedit.toggleLoading(true, 'An error occurred!');
+        jaxedit.toggleLoading('An error occurred!');
       };
     request.send();
     }
@@ -616,7 +613,7 @@ jaxedit.addButtons = function() {
         querystr = '?access_token=' + encodeURIComponent(skydrive.access_token),
         gatepath = jaxedit.gatepath + 'drive.php';
     var url, path, boundary, content, request;
-    jaxedit.toggleLoading(true, 'Saving file...');
+    jaxedit.toggleLoading('Saving file...');
     if (location.search == "?put") { // using PUT method
       url = hostpath + '/' + name + querystr;
       path = gatepath + '?path=' + encodeURIComponent(jaxedit.encodeText(url));
@@ -643,11 +640,11 @@ jaxedit.addButtons = function() {
           document.getElementById('filename').innerHTML = jaxedit.fileName = name;
           jaxedit.toggleModal(false);
         } else {
-          jaxedit.toggleLoading(true, status + ' error in saving file!');
+          jaxedit.toggleLoading(status + ' error in saving file!');
         }
       };
       request.onerror = function(){
-        jaxedit.toggleLoading(true, 'An error occurred!');
+        jaxedit.toggleLoading('An error occurred!');
       };
     request.send(content);
     }
@@ -677,7 +674,7 @@ jaxedit.addButtons = function() {
           }
           break;
         case "folder":
-          jaxedit.toggleLoading(true, 'Loading...');
+          jaxedit.toggleLoading('Loading...');
           skydrive.finside.push({fid: fid, name: target.innerHTML});
           skydrive.getFilesList(handleResponse);
           break;
@@ -686,10 +683,7 @@ jaxedit.addButtons = function() {
   };
   
   var dialogWalkup = function() {
-    var bodylist = document.getElementById('bodylist'),
-        bodyload = document.getElementById('bodyload');
-    bodylist.style.display = "none";
-    bodyload.style.display = "block";
+    jaxedit.changeDialog('bodyload');
     skydrive.finside.pop();
     skydrive.getFilesList(handleResponse);
   };
@@ -717,8 +711,9 @@ jaxedit.addButtons = function() {
 
   var dlgwalkup = document.getElementById("dlgwalkup");
   var dlgclose = document.getElementById("dlgclose");
+  var dbtnclose = document.getElementById("dbtnclose");
   dlgwalkup.onclick = dialogWalkup;
-  dlgclose.onclick = function(){ jaxedit.toggleModal(false); };
+  dbtnclose.onclick = dlgclose.onclick = function(){ jaxedit.toggleModal(false); };
   
   // chrome browser will prevent file reading and saving at local
   // unless --allow-file-access-from-files switch was added to it
@@ -755,24 +750,14 @@ jaxedit.addButtons = function() {
 
   var setupShare = function() {
     var dlgtitle = document.getElementById('dlgtitle'),
-        bodyload = document.getElementById('bodyload'),
-        bodylist = document.getElementById('bodylist'),
-        bodyshare = document.getElementById('bodyshare');
-        footsave = document.getElementById('footsave'),
-        footshare = document.getElementById('footshare'),
         dbtnshare = document.getElementById('dbtnshare'),
         share_rcode = document.getElementById('share_rcode'),
         share_wcode = document.getElementById('share_wcode');
     dlgtitle.innerHTML = 'Share File';
-    bodyload.style.display = 'none';
-    bodylist.style.display = 'none';
-    bodyshare.style.display = 'block';
-    footsave.style.display = 'none';
-    footshare.style.display = 'inline-block';
     share_rcode.value = share_wcode.value = jaxedit.randomString(4);
     share_wcode.value += jaxedit.randomString(2);
     dbtnshare.onclick = checkShare;
-    jaxedit.toggleModal(true);
+    jaxedit.changeDialog('bodyshare', 'footshare');
   };
 
   var checkShare = function() {
@@ -780,6 +765,7 @@ jaxedit.addButtons = function() {
     var email = document.getElementById('share_email').value,
         rcode = document.getElementById('share_rcode').value,
         wcode = document.getElementById('share_wcode').value;
+    jaxedit.toggleLoading('Uploading file...');
     jaxedit.uploadContent(jaxedit.editor.getValue(), name, null, wcode, rcode, email);
   };
 
@@ -875,11 +861,13 @@ jaxedit.downloadContent = function(fid, wcode) {
         }
         jaxedit.wcode = wcode;
       } else {
-        jaxedit.toggleLoading(true, status + ' error in opening file!');
+        jaxedit.toggleLoading(status + ': ' + request.responseText);
+        jaxedit.changeDialog('bodyload', 'footclose');
       }
     };
     request.onerror = function(){
-      jaxedit.toggleLoading(true, 'An error occurred!');
+      jaxedit.toggleLoading('An error occurred!');
+      jaxedit.changeDialog('bodyload', 'footclose');
     };
   request.send();
   }
@@ -911,11 +899,13 @@ jaxedit.uploadContent = function(data, name, fid, wcode, rcode, email) {
         jaxedit.wcode = wcode;
         jaxedit.showShareUrl(request.responseText);
       } else {
-        jaxedit.toggleLoading(true, status + ' error in uploading file!');
+        jaxedit.toggleLoading(status + ': ' + request.responseText);
+        jaxedit.changeDialog('bodyload', 'footclose');
       }
     };
     request.onerror = function(){
-      jaxedit.toggleLoading(true, 'An error occurred!');
+      jaxedit.toggleLoading('An error occurred!');
+      jaxedit.changeDialog('bodyload', 'footclose');
     };
   request.send(content);
   }
@@ -923,15 +913,12 @@ jaxedit.uploadContent = function(data, name, fid, wcode, rcode, email) {
 
 jaxedit.showShareUrl = function(fid) {
   var dlgtitle = document.getElementById('dlgtitle'),
-      footsave = document.getElementById('footsave'),
-      footshare = document.getElementById('footshare');
+      bodyload = document.getElementById('bodyload');
   var shareurl = this.shareurl + '#' + fid;
   jaxedit.dialogMode = "share";
   dlgtitle.innerHTML = "Share File";
-  footsave.style.display = "none";
-  footshare.style.display = "none";
-  jaxedit.toggleLoading(true, 'Sharing URL is <a href="' + shareurl + '">' + shareurl + '</a>');
-  jaxedit.toggleModal(true);
+  bodyload.innerHTML = 'Sharing URL is <a href="' + shareurl + '">' + shareurl + '</a>';
+  jaxedit.changeDialog('bodyload', 'footclose');
 };
 
 jaxedit.changeFileDisplay = function(display) {
@@ -982,17 +969,38 @@ jaxedit.toggleModal = function(view) {
   }
 };
 
-jaxedit.toggleLoading = function(load, info) {
-  var bodylist = document.getElementById('bodylist'),
-      bodyload = document.getElementById('bodyload');
-  if (load) {
-    bodylist.style.display = "none";
-    bodyload.style.display = "block";
-    bodyload.innerHTML = info;
-  } else {
-    bodylist.style.display = "block";
-    bodyload.style.display = "none";
+jaxedit.toggleLoading = function(info) {
+  document.getElementById('bodyload').innerHTML = info;
+  this.changeDialog('bodyload');
+};
+
+jaxedit.changeDialog = function(idbody, idfoot) {
+  var childs, element, i;
+  childs = document.getElementById('dlgbody').childNodes;
+  for (i = 0; i < childs.length; i++) {
+    element = childs[i];
+    if (element.nodeType == 1) {
+      if (element.id === idbody) {
+        element.style.display = 'block'
+      } else {
+        element.style.display = 'none';
+      }
+    }
   }
+  if (idfoot) {
+    childs = document.getElementById('dlgfoot').childNodes;
+    for (i = 0; i < childs.length; i++) {
+      element = childs[i];
+      if (element.nodeType == 1) {
+        if (element.id === idfoot) {
+          element.style.display = 'inline-block'
+        } else {
+          element.style.display = 'none';
+        }
+      }
+    }
+  }
+  this.toggleModal(true);
 };
 
 jaxedit.encodeText = function(text) {

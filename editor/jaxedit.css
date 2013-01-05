@@ -315,7 +315,7 @@ body {
   font-family: monospace;
 }
 
-#footsave, #footshare {
+#footsave, #footshare, #footclose {
   float: right;
 }
 
@@ -323,14 +323,14 @@ body {
   margin-right: 10px;
 }
 
-#dbtnsave, #dbtnshare {
+#dbtnsave, #dbtnshare, #dbtnclose {
   border: 1px solid #777777;
   background: #E0E0E0;
   border-radius: 2px;
   font-family: Arial, Helvetica, sans-serif;
 }
 
-#dbtnsave:hover, #dbtnshare:hover {
+#dbtnsave:hover, #dbtnshare:hover, #dbtnclose:hover {
   color: white;
   border: 1px solid #222280;
   background: #3069B6;
