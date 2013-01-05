@@ -857,7 +857,7 @@ var createAjaxRequest = function(method, url) {
 
 jaxedit.downloadContent = function(fid, wcode) {
   console.log("fetch file with fid=" + fid);
-  var path = jaxedit.gatepath + 'share.php?fid=' + fid + '&wcode=' + encodeURIComponent(wcode);
+  var path = jaxedit.gatepath + 'share.php?fid=' + fid + '&wcode=' + encodeURIComponent(this.encodeText(wcode));
   var request = createAjaxRequest("get", path);
   if (request) {
     request.onload = function(){
@@ -865,12 +865,13 @@ jaxedit.downloadContent = function(fid, wcode) {
       if ((status >= 200 && status <300) || status == 304) {
         document.getElementById('filename').innerHTML = jaxedit.fileName = name;
         console.log('hasEditor', jaxedit.hasEditor, 'hasParser', jaxedit.hasParser);
+        var data = decodeURIComponent(jaxedit.decodeText(request.responseText));
         if (jaxedit.hasEditor && jaxedit.hasParser) {
-          jaxedit.initEditor(request.responseText);
+          jaxedit.initEditor(data);
         } else if (jaxedit.hasEditor) {
-          jaxedit.editor.setValue(request.responseText);
+          jaxedit.editor.setValue(data);
         } else {
-          jaxedit.childs.codearea.value = request.responseText;
+          jaxedit.childs.codearea.value = data;
         }
         jaxedit.wcode = wcode;
       } else {
@@ -885,9 +886,9 @@ jaxedit.downloadContent = function(fid, wcode) {
 };
 
 jaxedit.uploadContent = function(data, name, fid, wcode, rcode, email) {
-  var path = jaxedit.gatepath + 'share.php?wcode=' + encodeURIComponent(wcode);
+  var path = jaxedit.gatepath + 'share.php?wcode=' + encodeURIComponent(this.encodeText(wcode));
   if (fid) path += '&fid=' + fid;
-  if (rcode) path += '&rcode=' + encodeURIComponent(wcode);
+  if (rcode) path += '&rcode=' + encodeURIComponent(this.encodeText(rcode));
   if (email) path += '&email=' + encodeURIComponent(email);
   var boundary, content, request;
 
@@ -896,7 +897,7 @@ jaxedit.uploadContent = function(data, name, fid, wcode, rcode, email) {
              'Content-Disposition: form-data; name="file"; filename="' + name + '"',
              'Content-Type: text/plain; charset=utf-8',
              '',
-             data,
+             this.encodeText(encodeURIComponent(data)),
              '--' + boundary + '--'].join('\r\n');
   request = createAjaxRequest('POST', path);
   request.setRequestHeader('Content-Type', 'multipart/form-data; boundary=' + boundary);
@@ -995,11 +996,24 @@ jaxedit.toggleLoading = function(load, info) {
 };
 
 jaxedit.encodeText = function(text) {
+  if (!text) return text;
   var length = text.length, safePrime = 1964903159, result = [],
       index = navigator.userAgent.length % length, step = safePrime % length;
   console.log('encodeText: length = ' + length + ' start = ' + index + ' step = ' + step);
   for (var i = 0; i < length; i++) {
     result.push(text.charAt(index));
+    index = (index - step + length) % length;
+  }
+  return result.join('');
+};
+
+jaxedit.decodeText = function(text) {
+  if (!text) return text;
+  var length = text.length, safePrime = 1964903159, result = [],
+      index = navigator.userAgent.length % length, step = safePrime % length;
+  console.log('decodeText: length = ' + length + ' start = ' + index + ' step = ' + step);
+  for (var i = 0; i < length; i++) {
+    result[index] = text.charAt(i);
     index = (index - step + length) % length;
   }
   return result.join('');
