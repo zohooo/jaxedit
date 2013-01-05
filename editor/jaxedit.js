@@ -589,7 +589,7 @@ jaxedit.addButtons = function() {
   
   var getFileContent = function(url, name) {
     console.log("fetch file: " + url);
-    var path = jaxedit.gatepath + '?path=' + encodeURIComponent(jaxedit.encodeText(url));
+    var path = jaxedit.gatepath + 'drive.php?path=' + encodeURIComponent(jaxedit.encodeText(url));
     var request = createCORSRequest("get", path);
     jaxedit.toggleLoading(true, 'Opening file...');
     if (request) {
@@ -614,7 +614,7 @@ jaxedit.addButtons = function() {
     var fid = skydrive.finside[skydrive.finside.length - 1].fid,
         hostpath = 'https://apis.live.net/v5.0/' + fid + '/files',
         querystr = '?access_token=' + encodeURIComponent(skydrive.access_token),
-        gatepath = jaxedit.gatepath;
+        gatepath = jaxedit.gatepath + 'drive.php';
     var url, path, boundary, content, request;
     jaxedit.toggleLoading(true, 'Saving file...');
     if (location.search == "?put") { // using PUT method
