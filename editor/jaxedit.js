@@ -42,6 +42,7 @@ jaxedit.childs = {
   source : document.getElementById("source"),
   codearea : document.getElementById("codearea"),
   lbot : document.getElementById("lbot"),
+  resizer : document.getElementById("resizer"),
   right : document.getElementById("right"),
   rtop : document.getElementById("rtop"),
   preview : document.getElementById("preview"),
@@ -114,7 +115,7 @@ jaxedit.getOptions = function() {
   }
 };
 
-jaxedit.doResize = function() {
+jaxedit.doResize = function(clientX) {
   var childs = jaxedit.childs,
       html = childs.html,
       body = childs.body,
@@ -125,6 +126,7 @@ jaxedit.doResize = function() {
       source = childs.source,
       codearea = childs.codearea,
       lbot = childs.lbot,
+      resizer = childs.resizer,
       right = childs.right,
       rtop = childs.rtop,
       preview = childs.preview,
@@ -146,32 +148,53 @@ jaxedit.doResize = function() {
 
   var headHeight = 42, topHeight = 26, botHeight = 24, halfBorder = 4;
   var mainWidth = pageWidth, mainHeight = pageHeight - headHeight,
-      halfWidth = Math.ceil(pageWidth / 2) - halfBorder, halfHeight = mainHeight - halfBorder,
-      wrapWidth = halfWidth, wrapHeight = halfHeight - topHeight - botHeight;
+      halfHeight = mainHeight - halfBorder, wrapHeight = halfHeight - topHeight - botHeight;
+  var lHalfWidth, lWrapWidth, rHalfWidth, rWrapWidth;
+
+  if (typeof clientX == 'number') {
+    lHalfWidth = lWrapWidth = clientX - halfBorder,
+    rHalfWidth = rWrapWidth = pageWidth - clientX - halfBorder;
+  } else {
+    lHalfWidth = lWrapWidth = Math.ceil(pageWidth / 2) - halfBorder,
+    rHalfWidth = rWrapWidth = Math.floor(pageWidth / 2) - halfBorder;
+  }
+  if (lHalfWidth < 0) {
+    left.style.display = 'none'; rHalfWidth = pageWidth - halfBorder - 2;
+  } else {
+    left.style.display = 'block';
+  }
+  if (rHalfWidth < 0) {
+    right.style.display = 'none'; lHalfWidth = pageWidth - halfBorder - 2;
+  } else {
+    right.style.display = 'block';
+  }
 
   wsizes.push([html, pageWidth]);
   wsizes.push([body, pageWidth]);
   wsizes.push([head, pageWidth - 4]);
   wsizes.push([main, mainWidth]); hsizes.push([main, mainHeight]);
 
-  wsizes.push([left, halfWidth]); wsizes.push([right, halfWidth]);
+  wsizes.push([left, lHalfWidth]); wsizes.push([right, rHalfWidth]);
   hsizes.push([left, halfHeight]); hsizes.push([right, halfHeight]);
-  
-  wsizes.push([ltop, wrapWidth - 6]); wsizes.push([rtop, wrapWidth - 6]);
 
-  wsizes.push([source, wrapWidth - 2]); hsizes.push([source, wrapHeight]);
+  hsizes.push([resizer, halfHeight + 4]);
+  resizer.style.left = ((lHalfWidth + 2 < 0) ? 0 : (lHalfWidth + 2)) + 'px';
+
+  wsizes.push([ltop, lWrapWidth - 6]); wsizes.push([rtop, rWrapWidth - 6]);
+
+  wsizes.push([source, lWrapWidth - 2]); hsizes.push([source, wrapHeight]);
   if (jaxedit.options.highlight && jaxedit.editor) {
-    wsizes.push([jaxedit.editor.getWrapperElement(), wrapWidth - 8]);
+    wsizes.push([jaxedit.editor.getWrapperElement(), lWrapWidth - 8]);
     hsizes.push([jaxedit.editor.getWrapperElement(), wrapHeight - 10]);
   } else {
-    wsizes.push([codearea, wrapWidth - 8]);
+    wsizes.push([codearea, lWrapWidth - 8]);
     hsizes.push([codearea, wrapHeight - 10]);
   }
   
-  wsizes.push([preview, wrapWidth - 6]); hsizes.push([preview, wrapHeight - 8]);
-  wsizes.push([showarea, wrapWidth - 6]); hsizes.push([showarea, wrapHeight - 10]);
+  wsizes.push([preview, rWrapWidth - 6]); hsizes.push([preview, wrapHeight - 8]);
+  wsizes.push([showarea, rWrapWidth - 6]); hsizes.push([showarea, wrapHeight - 10]);
 
-  wsizes.push([lbot, wrapWidth - 6]); wsizes.push([rbot, wrapWidth - 6]);
+  wsizes.push([lbot, lWrapWidth - 6]); wsizes.push([rbot, rWrapWidth - 6]);
 
   jaxedit.resizeElements(wsizes, hsizes);
 };
@@ -300,6 +323,36 @@ jaxedit.doLoad = function() {
   jaxedit.loadEditor();
   jaxedit.loadParser();
   jaxedit.addButtons();
+  jaxedit.addResizer();
+};
+
+jaxedit.addResizer = function() {
+  resizer = this.childs.resizer, main = this.childs.main;
+
+  resizer.onmousedown = function(event) {
+    jaxedit.forResize = true;
+    var ev = event ? event : window.event;
+    if (ev.preventDefault) {
+      ev.preventDefault();
+    } else {
+      ev.returnValue = false;
+    }
+  };
+
+  main.onmousemove = function(event) {
+    if (jaxedit.forResize) {
+      var ev = event ? event : window.event;
+      resizer.style.left = (ev.clientX - 2) + 'px';
+    }
+  };
+
+  resizer.onmouseup = function(event) {
+    if (jaxedit.forResize) {
+      var ev = event ? event : window.event;
+      jaxedit.doResize(ev.clientX);
+    }
+    jaxedit.forResize = false;
+  };
 };
 
 jaxedit.doScroll = function(isForward) {

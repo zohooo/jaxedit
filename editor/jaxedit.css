@@ -78,6 +78,24 @@ body {
   left: 0;
 }
 
+#resizer {
+  width: 0;
+  height: 564px;
+  padding: 0 2px;
+  margin: 0;
+  position: absolute;
+  top: 0;
+  left: 482px;
+  z-index: 4;
+  overflow: hidden;
+  cursor: w-resize;
+  background-color: #C1C1C1;
+}
+
+#resizer:hover {
+  background-color: #B0C4DE;
+}
+
 #right {
   right: 0;
 }
