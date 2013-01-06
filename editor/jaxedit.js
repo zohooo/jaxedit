@@ -843,7 +843,8 @@ var createAjaxRequest = function(method, url) {
 
 jaxedit.downloadContent = function(fid, wcode) {
   console.log("fetch file with fid=" + fid);
-  var path = jaxedit.gatepath + 'share.php?fid=' + fid + '&wcode=' + encodeURIComponent(this.encodeText(wcode));
+  var path = jaxedit.gatepath + 'share.php', info = 'fid=' + fid + '&wcode=' + wcode;
+  path += '?info=' + encodeURIComponent(this.encodeText(encodeURIComponent(info)));
   var request = createAjaxRequest("get", path);
   if (request) {
     request.onload = function(){
@@ -874,10 +875,11 @@ jaxedit.downloadContent = function(fid, wcode) {
 };
 
 jaxedit.uploadContent = function(data, name, fid, wcode, rcode, email) {
-  var path = jaxedit.gatepath + 'share.php?wcode=' + encodeURIComponent(this.encodeText(wcode));
-  if (fid) path += '&fid=' + fid;
-  if (rcode) path += '&rcode=' + encodeURIComponent(this.encodeText(rcode));
-  if (email) path += '&email=' + encodeURIComponent(email);
+  var path = jaxedit.gatepath + 'share.php', info = 'wcode=' + wcode;
+  if (fid) info += '&fid=' + fid;
+  if (rcode) info += '&rcode=' + rcode;
+  if (email) info += '&email=' + email;
+  path += '?info=' + encodeURIComponent(this.encodeText(encodeURIComponent(info)));
   var boundary, content, request;
 
   boundary = 'jjaaxxeeddiitt';
