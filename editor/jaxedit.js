@@ -17,6 +17,7 @@ var jaxedit = {
   fileName: 'noname.tex',
   useDrive: null,
   localDrive: false,
+  view: 'write',
   dialogMode: null
 };
 
@@ -112,6 +113,7 @@ jaxedit.getOptions = function() {
     this.childs.codearea.value = '';
     var wcode = prompt('Please enter sharing password:', '');
     this.downloadContent(this.fileid, wcode);
+    this.view = 'load';
   }
 };
 
@@ -150,6 +152,27 @@ jaxedit.doResize = function(clientX) {
   var mainWidth = pageWidth, mainHeight = pageHeight - headHeight,
       halfHeight = mainHeight - halfBorder, wrapHeight = halfHeight - topHeight - botHeight;
   var lHalfWidth, lWrapWidth, rHalfWidth, rWrapWidth;
+
+  if (jaxedit.view == 'read') {
+    html.style.width = pageWidth + 'px';
+    body.style.width = 802 + 'px';
+    body.style.height = '100%';
+    head.style.width = 798 + 'px'
+    main.style.width = 802 + 'px';
+    main.style.height = mainHeight + 'px';
+    left.style.display = resizer.style.display = 'none';
+    rtop.style.display = rbot.style.display = 'none';
+    right.style.width = 798 + 'px'; right.style.height = halfHeight + 'px';
+    preview.style.width = 794 + 'px';
+    preview.style.height = halfHeight - 8 + 'px';
+    showarea.style.width = 694 + 'px';
+    showarea.style.height = halfHeight - 108 + 'px';
+    showarea.style.padding = '50px';
+    body.style.margin = 'auto';
+    body.style.backgroundColor = 'gray';
+    right.style.backgroundColor = 'white';
+    return;
+  };
 
   if (typeof clientX == 'number') {
     lHalfWidth = lWrapWidth = clientX - halfBorder,
@@ -307,7 +330,6 @@ jaxedit.doLoad = function() {
 
   jaxedit.getOptions();
   jaxedit.autoScroll = false;
-  jaxedit.doResize();
   
   if (window.localStorage && jaxedit.fileid <= 0) {
     if (localStorage.getItem("texcode")) {
@@ -318,12 +340,22 @@ jaxedit.doLoad = function() {
     }
   }
 
-  document.body.style.visibility = "visible";
+  if (jaxedit.view == 'write') {
+    jaxedit.showWindow();
+  }
+
   showarea.innerHTML = '<div style="font-size:1em;margin-top:6em;text-align:center;">Loading TypeJax and MathJax...</div>';
   jaxedit.loadEditor();
   jaxedit.loadParser();
-  jaxedit.addButtons();
-  jaxedit.addResizer();
+};
+
+jaxedit.showWindow = function() {
+  jaxedit.doResize();
+  document.body.style.visibility = "visible";
+  if (jaxedit.view == 'write') {
+    jaxedit.addButtons();
+    jaxedit.addResizer();
+  }
 };
 
 jaxedit.addResizer = function() {
@@ -914,6 +946,11 @@ jaxedit.downloadContent = function(fid, wcode) {
           jaxedit.childs.codearea.value = data;
         }
         jaxedit.wcode = wcode;
+        var view = request.getResponseHeader('Permission');
+        if (jaxedit.view !== 'view') {
+          jaxedit.view = view;
+          jaxedit.showWindow();
+        }
       } else {
         jaxedit.toggleLoading(status + ': ' + request.responseText);
         jaxedit.changeDialog('bodyload', 'footclose');
