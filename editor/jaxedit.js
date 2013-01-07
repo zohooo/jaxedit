@@ -894,11 +894,20 @@ jaxedit.addButtons = function() {
 
   var checkShare = function() {
     var name = jaxedit.fileName ? jaxedit.fileName : 'noname.tex';
+    var note = document.getElementById("share_note");
     var email = document.getElementById('share_email').value,
         rcode = document.getElementById('share_rcode').value,
         wcode = document.getElementById('share_wcode').value;
-    jaxedit.toggleLoading('Uploading file...');
-    jaxedit.uploadContent(jaxedit.editor.getValue(), name, null, wcode, rcode, email);
+    if (rcode.length < 4) {
+      note.innerHTML = 'Error: reading password is too short!';
+    } else if (wcode.length < 6) {
+      note.innerHTML = 'Error: editing password is too short!';
+    } else if (email.indexOf('@') <= 0 || email.indexOf('@') == email.length - 1) {
+      note.innerHTML = 'Error: your email address is invalid!';
+    } else {
+      jaxedit.toggleLoading('Uploading file...');
+      jaxedit.uploadContent(jaxedit.editor.getValue(), name, null, wcode, rcode, email);
+    }
   };
 
   sharebtn.onclick = function() {
