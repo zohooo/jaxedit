@@ -368,7 +368,7 @@ jaxedit.showWindow = function() {
 };
 
 jaxedit.addResizer = function() {
-  resizer = this.childs.resizer, main = this.childs.main;
+  var resizer = this.childs.resizer, main = this.childs.main;
 
   resizer.onmousedown = function(event) {
     jaxedit.forResize = true;
