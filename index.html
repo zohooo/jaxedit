@@ -8,37 +8,38 @@
 <link rel="stylesheet" type="text/css" href="editor/jaxedit.css" />
 </head>
 <body>
-<div id="head">
-  <span id="logo">JaxEdit</span>
-  <span class="btngroup">
-    <input type="button" id="loginbtn" value="Login" />
-    <select id="drivesel" size="1">
-      <option value="localdrive">Local Drive</option>
-      <option value="skydrive">SkyDrive</option>
-    </select>
-    <input type="file" id="opensel" />
-    <input type="button" id="newbtn" value="New" />
-    <input type="button" id="openbtn" value="Open" />
-    <input type="button" id="savebtn" value="Save" />
-  </span>
-  <span class="btngroup">
-    <input type="button" id="sharebtn" value="Share" />
-  </span>
-  <span class="btngroup">
-    <input type="button" id="presbtn" value="Present" />
-  </span>
-  <span class="btngroup">
-    <input type="button" id="helpbtn" value="Help" />
-  </span>
-</div>
-<div id="main">
-  <div id="left">
-    <div id="ltop">
-      <span>Source</span>
-      <span id="filename">noname.tex</span>
-    </div>
-    <div id="source">
-      <textarea id="codearea">
+<div id="wrap">
+  <div id="head">
+    <span id="logo">JaxEdit</span>
+    <span class="btngroup">
+      <input type="button" id="loginbtn" value="Login" />
+      <select id="drivesel" size="1">
+        <option value="localdrive">Local Drive</option>
+        <option value="skydrive">SkyDrive</option>
+      </select>
+      <input type="file" id="opensel" />
+      <input type="button" id="newbtn" value="New" />
+      <input type="button" id="openbtn" value="Open" />
+      <input type="button" id="savebtn" value="Save" />
+    </span>
+    <span class="btngroup">
+      <input type="button" id="sharebtn" value="Share" />
+    </span>
+    <span class="btngroup">
+      <input type="button" id="presbtn" value="Present" />
+    </span>
+    <span class="btngroup">
+      <input type="button" id="helpbtn" value="Help" />
+    </span>
+  </div>
+  <div id="main">
+    <div id="left">
+      <div id="ltop">
+        <span>Source</span>
+        <span id="filename">noname.tex</span>
+      </div>
+      <div id="source">
+        <textarea id="codearea">
 \documentclass{beamer}
 
 \newtheorem{thm}{Theorem}
@@ -75,19 +76,20 @@ Then there exists $\xi\in(a,b)$ such that $f'(\xi)=0$.
 \end{frame}
 
 \end{document}
-      </textarea>
+        </textarea>
+      </div>
+      <div id="lbot"></div>
     </div>
-    <div id="lbot"></div>
-  </div>
-  <div id="resizer" title="Resize"></div>
-  <div id="right">
-    <div id="rtop">
-      <span>Preview</span>
+    <div id="resizer" title="Resize"></div>
+    <div id="right">
+      <div id="rtop">
+        <span>Preview</span>
+      </div>
+      <div id="preview">
+        <div id="showarea"></div>
+      </div>
+      <div id="rbot"></div>
     </div>
-    <div id="preview">
-      <div id="showarea"></div>
-    </div>
-    <div id="rbot"></div>
   </div>
 </div>
 <div id="overlay"></div>

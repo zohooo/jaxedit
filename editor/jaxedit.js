@@ -30,6 +30,7 @@ jaxedit.options = {
 jaxedit.childs = {
   html : document.documentElement,
   body : document.body,
+  wrap : document.getElementById("wrap"),
   head : document.getElementById("head"),
   newbtn : document.getElementById("newbtn"),
   openbtn : document.getElementById("openbtn"),
@@ -106,15 +107,20 @@ jaxedit.getOptions = function() {
   this.mathpath = options.localjs ? 'library/mathjax/unpacked/' : 'http://cdn.mathjax.org/mathjax/2.1-latest/';
   this.gatepath = (location.pathname == '/note/') ? 'http://jaxedit.com/gate/' : 'http://jaxedit.com/door/';
   this.shareurl = (location.pathname == '/note/') ? 'http://jaxedit.com/note/' : 'http://jaxedit.com/beta/';
+};
 
+jaxedit.fetchFile = function() {
   var i = parseInt(location.hash.substring(1));
   if (isFinite(i)) this.fileid = i;
   if (this.fileid > 0) {
     this.childs.codearea.value = '';
     var wcode = prompt('Please enter sharing password:', '');
+    if (wcode === null) return false;
+    this.changeDialog('bodyload', 'footclose', 'Fetch File', 'Fetching file...');
     this.downloadContent(this.fileid, wcode);
     this.view = 'load';
   }
+  return true;
 };
 
 jaxedit.doResize = function(clientX) {
@@ -154,19 +160,17 @@ jaxedit.doResize = function(clientX) {
   var lHalfWidth, lWrapWidth, rHalfWidth, rWrapWidth;
 
   if (jaxedit.view == 'read') {
-    html.style.width = pageWidth + 'px';
-    body.style.width = 802 + 'px';
+    wsizes.push([html, pageWidth]);
+    wsizes.push([body, 802]);
+    wsizes.push([head, 798]);
+    wsizes.push([main, 802]); hsizes.push([main, mainHeight]);
+    wsizes.push([right, 798]); hsizes.push([main, halfHeight]);
+    wsizes.push([preview, 794]); hsizes.push([main, halfHeight - 8]);
+    wsizes.push([showarea, 694]); hsizes.push([showarea, halfHeight - 108]);
+    jaxedit.resizeElements(wsizes, hsizes);
     body.style.height = '100%';
-    head.style.width = 798 + 'px'
-    main.style.width = 802 + 'px';
-    main.style.height = mainHeight + 'px';
     left.style.display = resizer.style.display = 'none';
     rtop.style.display = rbot.style.display = 'none';
-    right.style.width = 798 + 'px'; right.style.height = halfHeight + 'px';
-    preview.style.width = 794 + 'px';
-    preview.style.height = halfHeight - 8 + 'px';
-    showarea.style.width = 694 + 'px';
-    showarea.style.height = halfHeight - 108 + 'px';
     showarea.style.padding = '50px';
     body.style.margin = 'auto';
     body.style.backgroundColor = 'gray';
@@ -329,6 +333,11 @@ jaxedit.doLoad = function() {
       showarea = jaxedit.childs.showarea;
 
   jaxedit.getOptions();
+  jaxedit.bindCoreElements();
+  if (!jaxedit.fetchFile()) {
+    jaxedit.changeDialog("bodyload", "footclose", "Error", "You have no access to this file!");
+    return;
+  }
   jaxedit.autoScroll = false;
   
   if (window.localStorage && jaxedit.fileid <= 0) {
@@ -351,7 +360,7 @@ jaxedit.doLoad = function() {
 
 jaxedit.showWindow = function() {
   jaxedit.doResize();
-  document.body.style.visibility = "visible";
+  this.childs.wrap.style.visibility = "visible";
   if (jaxedit.view == 'write') {
     jaxedit.addButtons();
     jaxedit.addResizer();
@@ -521,6 +530,49 @@ jaxedit.setScrollers = function(length, change, scroll) {
   scrollers.codescroll = scroll;
 };
 
+jaxedit.bindCoreElements = function() {
+  var dlgclose = document.getElementById("dlgclose"),
+      dbtnclose = document.getElementById("dbtnclose"),
+      helpbtn = document.getElementById("helpbtn"),
+      presbtn = document.getElementById("presbtn");
+  dbtnclose.onclick = dlgclose.onclick = function(){ jaxedit.toggleModal(false); };
+  helpbtn.onclick = function() {
+    window.open("http://jaxedit.com/#help", "_blank");
+  };
+  helpbtn.style.display = "inline-block";
+  if (location.search == "?present=off") {
+    jaxedit.canPresent = false;
+  } else {
+    presbtn.onclick = function() {
+      var w, doc;
+      var showarea = jaxedit.childs.showarea;
+      var content = ['<!DOCTYPE html><html><head><title>JaxEdit Beamer Presentation</title>',
+                     '<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />',
+                     '<link rel="stylesheet" type="text/css" href="typejax/typejax.css" />',
+                     '<link rel="stylesheet" type="text/css" href="typejax/showjax.css" />',
+                     '<script type="text/x-mathjax-config">',
+                        'MathJax.Hub.Config({\n',
+                        '  TeX: { extensions: ["color.js", "extpfeil.js"] },\n',
+                        '  "HTML-CSS": { imageFont: null }\n',
+                        '});',
+                     '</scr' + 'ipt>',
+                     '<script type="text/javascript" src="' + jaxedit.mathpath + jaxedit.mathname + '"></scr' + 'ipt>',
+                     '<script type="text/javascript" src="jsquick/jsquick.js"></scr' + 'ipt>',
+                     '<script type="text/javascript" src="typejax/showjax.js"></scr' + 'ipt></head><body>',
+                     '<div id="showarea">' + showarea.innerHTML + '</div>',
+                     '</body></html>'].join('');
+      if ($.browser.msie) {
+        w = window.open("", "showjax", "fullscreen");
+      } else {
+        w = window.open("", "showjax");
+      }
+      doc = w.document;
+      doc.write(content);
+      doc.close();
+    }
+  }
+};
+
 jaxedit.addButtons = function() {
   var browser = $.browser, codearea = this.childs.codearea, showarea = this.childs.showarea;
   var newbtn = document.getElementById("newbtn"),
@@ -528,8 +580,6 @@ jaxedit.addButtons = function() {
       opensel = document.getElementById("opensel"),
       savebtn = document.getElementById("savebtn"),
       sharebtn = document.getElementById("sharebtn"),
-      presbtn = document.getElementById("presbtn"),
-      helpbtn = document.getElementById("helpbtn"),
       loginbtn = document.getElementById("loginbtn"),
       drivesel = document.getElementById("drivesel");
 
@@ -795,10 +845,7 @@ jaxedit.addButtons = function() {
   };
 
   var dlgwalkup = document.getElementById("dlgwalkup");
-  var dlgclose = document.getElementById("dlgclose");
-  var dbtnclose = document.getElementById("dbtnclose");
   dlgwalkup.onclick = dialogWalkup;
-  dbtnclose.onclick = dlgclose.onclick = function(){ jaxedit.toggleModal(false); };
   
   // chrome browser will prevent file reading and saving at local
   // unless --allow-file-access-from-files switch was added to it
@@ -866,43 +913,6 @@ jaxedit.addButtons = function() {
   if (window.XMLHttpRequest) {
     sharebtn.style.display = "inline-block";
   }
-
-  if (location.search == "?present=off") {
-    jaxedit.canPresent = false;
-  } else {
-    presbtn.onclick = function() {
-      var w, doc;
-      var showarea = jaxedit.childs.showarea;
-      var content = ['<!DOCTYPE html><html><head><title>JaxEdit Beamer Presentation</title>',
-                     '<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />',
-                     '<link rel="stylesheet" type="text/css" href="typejax/typejax.css" />',
-                     '<link rel="stylesheet" type="text/css" href="typejax/showjax.css" />',
-                     '<script type="text/x-mathjax-config">',
-                        'MathJax.Hub.Config({\n',
-                        '  TeX: { extensions: ["color.js", "extpfeil.js"] },\n',
-                        '  "HTML-CSS": { imageFont: null }\n',
-                        '});',
-                     '</scr' + 'ipt>',
-                     '<script type="text/javascript" src="' + jaxedit.mathpath + jaxedit.mathname + '"></scr' + 'ipt>',
-                     '<script type="text/javascript" src="jsquick/jsquick.js"></scr' + 'ipt>',
-                     '<script type="text/javascript" src="typejax/showjax.js"></scr' + 'ipt></head><body>',
-                     '<div id="showarea">' + showarea.innerHTML + '</div>',
-                     '</body></html>'].join('');
-      if ($.browser.msie) {
-        w = window.open("", "showjax", "fullscreen");
-      } else {
-        w = window.open("", "showjax");
-      }
-      doc = w.document;
-      doc.write(content);
-      doc.close();
-    }
-  }
-
-  helpbtn.onclick = function() {
-    window.open("http://jaxedit.com/#help", "_blank");
-  };
-  helpbtn.style.display = "inline-block";
   /*
   window.onbeforeunload = function() {
     if (jaxedit.useDrive == 'skydrive') {
@@ -947,18 +957,17 @@ jaxedit.downloadContent = function(fid, wcode) {
         }
         jaxedit.wcode = wcode;
         var view = request.getResponseHeader('Permission');
+        jaxedit.toggleModal(false);
         if (jaxedit.view !== 'view') {
           jaxedit.view = view;
           jaxedit.showWindow();
         }
       } else {
         jaxedit.toggleLoading(status + ': ' + request.responseText);
-        jaxedit.changeDialog('bodyload', 'footclose');
       }
     };
     request.onerror = function(){
       jaxedit.toggleLoading('An error occurred!');
-      jaxedit.changeDialog('bodyload', 'footclose');
     };
   request.send();
   }
@@ -991,12 +1000,10 @@ jaxedit.uploadContent = function(data, name, fid, wcode, rcode, email) {
         jaxedit.showShareUrl(request.responseText);
       } else {
         jaxedit.toggleLoading(status + ': ' + request.responseText);
-        jaxedit.changeDialog('bodyload', 'footclose');
       }
     };
     request.onerror = function(){
       jaxedit.toggleLoading('An error occurred!');
-      jaxedit.changeDialog('bodyload', 'footclose');
     };
   request.send(content);
   }
@@ -1061,20 +1068,21 @@ jaxedit.toggleModal = function(view) {
 };
 
 jaxedit.toggleLoading = function(info) {
-  document.getElementById('bodyload').innerHTML = info;
-  this.changeDialog('bodyload');
+  this.changeDialog('bodyload', null, null, info);
 };
 
-jaxedit.changeDialog = function(idbody, idfoot) {
+jaxedit.changeDialog = function(idbody, idfoot, title, info) {
   var childs, element, i;
-  childs = document.getElementById('dlgbody').childNodes;
-  for (i = 0; i < childs.length; i++) {
-    element = childs[i];
-    if (element.nodeType == 1) {
-      if (element.id === idbody) {
-        element.style.display = 'block'
-      } else {
-        element.style.display = 'none';
+  if (idbody) {
+    childs = document.getElementById('dlgbody').childNodes;
+    for (i = 0; i < childs.length; i++) {
+      element = childs[i];
+      if (element.nodeType == 1) {
+        if (element.id === idbody) {
+          element.style.display = 'block'
+        } else {
+          element.style.display = 'none';
+        }
       }
     }
   }
@@ -1090,6 +1098,12 @@ jaxedit.changeDialog = function(idbody, idfoot) {
         }
       }
     }
+  }
+  if (title) {
+    document.getElementById('dlgtitle').innerHTML = title;
+  }
+  if (info) {
+    document.getElementById('bodyload').innerHTML = info;
   }
   this.toggleModal(true);
 };
