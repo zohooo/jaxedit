@@ -986,7 +986,6 @@ jaxedit.uploadContent = function(data, name, fid, wcode, rcode, email) {
       var status = request.status;
       if ((status >= 200 && status <300) || status == 304) {
         document.getElementById('filename').innerHTML = jaxedit.fileName = name;
-        location.hash = '#' + request.responseText;
         jaxedit.fileid = parseInt(request.responseText);
         jaxedit.wcode = wcode;
         jaxedit.showShareUrl(request.responseText);
