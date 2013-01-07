@@ -164,8 +164,8 @@ jaxedit.doResize = function(clientX) {
     wsizes.push([body, 802]);
     wsizes.push([head, 798]);
     wsizes.push([main, 802]); hsizes.push([main, mainHeight]);
-    wsizes.push([right, 798]); hsizes.push([main, halfHeight]);
-    wsizes.push([preview, 794]); hsizes.push([main, halfHeight - 8]);
+    wsizes.push([right, 798]); hsizes.push([right, halfHeight]);
+    wsizes.push([preview, 794]); hsizes.push([preview, halfHeight - 8]);
     wsizes.push([showarea, 694]); hsizes.push([showarea, halfHeight - 108]);
     jaxedit.resizeElements(wsizes, hsizes);
     body.style.height = '100%';
