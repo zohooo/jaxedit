@@ -914,7 +914,7 @@ jaxedit.addButtons = function() {
   */
 };
 
-var createAjaxRequest = function(method, url) {
+jaxedit.createAjaxRequest = function(method, url) {
   var xhr;
   if (typeof XMLHttpRequest != 'undefined') {
     xhr = new XMLHttpRequest();
@@ -930,7 +930,7 @@ jaxedit.downloadContent = function(fid, wcode) {
   console.log("fetch file with fid=" + fid);
   var path = jaxedit.gatepath + 'share.php', info = 'fid=' + fid + '&wcode=' + wcode;
   path += '?info=' + encodeURIComponent(this.encodeText(encodeURIComponent(info)));
-  var request = createAjaxRequest("get", path);
+  var request = this.createAjaxRequest("get", path);
   if (request) {
     request.onload = function(){
       var status = request.status;
@@ -979,7 +979,7 @@ jaxedit.uploadContent = function(data, name, fid, wcode, rcode, email) {
              '',
              this.encodeText(encodeURIComponent(data)),
              '--' + boundary + '--'].join('\r\n');
-  request = createAjaxRequest('POST', path);
+  request = this.createAjaxRequest('POST', path);
   request.setRequestHeader('Content-Type', 'multipart/form-data; boundary=' + boundary);
   if (request) {
     request.onload = function(){
