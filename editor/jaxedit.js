@@ -920,7 +920,7 @@ jaxedit.addButtons = function() {
       setupShare();
     }
   };
-  if (window.XMLHttpRequest) {
+  if (location.protocol != "file:") {
     sharebtn.style.display = "inline-block";
   }
   /*
@@ -934,53 +934,41 @@ jaxedit.addButtons = function() {
   */
 };
 
-jaxedit.createAjaxRequest = function(method, url) {
-  var xhr;
-  if (typeof XMLHttpRequest != 'undefined') {
-    xhr = new XMLHttpRequest();
-    xhr.open(method, url, true);
-  } else {
-    xhr = null;
-    console.log("no xdr!");
-  }
-  return xhr;
-};
-
 jaxedit.downloadContent = function(fid, wcode) {
   console.log("fetch file with fid=" + fid);
   var path = jaxedit.gatepath + 'share.php', info = 'fid=' + fid + '&wcode=' + wcode;
   path += '?info=' + encodeURIComponent(this.encodeText(encodeURIComponent(info)));
-  var request = this.createAjaxRequest("get", path);
-  if (request) {
-    request.onload = function(){
-      var status = request.status;
-      if ((status >= 200 && status <300) || status == 304) {
-        document.getElementById('filename').innerHTML = jaxedit.fileName = name;
-        console.log('hasEditor', jaxedit.hasEditor, 'hasParser', jaxedit.hasParser);
-        var data = decodeURIComponent(jaxedit.decodeText(request.responseText));
-        if (jaxedit.hasEditor && jaxedit.hasParser) {
-          jaxedit.initEditor(data);
-        } else if (jaxedit.hasEditor) {
-          jaxedit.editor.setValue(data);
-        } else {
-          jaxedit.childs.codearea.value = data;
-        }
-        jaxedit.wcode = wcode;
-        var view = request.getResponseHeader('Permission');
-        jaxedit.toggleModal(false);
-        if (jaxedit.view !== 'view') {
-          jaxedit.view = view;
-          jaxedit.showWindow();
-        }
+
+  function success(text, status, xhr) {
+    if ((status >= 200 && status <300) || status == 304) {
+      document.getElementById('filename').innerHTML = jaxedit.fileName = name;
+      console.log('hasEditor', jaxedit.hasEditor, 'hasParser', jaxedit.hasParser);
+      var data = decodeURIComponent(jaxedit.decodeText(text));
+      if (jaxedit.hasEditor && jaxedit.hasParser) {
+        jaxedit.initEditor(data);
+      } else if (jaxedit.hasEditor) {
+        jaxedit.editor.setValue(data);
       } else {
-        jaxedit.toggleLoading(status + ': ' + request.responseText);
+        jaxedit.childs.codearea.value = data;
       }
-    };
-    request.onerror = function(){
-      jaxedit.toggleLoading('An error occurred!');
-    };
-  request.send();
+      jaxedit.wcode = wcode;
+      var view = xhr.getResponseHeader('Permission');
+      jaxedit.toggleModal(false);
+      if (jaxedit.view !== 'view') {
+        jaxedit.view = view;
+        jaxedit.showWindow();
+      }
+    } else {
+      jaxedit.toggleLoading(status + ': ' + text);
+    }
   }
+
+  $.ajax({
+    type: "GET",
+    url: path,
+    data: "",
+    success: success
+  });
 };
 
 jaxedit.uploadContent = function(data, name, fid, wcode, rcode, email) {
@@ -998,25 +986,25 @@ jaxedit.uploadContent = function(data, name, fid, wcode, rcode, email) {
              '',
              this.encodeText(encodeURIComponent(data)),
              '--' + boundary + '--'].join('\r\n');
-  request = this.createAjaxRequest('POST', path);
-  request.setRequestHeader('Content-Type', 'multipart/form-data; boundary=' + boundary);
-  if (request) {
-    request.onload = function(){
-      var status = request.status;
-      if ((status >= 200 && status <300) || status == 304) {
-        document.getElementById('filename').innerHTML = jaxedit.fileName = name;
-        jaxedit.fileid = parseInt(request.responseText);
-        jaxedit.wcode = wcode;
-        jaxedit.showShareUrl(request.responseText);
-      } else {
-        jaxedit.toggleLoading(status + ': ' + request.responseText);
-      }
-    };
-    request.onerror = function(){
-      jaxedit.toggleLoading('An error occurred!');
-    };
-  request.send(content);
+
+  function success(text, status) {
+    if ((status >= 200 && status <300) || status == 304) {
+      document.getElementById('filename').innerHTML = jaxedit.fileName = name;
+      jaxedit.fileid = parseInt(text);
+      jaxedit.wcode = wcode;
+      jaxedit.showShareUrl(text);
+    } else {
+      jaxedit.toggleLoading(status + ': ' + text);
+    }
   }
+
+  $.ajax({
+    type: "POST",
+    url: path,
+    data: content,
+    success: success,
+    contentType: 'multipart/form-data; boundary=' + boundary
+  });
 };
 
 jaxedit.showShareUrl = function(fid) {

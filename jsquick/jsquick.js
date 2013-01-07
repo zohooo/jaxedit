@@ -81,3 +81,18 @@ jsquick.loadScript = function(url, callback) {
   }
   document.body.appendChild(script);
 };
+
+jsquick.ajax = function(settings) {
+  var xhr = (window.XMLHttpRequest) ?
+            new XMLHttpRequest() : new ActiveXObject("Microsoft.XMLHTTP");
+  xhr.onreadystatechange = function() {
+    if (xhr.readyState == 4) {
+      settings.success(xhr.responseText, xhr.status, xhr);
+    }
+  };
+  xhr.open(settings.type, settings.url, true);
+  if (settings.contentType) {
+    xhr.setRequestHeader("Content-Type", settings.contentType);
+  }
+  xhr.send(settings.data);
+};
