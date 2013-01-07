@@ -854,6 +854,7 @@ jaxedit.addButtons = function() {
       (browser.msie && browser.msie >= 10)) {
     jaxedit.localDrive = true;
     jaxedit.useDrive = "localdrive";
+    opensel.style.visibility = "visible";
     opensel.addEventListener("change", doOpen, false);
     addFileHandler();
     jaxedit.changeFileDisplay(true);

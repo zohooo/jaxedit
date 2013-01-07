@@ -41,6 +41,7 @@ html, body {
 
 #opensel {
   width:0px; height:0px; margin: 0; padding: 0;
+  visibility: hidden;
 }
 
 #newbtn, #openbtn, #savebtn, #sharebtn, #presbtn, #helpbtn, #loginbtn {
