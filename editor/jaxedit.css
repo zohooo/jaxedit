@@ -321,7 +321,7 @@ html, body {
   border-color: #DCDCDC;
 }
 
-#bodyvisit {
+#bodyfetch {
   padding: 100px 0 10px 0;
 }
 
@@ -361,7 +361,7 @@ html, body {
   font-family: Arial, Helvetica, sans-serif;
 }
 
-#footsave, #footvisit, #footshare, #footclose {
+#footsave, #footfetch, #footshare, #footclose {
   float: right;
 }
 
@@ -369,14 +369,14 @@ html, body {
   margin-right: 10px;
 }
 
-#dbtnsave, #dbtnvisit, #dbtnshare, #dbtnclose {
+#dbtnsave, #dbtnfetch, #dbtnshare, #dbtnclose {
   border: 1px solid #777777;
   background: #E0E0E0;
   border-radius: 2px;
   font-family: Arial, Helvetica, sans-serif;
 }
 
-#dbtnsave:hover, #dbtnvisit:hover, #dbtnshare:hover, #dbtnclose:hover {
+#dbtnsave:hover, #dbtnfetch:hover, #dbtnshare:hover, #dbtnclose:hover {
   color: white;
   border: 1px solid #222280;
   background: #3069B6;
