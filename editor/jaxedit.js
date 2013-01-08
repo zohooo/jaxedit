@@ -326,7 +326,7 @@ window.jaxedit = (function(){
 
       jaxedit.getOptions();
       jaxedit.bindCore(this);
-      jaxedit.bindShare(this);
+      var enableShare = jaxedit.bindShare(this);
       jaxedit.autoScroll = false;
 
       if (window.localStorage && jaxedit.fileid <= 0) {
@@ -339,7 +339,7 @@ window.jaxedit = (function(){
       }
 
       if (jaxedit.view == 'write') {
-        jaxedit.showWindow();
+        jaxedit.showWindow(enableShare);
       }
 
       showarea.innerHTML = '<div style="font-size:1em;margin-top:6em;text-align:center;">Loading TypeJax and MathJax...</div>';
@@ -347,12 +347,15 @@ window.jaxedit = (function(){
       jaxedit.loadParser();
     },
 
-    showWindow: function() {
+    showWindow: function(enableShare) {
       jaxedit.doResize();
       this.childs.wrap.style.visibility = "visible";
       if (jaxedit.view == 'write') {
         jaxedit.bindDrive(this);
         jaxedit.addResizer();
+        if (location.protocol != "file:") {
+           enableShare();
+        }
       }
     },
 
@@ -561,10 +564,7 @@ window.jaxedit = (function(){
             jaxedit.toggleModal(false);
             if (jaxedit.view !== view) {
               jaxedit.view = view;
-              jaxedit.showWindow();
-              if (view === 'write' && location.protocol != "file:") {
-                 enableShare();
-              }
+              jaxedit.showWindow(enableShare);
             }
           } else {
             jaxedit.toggleLoading(status + ': ' + text);
@@ -696,6 +696,7 @@ window.jaxedit = (function(){
       }
 
       if (that.fileid > 0) setupFetch();
+      return enableShare;
     },
 
     bindDrive: function(that) {
