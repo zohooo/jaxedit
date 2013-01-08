@@ -410,20 +410,90 @@ jaxedit.doScroll = function(isForward) {
   if (!jaxedit.autoScroll) return;
   var scrollers = this.scrollers, divheights = scrollers.divheights;
   if (!divheights.length) return;
-  var editor = this.editor, showarea = this.childs.showarea,
-      leftpos = editor.getScrollInfo().top, rightpos = showarea.scrollTop;
+  var codelength = scrollers.codelength,
+      codescroll = scrollers.codescroll,
+      codechange = scrollers.codechange,
+      showscoll = scrollers.showscroll,
+      showheight = scrollers.showheight;
+  var editor = this.editor, editinfo = editor.getScrollInfo(),
+      leftpos = editinfo.top,
+      leftscroll = editinfo.height,
+      leftclient = editinfo.clientHeight,
+      leftsize = leftscroll - leftclient;
+  var showarea = this.childs.showarea,
+      rightpos = showarea.scrollTop,
+      rightscroll = showarea.scrollHeight,
+      rightclient = showarea.clientHeight,
+      rightsize = rightscroll - rightclient;
+
   var length, newpos, thatpos, thatarea;
+
+  function getLeftIndex() {
+    var length;
+    /* length = codelength * (leftpos / leftsize); */
+    if (leftpos <= codescroll) {
+      length = (codescroll <= 0) ? 0 : codechange * leftpos / codescroll;
+    } else {
+      length = (codescroll >= leftsize) ? codelength : codechange + (codelength - codechange) * (leftpos - codescroll) / (leftsize - codescroll)
+    }
+    return length;
+  }
+
+  function getLeftScroll(length) {
+    var newpos;
+    /* newpos = leftsize * length / codelength; */
+    if (length <= codechange) {
+      newpos = (codechange <= 0) ? 0 : codescroll * length / codechange;
+    } else {
+      newpos = (codechange >= codelength) ? leftsize : codescroll + (leftsize - codescroll) * (length - codechange) / (codelength - codechange);
+    }
+    return newpos;
+  }
+
+  function getRightIndex() {
+    var length, data, i;
+    var height = showheight * rightpos / rightsize;
+    for (i = 1; i < divheights.length; i++) {
+      data = divheights[i];
+      if (height > data[2]) {
+        height -= data[2];
+      } else {
+        if (data[2] > 0) {
+          length = data[0] + (data[1] - data[0]) * height / data[2];
+        } else {
+          length = data[0];
+        }
+        break;
+      }
+    }
+    return length;
+  }
+
+  function getRightScroll(length) {
+    var height = 0, data, i;
+    for (i = 0; i < divheights.length; i++) {
+      data = divheights[i];
+      if (length > data[1]) {
+        height += data[2];
+      } else {
+        height += data[2] * (length - data[0]) / (data[1] - data[0]);
+        break;
+      }
+    }
+    var newpos = rightsize * (height / showheight);
+    return newpos;
+  }
 
   // leftpos <--> length <--> height <--> rightpos
 
   if (isForward) { // left to right
-    length = this.getLeftIndex();
-    newpos = this.getRightScroll(length);
+    length = getLeftIndex();
+    newpos = getRightScroll(length);
     //console.log("left2right:", leftpos, Math.round(length), Math.round(newpos));
     thatpos = rightpos, thatarea = showarea;
   } else { // right to left
-    length = this.getRightIndex();
-    newpos = this.getLeftScroll(length);
+    length = getRightIndex();
+    newpos = getLeftScroll(length);
     //console.log("right2left:", rightpos, Math.round(length), Math.round(newpos));
     thatpos = leftpos, thatarea = editor;
   }
@@ -437,100 +507,6 @@ jaxedit.doScroll = function(isForward) {
     }
     setTimeout(function(){jaxedit.autoScroll = true;}, 20);
   }
-};
-
-jaxedit.getLeftIndex = function() {
-  var scrollers = this.scrollers,
-      codescroll = scrollers.codescroll,
-      codelength = scrollers.codelength,
-      codechange = scrollers.codechange;
-  var editor = this.editor,
-      editinfo = editor.getScrollInfo(),
-      leftpos = editinfo.top,
-      leftscroll = editinfo.height,
-      leftclient = editinfo.clientHeight,
-      leftsize = leftscroll - leftclient;
-  var length;
-  /* length = codelength * (leftpos / leftsize); */
-  if (leftpos <= codescroll) {
-    length = (codescroll <= 0) ? 0 : codechange * leftpos / codescroll;
-  } else {
-    length = (codescroll >= leftsize) ? codelength : codechange + (codelength - codechange) * (leftpos - codescroll) / (leftsize - codescroll)
-  }
-  return length;
-};
-
-jaxedit.getLeftScroll = function(length) {
-  var scrollers = this.scrollers,
-      codescroll = scrollers.codescroll,
-      codelength = scrollers.codelength,
-      codechange = scrollers.codechange;
-  var editor = this.editor,
-      editinfo = editor.getScrollInfo(),
-      leftpos = editinfo.top,
-      leftscroll = editinfo.height,
-      leftclient = editinfo.clientHeight,
-      leftsize = leftscroll - leftclient;
-  var newpos;
-  /* newpos = leftsize * length / codelength; */
-  if (length <= codechange) {
-    newpos = (codechange <= 0) ? 0 : codescroll * length / codechange;
-  } else {
-    newpos = (codechange >= codelength) ? leftsize : codescroll + (leftsize - codescroll) * (length - codechange) / (codelength - codechange);
-  }
-  return newpos;
-};
-
-jaxedit.getRightIndex = function() {
-  var scrollers = this.scrollers,
-      divheights = scrollers.divheights,
-      showscoll = scrollers.showscroll,
-      showheight = scrollers.showheight;
-  var showarea = this.childs.showarea,
-      rightpos = showarea.scrollTop,
-      rightscroll = showarea.scrollHeight,
-      rightclient = showarea.clientHeight,
-      rightsize = rightscroll - rightclient;
-  var length, data, i;
-  var height = showheight * rightpos / rightsize;
-  for (i = 1; i < divheights.length; i++) {
-    data = divheights[i];
-    if (height > data[2]) {
-      height -= data[2];
-    } else {
-      if (data[2] > 0) {
-        length = data[0] + (data[1] - data[0]) * height / data[2];
-      } else {
-        length = data[0];
-      }
-      break;
-    }
-  }
-  return length;
-};
-
-jaxedit.getRightScroll = function(length) {
-  var scrollers = this.scrollers,
-      divheights = scrollers.divheights,
-      showscoll = scrollers.showscroll,
-      showheight = scrollers.showheight;
-  var showarea = this.childs.showarea,
-      rightpos = showarea.scrollTop,
-      rightscroll = showarea.scrollHeight,
-      rightclient = showarea.clientHeight,
-      rightsize = rightscroll - rightclient;
-  var height = 0, data, i;
-  for (i = 0; i < divheights.length; i++) {
-    data = divheights[i];
-    if (length > data[1]) {
-      height += data[2];
-    } else {
-      height += data[2] * (length - data[0]) / (data[1] - data[0]);
-      break;
-    }
-  }
-  var newpos = rightsize * (height / showheight);
-  return newpos;
 };
 
 jaxedit.setScrollers = function(length, change, scroll) {
@@ -580,6 +556,139 @@ jaxedit.bindCoreElements = function() {
       doc.write(content);
       doc.close();
     }
+  }
+};
+
+jaxedit.bindShareElements = function() {
+  function downloadContent(fid, wcode) {
+    console.log("fetch file with fid=" + fid);
+    var path = jaxedit.gatepath + 'share.php', info = 'fid=' + fid + '&wcode=' + wcode;
+    path += '?info=' + encodeURIComponent(this.encodeText(encodeURIComponent(info)));
+
+    function success(text, status, xhr) {
+      if ((status >= 200 && status <300) || status == 304) {
+        document.getElementById('filename').innerHTML = jaxedit.fileName = name;
+        console.log('hasEditor', jaxedit.hasEditor, 'hasParser', jaxedit.hasParser);
+        var data = decodeURIComponent(jaxedit.decodeText(text));
+        if (jaxedit.hasEditor && jaxedit.hasParser) {
+          jaxedit.initEditor(data);
+        } else if (jaxedit.hasEditor) {
+          jaxedit.editor.setValue(data);
+        } else {
+          jaxedit.childs.codearea.value = data;
+        }
+        jaxedit.wcode = wcode;
+        var view = xhr.getResponseHeader('Permission');
+        jaxedit.toggleModal(false);
+        if (jaxedit.view !== 'view') {
+          jaxedit.view = view;
+          jaxedit.showWindow();
+        }
+      } else {
+        jaxedit.toggleLoading(status + ': ' + text);
+      }
+    }
+
+    $.ajax({
+      type: "GET",
+      url: path,
+      data: "",
+      success: success
+    });
+  }
+
+  function uploadContent(data, name, fid, wcode, rcode, email) {
+    var path = jaxedit.gatepath + 'share.php', info = 'wcode=' + wcode;
+    if (fid) info += '&fid=' + fid;
+    if (rcode) info += '&rcode=' + rcode;
+    if (email) info += '&email=' + email;
+    path += '?info=' + encodeURIComponent(this.encodeText(encodeURIComponent(info)));
+    var boundary, content, request;
+
+    boundary = 'jjaaxxeeddiitt';
+    content = ['--' + boundary,
+               'Content-Disposition: form-data; name="file"; filename="' + name + '"',
+               'Content-Type: text/plain; charset=utf-8',
+               '',
+               this.encodeText(encodeURIComponent(data)),
+               '--' + boundary + '--'].join('\r\n');
+
+    function success(text, status) {
+      if ((status >= 200 && status <300) || status == 304) {
+        document.getElementById('filename').innerHTML = jaxedit.fileName = name;
+        jaxedit.fileid = parseInt(text);
+        jaxedit.wcode = wcode;
+        jaxedit.showShareUrl(text);
+      } else {
+        jaxedit.toggleLoading(status + ': ' + text);
+      }
+    }
+
+    $.ajax({
+      type: "POST",
+      url: path,
+      data: content,
+      success: success,
+      contentType: 'multipart/form-data; boundary=' + boundary
+    });
+  }
+
+  function showShareUrl(fid) {
+    var shareurl = this.shareurl + '?' + fid;
+    var shareinfo = 'Sharing URL is <a href="' + shareurl + '">' + shareurl + '</a>';
+    jaxedit.changeDialog('bodyload', 'footclose', "Share File", shareinfo);
+  }
+
+  function setupShare() {
+    var dialog = document.getElementById('dialog'),
+        dlgtitle = document.getElementById('dlgtitle'),
+        dbtnshare = document.getElementById('dbtnshare'),
+        share_email = document.getElementById('share_email'),
+        share_rcode = document.getElementById('share_rcode'),
+        share_wcode = document.getElementById('share_wcode');
+    dlgtitle.innerHTML = 'Share File';
+    share_rcode.value = share_wcode.value = jaxedit.randomString(4);
+    share_wcode.value += jaxedit.randomString(2);
+    dbtnshare.onclick = checkShare;
+    dialog.onkeypress = keyPress;
+    jaxedit.changeDialog('bodyshare', 'footshare');
+    share_email.focus();
+  }
+
+  function checkShare() {
+    var name = jaxedit.fileName ? jaxedit.fileName : 'noname.tex';
+    var note = document.getElementById("share_note");
+    var email = document.getElementById('share_email').value,
+        rcode = document.getElementById('share_rcode').value,
+        wcode = document.getElementById('share_wcode').value;
+    if (rcode.length < 4) {
+      note.innerHTML = 'Error: reading password is too short!';
+    } else if (wcode.length < 6) {
+      note.innerHTML = 'Error: editing password is too short!';
+    } else if (email.indexOf('@') <= 0 || email.indexOf('@') == email.length - 1) {
+      note.innerHTML = 'Error: your email address is invalid!';
+    } else {
+      jaxedit.changeDialog("bodyload", "footclose", "", "Uploading file...");
+      jaxedit.uploadContent(jaxedit.editor.getValue(), name, null, wcode, rcode, email);
+    }
+  }
+
+  function keyPress() {
+    var ev = event ? event : window.event;
+    if (ev.keyCode == 13) checkShare();
+  }
+
+  sharebtn.onclick = function() {
+    var fid = jaxedit.fileid;
+    var name = jaxedit.fileName ? jaxedit.fileName : 'noname.tex';
+    if (fid > 0) {
+      jaxedit.uploadContent(jaxedit.editor.getValue(), name, fid, jaxedit.wcode);
+    } else {
+      setupShare();
+    }
+  };
+  if (location.protocol != "file:") {
+    sharebtn.style.display = "inline-block";
   }
 };
 
@@ -891,57 +1000,6 @@ jaxedit.addButtons = function() {
     });
   }
 
-  var setupShare = function() {
-    var dialog = document.getElementById('dialog'),
-        dlgtitle = document.getElementById('dlgtitle'),
-        dbtnshare = document.getElementById('dbtnshare'),
-        share_email = document.getElementById('share_email'),
-        share_rcode = document.getElementById('share_rcode'),
-        share_wcode = document.getElementById('share_wcode');
-    dlgtitle.innerHTML = 'Share File';
-    share_rcode.value = share_wcode.value = jaxedit.randomString(4);
-    share_wcode.value += jaxedit.randomString(2);
-    dbtnshare.onclick = checkShare;
-    dialog.onkeypress = keyPress;
-    jaxedit.changeDialog('bodyshare', 'footshare');
-    share_email.focus();
-  };
-
-  var checkShare = function() {
-    var name = jaxedit.fileName ? jaxedit.fileName : 'noname.tex';
-    var note = document.getElementById("share_note");
-    var email = document.getElementById('share_email').value,
-        rcode = document.getElementById('share_rcode').value,
-        wcode = document.getElementById('share_wcode').value;
-    if (rcode.length < 4) {
-      note.innerHTML = 'Error: reading password is too short!';
-    } else if (wcode.length < 6) {
-      note.innerHTML = 'Error: editing password is too short!';
-    } else if (email.indexOf('@') <= 0 || email.indexOf('@') == email.length - 1) {
-      note.innerHTML = 'Error: your email address is invalid!';
-    } else {
-      jaxedit.changeDialog("bodyload", "footclose", "", "Uploading file...");
-      jaxedit.uploadContent(jaxedit.editor.getValue(), name, null, wcode, rcode, email);
-    }
-  };
-
-  function keyPress() {
-    var ev = event ? event : window.event;
-    if (ev.keyCode == 13) checkShare();
-  }
-
-  sharebtn.onclick = function() {
-    var fid = jaxedit.fileid;
-    var name = jaxedit.fileName ? jaxedit.fileName : 'noname.tex';
-    if (fid > 0) {
-      jaxedit.uploadContent(jaxedit.editor.getValue(), name, fid, jaxedit.wcode);
-    } else {
-      setupShare();
-    }
-  };
-  if (location.protocol != "file:") {
-    sharebtn.style.display = "inline-block";
-  }
   /*
   window.onbeforeunload = function() {
     if (jaxedit.useDrive == 'skydrive') {
@@ -951,85 +1009,6 @@ jaxedit.addButtons = function() {
     }
   }
   */
-};
-
-jaxedit.downloadContent = function(fid, wcode) {
-  console.log("fetch file with fid=" + fid);
-  var path = jaxedit.gatepath + 'share.php', info = 'fid=' + fid + '&wcode=' + wcode;
-  path += '?info=' + encodeURIComponent(this.encodeText(encodeURIComponent(info)));
-
-  function success(text, status, xhr) {
-    if ((status >= 200 && status <300) || status == 304) {
-      document.getElementById('filename').innerHTML = jaxedit.fileName = name;
-      console.log('hasEditor', jaxedit.hasEditor, 'hasParser', jaxedit.hasParser);
-      var data = decodeURIComponent(jaxedit.decodeText(text));
-      if (jaxedit.hasEditor && jaxedit.hasParser) {
-        jaxedit.initEditor(data);
-      } else if (jaxedit.hasEditor) {
-        jaxedit.editor.setValue(data);
-      } else {
-        jaxedit.childs.codearea.value = data;
-      }
-      jaxedit.wcode = wcode;
-      var view = xhr.getResponseHeader('Permission');
-      jaxedit.toggleModal(false);
-      if (jaxedit.view !== 'view') {
-        jaxedit.view = view;
-        jaxedit.showWindow();
-      }
-    } else {
-      jaxedit.toggleLoading(status + ': ' + text);
-    }
-  }
-
-  $.ajax({
-    type: "GET",
-    url: path,
-    data: "",
-    success: success
-  });
-};
-
-jaxedit.uploadContent = function(data, name, fid, wcode, rcode, email) {
-  var path = jaxedit.gatepath + 'share.php', info = 'wcode=' + wcode;
-  if (fid) info += '&fid=' + fid;
-  if (rcode) info += '&rcode=' + rcode;
-  if (email) info += '&email=' + email;
-  path += '?info=' + encodeURIComponent(this.encodeText(encodeURIComponent(info)));
-  var boundary, content, request;
-
-  boundary = 'jjaaxxeeddiitt';
-  content = ['--' + boundary,
-             'Content-Disposition: form-data; name="file"; filename="' + name + '"',
-             'Content-Type: text/plain; charset=utf-8',
-             '',
-             this.encodeText(encodeURIComponent(data)),
-             '--' + boundary + '--'].join('\r\n');
-
-  function success(text, status) {
-    if ((status >= 200 && status <300) || status == 304) {
-      document.getElementById('filename').innerHTML = jaxedit.fileName = name;
-      jaxedit.fileid = parseInt(text);
-      jaxedit.wcode = wcode;
-      jaxedit.showShareUrl(text);
-    } else {
-      jaxedit.toggleLoading(status + ': ' + text);
-    }
-  }
-
-  $.ajax({
-    type: "POST",
-    url: path,
-    data: content,
-    success: success,
-    contentType: 'multipart/form-data; boundary=' + boundary
-  });
-};
-
-jaxedit.showShareUrl = function(fid) {
-  var shareurl = this.shareurl + '?' + fid;
-  var shareinfo = 'Sharing URL is <a href="' + shareurl + '">' + shareurl + '</a>';
-  jaxedit.changeDialog('bodyload', 'footclose', "Share File", shareinfo);
 };
 
 jaxedit.changeFileDisplay = function(display) {
