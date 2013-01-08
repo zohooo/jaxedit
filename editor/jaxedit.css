@@ -321,6 +321,10 @@ html, body {
   border-color: #DCDCDC;
 }
 
+#bodyvisit {
+  padding: 100px 0 10px 0;
+}
+
 #bodyshare {
   padding: 30px 0 10px 0;
   font-size: 16px;
@@ -338,7 +342,14 @@ html, body {
   height: 20px;
   width: 100%;
   font-family: monospace;
-  margin-bottom: 20px;
+  margin: 4px 0 20px 0;
+  border-radius: 2px;
+  border: 1px solid gray;
+}
+
+.share_input:focus {
+  border-color: #7489EF;
+  outline: none;
 }
 
 #share_note {
@@ -350,7 +361,7 @@ html, body {
   font-family: Arial, Helvetica, sans-serif;
 }
 
-#footsave, #footshare, #footclose {
+#footsave, #footvisit, #footshare, #footclose {
   float: right;
 }
 
@@ -358,14 +369,14 @@ html, body {
   margin-right: 10px;
 }
 
-#dbtnsave, #dbtnshare, #dbtnclose {
+#dbtnsave, #dbtnvisit, #dbtnshare, #dbtnclose {
   border: 1px solid #777777;
   background: #E0E0E0;
   border-radius: 2px;
   font-family: Arial, Helvetica, sans-serif;
 }
 
-#dbtnsave:hover, #dbtnshare:hover, #dbtnclose:hover {
+#dbtnsave:hover, #dbtnvisit:hover, #dbtnshare:hover, #dbtnclose:hover {
   color: white;
   border: 1px solid #222280;
   background: #3069B6;

@@ -110,17 +110,20 @@ jaxedit.getOptions = function() {
 };
 
 jaxedit.fetchFile = function() {
+  function checkVisit() {
+    var scode = document.getElementById("share_scode").value;
+    jaxedit.changeDialog('bodyload', 'footclose', 'Fetch File', 'Fetching file...');
+    jaxedit.downloadContent(jaxedit.fileid, scode);
+  };
+
   var i = parseInt(location.hash.substring(1));
   if (isFinite(i)) this.fileid = i;
   if (this.fileid > 0) {
     this.childs.codearea.value = '';
-    var wcode = prompt('Please enter sharing password:', '');
-    if (wcode === null) return false;
-    this.changeDialog('bodyload', 'footclose', 'Fetch File', 'Fetching file...');
-    this.downloadContent(this.fileid, wcode);
     this.view = 'load';
+    document.getElementById("dbtnvisit").onclick = checkVisit;
+    this.changeDialog('bodyvisit', 'footvisit', 'Enter Password');
   }
-  return true;
 };
 
 jaxedit.doResize = function(clientX) {
@@ -334,10 +337,7 @@ jaxedit.doLoad = function() {
 
   jaxedit.getOptions();
   jaxedit.bindCoreElements();
-  if (!jaxedit.fetchFile()) {
-    jaxedit.changeDialog("bodyload", "footclose", "Error", "You have no access to this file!");
-    return;
-  }
+  jaxedit.fetchFile();
   jaxedit.autoScroll = false;
   
   if (window.localStorage && jaxedit.fileid <= 0) {
