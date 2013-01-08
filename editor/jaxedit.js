@@ -82,6 +82,11 @@ jaxedit.getOptions = function() {
 
   for (var i=0; i<items.length; i++) {
     pair = items[i].split('=');
+    if (pair.length == 1) {
+      var id = parseInt(pair[0]);
+      if (isFinite(id)) this.fileid = id;
+      continue;
+    }
     name = decodeURIComponent(pair[0]);
     value = pair[1] ? decodeURIComponent(pair[1]) : "";
     switch (typeof options[name]) {
@@ -121,8 +126,6 @@ jaxedit.fetchFile = function() {
     if (ev.keyCode == 13) checkVisit();
   }
 
-  var i = parseInt(location.hash.substring(1));
-  if (isFinite(i)) this.fileid = i;
   if (this.fileid > 0) {
     this.childs.codearea.value = '';
     this.view = 'load';
@@ -1024,7 +1027,7 @@ jaxedit.uploadContent = function(data, name, fid, wcode, rcode, email) {
 };
 
 jaxedit.showShareUrl = function(fid) {
-  var shareurl = this.shareurl + '#' + fid;
+  var shareurl = this.shareurl + '?' + fid;
   var shareinfo = 'Sharing URL is <a href="' + shareurl + '">' + shareurl + '</a>';
   jaxedit.changeDialog('bodyload', 'footclose', "Share File", shareinfo);
 };
