@@ -116,12 +116,18 @@ jaxedit.fetchFile = function() {
     jaxedit.downloadContent(jaxedit.fileid, scode);
   };
 
+  function checkPress() {
+    var ev = event ? event : window.event;
+    if (ev.keyCode == 13) checkVisit();
+  }
+
   var i = parseInt(location.hash.substring(1));
   if (isFinite(i)) this.fileid = i;
   if (this.fileid > 0) {
     this.childs.codearea.value = '';
     this.view = 'load';
     document.getElementById("dbtnvisit").onclick = checkVisit;
+    document.getElementById("dialog").onkeypress = checkPress;
     this.changeDialog('bodyvisit', 'footvisit', 'Enter Password');
   }
 };
@@ -882,7 +888,8 @@ jaxedit.addButtons = function() {
   }
 
   var setupShare = function() {
-    var dlgtitle = document.getElementById('dlgtitle'),
+    var dialog = document.getElementById('dialog'),
+        dlgtitle = document.getElementById('dlgtitle'),
         dbtnshare = document.getElementById('dbtnshare'),
         share_rcode = document.getElementById('share_rcode'),
         share_wcode = document.getElementById('share_wcode');
@@ -890,6 +897,7 @@ jaxedit.addButtons = function() {
     share_rcode.value = share_wcode.value = jaxedit.randomString(4);
     share_wcode.value += jaxedit.randomString(2);
     dbtnshare.onclick = checkShare;
+    dialog.onkeypress = keyPress;
     jaxedit.changeDialog('bodyshare', 'footshare');
   };
 
@@ -910,6 +918,11 @@ jaxedit.addButtons = function() {
       jaxedit.uploadContent(jaxedit.editor.getValue(), name, null, wcode, rcode, email);
     }
   };
+
+  function keyPress() {
+    var ev = event ? event : window.event;
+    if (ev.keyCode == 13) checkShare();
+  }
 
   sharebtn.onclick = function() {
     var fid = jaxedit.fileid;
