@@ -129,6 +129,7 @@ jaxedit.fetchFile = function() {
     document.getElementById("dbtnvisit").onclick = checkVisit;
     document.getElementById("dialog").onkeypress = checkPress;
     this.changeDialog('bodyvisit', 'footvisit', 'Enter Password');
+    document.getElementById("share_scode").focus();
   }
 };
 
@@ -891,6 +892,7 @@ jaxedit.addButtons = function() {
     var dialog = document.getElementById('dialog'),
         dlgtitle = document.getElementById('dlgtitle'),
         dbtnshare = document.getElementById('dbtnshare'),
+        share_email = document.getElementById('share_email'),
         share_rcode = document.getElementById('share_rcode'),
         share_wcode = document.getElementById('share_wcode');
     dlgtitle.innerHTML = 'Share File';
@@ -899,6 +901,7 @@ jaxedit.addButtons = function() {
     dbtnshare.onclick = checkShare;
     dialog.onkeypress = keyPress;
     jaxedit.changeDialog('bodyshare', 'footshare');
+    share_email.focus();
   };
 
   var checkShare = function() {
