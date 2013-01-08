@@ -249,7 +249,7 @@ html, body {
 
 #bodyload {
   height: 300px;
-  line-height: 300px;
+  padding-top: 130px;
   text-align: center;
   background-color: white;
   display: none;

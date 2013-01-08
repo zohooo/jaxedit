@@ -755,7 +755,7 @@ jaxedit.addButtons = function() {
         querystr = '?access_token=' + encodeURIComponent(skydrive.access_token),
         gatepath = jaxedit.gatepath + 'drive.php';
     var url, path, boundary, content, request;
-    jaxedit.toggleLoading('Saving file...');
+    jaxedit.changeDialog("bodyload", "footclose", "", "Saving file...");
     if (location.search == "?put") { // using PUT method
       url = hostpath + '/' + name + querystr;
       path = gatepath + '?path=' + encodeURIComponent(jaxedit.encodeText(url));
@@ -917,7 +917,7 @@ jaxedit.addButtons = function() {
     } else if (email.indexOf('@') <= 0 || email.indexOf('@') == email.length - 1) {
       note.innerHTML = 'Error: your email address is invalid!';
     } else {
-      jaxedit.toggleLoading('Uploading file...');
+      jaxedit.changeDialog("bodyload", "footclose", "", "Uploading file...");
       jaxedit.uploadContent(jaxedit.editor.getValue(), name, null, wcode, rcode, email);
     }
   };
@@ -1024,13 +1024,9 @@ jaxedit.uploadContent = function(data, name, fid, wcode, rcode, email) {
 };
 
 jaxedit.showShareUrl = function(fid) {
-  var dlgtitle = document.getElementById('dlgtitle'),
-      bodyload = document.getElementById('bodyload');
   var shareurl = this.shareurl + '#' + fid;
-  jaxedit.dialogMode = "share";
-  dlgtitle.innerHTML = "Share File";
-  bodyload.innerHTML = 'Sharing URL is <a href="' + shareurl + '">' + shareurl + '</a>';
-  jaxedit.changeDialog('bodyload', 'footclose');
+  var shareinfo = 'Sharing URL is <a href="' + shareurl + '">' + shareurl + '</a>';
+  jaxedit.changeDialog('bodyload', 'footclose', "Share File", shareinfo);
 };
 
 jaxedit.changeFileDisplay = function(display) {
