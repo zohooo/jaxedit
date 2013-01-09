@@ -11,33 +11,61 @@
 if (!window.console) console = {log : function() {}};
 
 (function(){
-  var jsquick = {
-    each: function(collection, callback) {
-      var i, arr = [];
-      if (Object.prototype.toString.call(collection) !== "[object Array]") {
-        if (Object.getOwnPropertyNames) {
-          arr = Object.getOwnPropertyNames(collection);
-        } else {
-          for (var key in collection) {
-            if (collection.hasOwnProperty(key)) arr.push(key);
-          }
-        }
-        for (i = 0; i < arr.length; i++) {
-          callback(arr[i], collection[arr[i]]);
-        }
+  function jsquick(selector) {
+    return new init(selector);
+  }
+
+  function init(selector) {
+    var elems;
+    switch (selector.charAt(0)) {
+      case "#":
+        elems = [document.getElementById(selector.slice(1))];
+        break;
+      case ".":
+        elems = document.getElementsByClassName(selector.slice(1));
+        break;
+      default:
+        elems = document.getElementsByTagName(selector);
+    }
+    for (var i = 0; i < elems.length; i++) {
+      this[i] = elems[i];
+    }
+    this.length = elems.length;
+  };
+
+  init.prototype = jsquick.prototype;
+
+  jsquick.prototype.each = function(callback) {
+    for (var i = 0; i < this.length; i++) {
+      callback.call(this[i], i);
+    }
+  };
+
+  jsquick.each = function(collection, callback) {
+    var i, arr = [];
+    if (Object.prototype.toString.call(collection) !== "[object Array]") {
+      if (Object.getOwnPropertyNames) {
+        arr = Object.getOwnPropertyNames(collection);
       } else {
-        for (i = 0; i < collection.length; i++) {
-          callback(i, collection[i]);
+        for (var key in collection) {
+          if (collection.hasOwnProperty(key)) arr.push(key);
         }
       }
-    },
-
-    extend: function(obj) {
-      var that = this;
-      this.each(obj, function(key, value) {
-        that[key] = value;
-      });
+      for (i = 0; i < arr.length; i++) {
+        callback(arr[i], collection[arr[i]]);
+      }
+    } else {
+      for (i = 0; i < collection.length; i++) {
+        callback(i, collection[i]);
+      }
     }
+  };
+
+  jsquick.prototype.extend = jsquick.extend = function(obj) {
+    var that = this;
+    this.each(obj, function(key, value) {
+      that[key] = value;
+    });
   };
 
   jsquick.extend({
@@ -147,5 +175,6 @@ if (!window.console) console = {log : function() {}};
     }
   });
 
-  $ = window.jsquick = jsquick;
+  jsquick.fn = jsquick.prototype;
+  window.jsquick = jsquick;
 })();
