@@ -116,7 +116,7 @@ window.jaxedit = (function(){
     },
 
     doResize: function(clientX) {
-      var childs = jaxedit.childs,
+      var childs = this.childs,
           html = childs.html,
           body = childs.body,
           head = childs.head,
@@ -151,7 +151,7 @@ window.jaxedit = (function(){
           halfHeight = mainHeight - halfBorder, wrapHeight = halfHeight - topHeight - botHeight;
       var lHalfWidth, lWrapWidth, rHalfWidth, rWrapWidth;
 
-      if (jaxedit.view == 'read') {
+      if (this.view == "read") {
         wsizes.push([html, pageWidth]);
         wsizes.push([body, 802]);
         wsizes.push([head, 798]);
@@ -159,7 +159,7 @@ window.jaxedit = (function(){
         wsizes.push([right, 798]); hsizes.push([right, halfHeight]);
         wsizes.push([preview, 794]); hsizes.push([preview, halfHeight - 8]);
         wsizes.push([showarea, 694]); hsizes.push([showarea, halfHeight - 108]);
-        jaxedit.resizeElements(wsizes, hsizes);
+        this.resizeElements(wsizes, hsizes);
         body.style.height = '100%';
         left.style.display = resizer.style.display = 'none';
         rtop.style.display = rbot.style.display = 'none';
@@ -202,9 +202,9 @@ window.jaxedit = (function(){
       wsizes.push([ltop, lWrapWidth - 6]); wsizes.push([rtop, rWrapWidth - 6]);
 
       wsizes.push([source, lWrapWidth - 2]); hsizes.push([source, wrapHeight]);
-      if (jaxedit.options.highlight && jaxedit.editor) {
-        wsizes.push([jaxedit.editor.getWrapperElement(), lWrapWidth - 8]);
-        hsizes.push([jaxedit.editor.getWrapperElement(), wrapHeight - 10]);
+      if (this.options.highlight && this.editor) {
+        wsizes.push([this.editor.getWrapperElement(), lWrapWidth - 8]);
+        hsizes.push([this.editor.getWrapperElement(), wrapHeight - 10]);
       } else {
         wsizes.push([codearea, lWrapWidth - 8]);
         hsizes.push([codearea, wrapHeight - 10]);
@@ -215,7 +215,7 @@ window.jaxedit = (function(){
 
       wsizes.push([lbot, lWrapWidth - 6]); wsizes.push([rbot, rWrapWidth - 6]);
 
-      jaxedit.resizeElements(wsizes, hsizes);
+      this.resizeElements(wsizes, hsizes);
     },
 
     resizeElements: function(wsizes, hsizes) {
@@ -228,29 +228,31 @@ window.jaxedit = (function(){
     },
 
     loadEditor: function() {
+      var that = this;
       if (this.options.highlight) {
         $.loadStyles("library/codemirror/lib/codemirror.css");
         $.loadScript("editor/textarea/colorful.js", function(){
           $.loadScript("library/codemirror/lib/codemirror.js", function(){
             $.loadScript("library/codemirror/mode/stex/stex.js", function(){
               $.loadScript("library/codemirror/lib/util/matchbrackets.js", function(){
-                jaxedit.addEditor();
-                jaxedit.hasEditor = true;
-                jaxedit.initialize();
+                that.addEditor();
+                that.hasEditor = true;
+                that.initialize();
               });
             });
           });
         });
       } else {
         $.loadScript("editor/textarea/simple.js", function(){
-          jaxedit.addEditor();
-          jaxedit.hasEditor = true;
-          jaxedit.initialize();
+          that.addEditor();
+          that.hasEditor = true;
+          that.initialize();
         });
       }
     },
 
     loadParser: function() {
+      var that = this;
       var script = document.createElement("script");
       script.type = "text/x-mathjax-config";
       script[(window.opera ? "innerHTML" : "text")] =
@@ -266,9 +268,9 @@ window.jaxedit = (function(){
         $.loadScript(mathpath + mathname, function(){
           MathJax.Hub.processUpdateTime = 200;
           MathJax.Hub.processUpdateDelay = 15;
-          jaxedit.hasParser = true;
-          jaxedit.initialize();
-          jaxedit.autoScroll = true;
+          that.hasParser = true;
+          that.initialize();
+          that.autoScroll = true;
         });
       });
     },
@@ -321,15 +323,15 @@ window.jaxedit = (function(){
     },
 
     doLoad: function() {
-      var codearea = jaxedit.childs.codearea,
-          showarea = jaxedit.childs.showarea;
+      var codearea = this.childs.codearea,
+          showarea = this.childs.showarea;
 
-      jaxedit.getOptions();
-      jaxedit.bindCore(this);
-      var enableShare = jaxedit.bindShare(this);
-      jaxedit.autoScroll = false;
+      this.getOptions();
+      this.bindCore();
+      var enableShare = this.bindShare();
+      this.autoScroll = false;
 
-      if (window.localStorage && jaxedit.fileid <= 0) {
+      if (window.localStorage && this.fileid <= 0) {
         if (localStorage.getItem("texcode")) {
           codearea.value = localStorage.getItem("texcode");
         }
@@ -338,21 +340,21 @@ window.jaxedit = (function(){
         }
       }
 
-      if (jaxedit.view == 'write') {
-        jaxedit.showWindow(enableShare);
+      if (this.view == "write") {
+        this.showWindow(enableShare);
       }
 
       showarea.innerHTML = '<div style="font-size:1em;margin-top:6em;text-align:center;">Loading TypeJax and MathJax...</div>';
-      jaxedit.loadEditor();
-      jaxedit.loadParser();
+      this.loadEditor();
+      this.loadParser();
     },
 
     showWindow: function(enableShare) {
-      jaxedit.doResize();
+      this.doResize();
       this.childs.wrap.style.visibility = "visible";
-      if (jaxedit.view == 'write') {
-        jaxedit.bindDrive(this);
-        jaxedit.addResizer();
+      if (this.view == "write") {
+        this.bindDrive();
+        this.addResizer();
         if (location.protocol != "file:") {
            enableShare();
         }
@@ -361,9 +363,10 @@ window.jaxedit = (function(){
 
     addResizer: function() {
       var resizer = this.childs.resizer, main = this.childs.main;
+      var that = this;
 
       resizer.onmousedown = function(event) {
-        jaxedit.forResize = true;
+        that.forResize = true;
         var ev = event ? event : window.event;
         if (ev.preventDefault) {
           ev.preventDefault();
@@ -373,23 +376,23 @@ window.jaxedit = (function(){
       };
 
       main.onmousemove = function(event) {
-        if (jaxedit.forResize) {
+        if (that.forResize) {
           var ev = event ? event : window.event;
           resizer.style.left = (ev.clientX - 2) + 'px';
         }
       };
 
       resizer.onmouseup = function(event) {
-        if (jaxedit.forResize) {
+        if (that.forResize) {
           var ev = event ? event : window.event;
-          jaxedit.doResize(ev.clientX);
+          that.doResize(ev.clientX);
         }
-        jaxedit.forResize = false;
+        that.forResize = false;
       };
     },
 
     doScroll: function(isForward) {
-      if (!jaxedit.autoScroll) return;
+      if (!this.autoScroll) return;
       var scrollers = this.scrollers, divheights = scrollers.divheights;
       if (!divheights.length) return;
       var codelength = scrollers.codelength,
@@ -480,14 +483,15 @@ window.jaxedit = (function(){
         thatpos = leftpos, thatarea = editor;
       }
 
+      var that = this;
       if (Math.abs(newpos - thatpos) > 10) {
-        jaxedit.autoScroll = false;
+        this.autoScroll = false;
         if (isForward) {
           thatarea.scrollTop = newpos;
         } else {
           thatarea.scrollTo(0, newpos);
         }
-        setTimeout(function(){jaxedit.autoScroll = true;}, 20);
+        setTimeout(function(){that.autoScroll = true;}, 20);
       }
     },
 
@@ -498,22 +502,23 @@ window.jaxedit = (function(){
       scrollers.codescroll = scroll;
     },
 
-    bindCore: function(that) {
+    bindCore: function() {
+      var that = this;
       var dlgclose = document.getElementById("dlgclose"),
           dbtnclose = document.getElementById("dbtnclose"),
           helpbtn = document.getElementById("helpbtn"),
           presbtn = document.getElementById("presbtn");
-      dbtnclose.onclick = dlgclose.onclick = function(){ jaxedit.toggleModal(false); };
+      dbtnclose.onclick = dlgclose.onclick = function(){ that.toggleModal(false); };
       helpbtn.onclick = function() {
         window.open("http://jaxedit.com/#help", "_blank");
       };
       helpbtn.style.display = "inline-block";
       if (location.search == "?present=off") {
-        jaxedit.canPresent = false;
+        this.canPresent = false;
       } else {
         presbtn.onclick = function() {
           var w, doc;
-          var showarea = jaxedit.childs.showarea;
+          var showarea = that.childs.showarea;
           var content = ['<!DOCTYPE html><html><head><title>JaxEdit Beamer Presentation</title>',
                          '<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />',
                          '<link rel="stylesheet" type="text/css" href="typejax/typejax.css" />',
@@ -541,33 +546,34 @@ window.jaxedit = (function(){
       }
     },
 
-    bindShare: function(that) {
+    bindShare: function() {
+      var that = this;
       function downloadContent(fid, wcode) {
         console.log("fetch file with fid=" + fid);
         var path = gatepath + 'share.php', info = 'fid=' + fid + '&wcode=' + wcode;
-        path += '?info=' + encodeURIComponent(that.encodeText(encodeURIComponent(info)));
+        path += "?info=" + encodeURIComponent(that.encodeText(encodeURIComponent(info)));
 
         function success(text, status, xhr) {
           if ((status >= 200 && status <300) || status == 304) {
-            document.getElementById('filename').innerHTML = jaxedit.fileName = name;
-            console.log('hasEditor', jaxedit.hasEditor, 'hasParser', jaxedit.hasParser);
-            var data = decodeURIComponent(jaxedit.decodeText(text));
-            if (jaxedit.hasEditor && jaxedit.hasParser) {
-              jaxedit.initEditor(data);
-            } else if (jaxedit.hasEditor) {
-              jaxedit.editor.setValue(data);
+            document.getElementById("filename").innerHTML = that.fileName = name;
+            console.log("hasEditor", that.hasEditor, "hasParser", that.hasParser);
+            var data = decodeURIComponent(that.decodeText(text));
+            if (that.hasEditor && that.hasParser) {
+              that.initEditor(data);
+            } else if (that.hasEditor) {
+              that.editor.setValue(data);
             } else {
-              jaxedit.childs.codearea.value = data;
+              that.childs.codearea.value = data;
             }
-            jaxedit.wcode = wcode;
+            that.wcode = wcode;
             var view = xhr.getResponseHeader('Permission');
-            jaxedit.toggleModal(false);
-            if (jaxedit.view !== view) {
-              jaxedit.view = view;
-              jaxedit.showWindow(enableShare);
+            that.toggleModal(false);
+            if (that.view !== view) {
+              that.view = view;
+              that.showWindow(enableShare);
             }
           } else {
-            jaxedit.toggleLoading(status + ': ' + text);
+            that.toggleLoading(status + ": " + text);
           }
         }
 
@@ -584,7 +590,7 @@ window.jaxedit = (function(){
         if (fid) info += '&fid=' + fid;
         if (rcode) info += '&rcode=' + rcode;
         if (email) info += '&email=' + email;
-        path += '?info=' + encodeURIComponent(that.encodeText(encodeURIComponent(info)));
+        path += "?info=" + encodeURIComponent(that.encodeText(encodeURIComponent(info)));
         var boundary, content, request;
 
         boundary = 'jjaaxxeeddiitt';
@@ -597,12 +603,12 @@ window.jaxedit = (function(){
 
         function success(text, status) {
           if ((status >= 200 && status <300) || status == 304) {
-            document.getElementById('filename').innerHTML = jaxedit.fileName = name;
-            jaxedit.fileid = parseInt(text);
-            jaxedit.wcode = wcode;
+            document.getElementById("filename").innerHTML = that.fileName = name;
+            that.fileid = parseInt(text);
+            that.wcode = wcode;
             showShareUrl(text);
           } else {
-            jaxedit.toggleLoading(status + ': ' + text);
+            that.toggleLoading(status + ": " + text);
           }
         }
 
@@ -618,7 +624,7 @@ window.jaxedit = (function(){
       function showShareUrl(fid) {
         var url = shareurl + '?' + fid;
         var info = 'Sharing URL is <a href="' + url + '">' + url + '</a>';
-        jaxedit.changeDialog('bodyload', 'footclose', "Share File", info);
+        that.changeDialog("bodyload", "footclose", "Share File", info);
       }
 
       function setupShare() {
@@ -630,7 +636,7 @@ window.jaxedit = (function(){
             share_wcode = document.getElementById('share_wcode');
 
         function checkShare() {
-          var name = jaxedit.fileName ? jaxedit.fileName : 'noname.tex';
+          var name = that.fileName ? that.fileName : "noname.tex";
           var note = document.getElementById("share_note");
           var email = share_email.value,
               rcode = share_rcode.value,
@@ -642,8 +648,8 @@ window.jaxedit = (function(){
           } else if (email.indexOf('@') <= 0 || email.indexOf('@') == email.length - 1) {
             note.innerHTML = 'Error: your email address is invalid!';
           } else {
-            jaxedit.changeDialog("bodyload", "footclose", "", "Uploading file...");
-            uploadContent(jaxedit.editor.getValue(), name, null, wcode, rcode, email);
+            that.changeDialog("bodyload", "footclose", "", "Uploading file...");
+            uploadContent(that.editor.getValue(), name, null, wcode, rcode, email);
           }
         }
 
@@ -653,21 +659,21 @@ window.jaxedit = (function(){
         }
 
         dlgtitle.innerHTML = 'Share File';
-        share_rcode.value = share_wcode.value = jaxedit.randomString(4);
-        share_wcode.value += jaxedit.randomString(2);
+        share_rcode.value = share_wcode.value = that.randomString(4);
+        share_wcode.value += that.randomString(2);
         dbtnshare.onclick = checkShare;
         dialog.onkeypress = checkPress;
-        jaxedit.changeDialog('bodyshare', 'footshare');
+        that.changeDialog("bodyshare", "footshare");
         share_email.focus();
       }
 
       function enableShare() {
         var sharebtn = document.getElementById("sharebtn");
         sharebtn.onclick = function() {
-          var fid = jaxedit.fileid;
-          var name = jaxedit.fileName ? jaxedit.fileName : 'noname.tex';
+          var fid = that.fileid;
+          var name = that.fileName ? that.fileName : "noname.tex";
           if (fid > 0) {
-            uploadContent(jaxedit.editor.getValue(), name, fid, jaxedit.wcode);
+            uploadContent(that.editor.getValue(), name, fid, that.wcode);
           } else {
             setupShare();
           }
@@ -678,8 +684,8 @@ window.jaxedit = (function(){
       function setupFetch() {
         function checkFetch() {
           var scode = document.getElementById("share_scode").value;
-          jaxedit.changeDialog('bodyload', 'footclose', 'Fetch File', 'Fetching file...');
-          downloadContent(jaxedit.fileid, scode);
+          that.changeDialog("bodyload", "footclose", "Fetch File", "Fetching file...");
+          downloadContent(that.fileid, scode);
         };
 
         function checkPress(event) {
@@ -687,19 +693,20 @@ window.jaxedit = (function(){
           if (ev.keyCode == 13) checkFetch();
         }
 
-        that.childs.codearea.value = '';
-        that.view = 'load';
+        that.childs.codearea.value = "";
+        that.view = "load";
         document.getElementById("dbtnfetch").onclick = checkFetch;
         document.getElementById("dialog").onkeypress = checkPress;
-        that.changeDialog('bodyfetch', 'footfetch', 'Enter Password');
+        that.changeDialog("bodyfetch", "footfetch", "Enter Password");
         document.getElementById("share_scode").focus();
       }
 
-      if (that.fileid > 0) setupFetch();
+      if (this.fileid > 0) setupFetch();
       return enableShare;
     },
 
-    bindDrive: function(that) {
+    bindDrive: function() {
+      var that = this;
       var browser = $.browser, codearea = this.childs.codearea, showarea = this.childs.showarea;
       var newbtn = document.getElementById("newbtn"),
           openbtn = document.getElementById("openbtn"),
@@ -713,15 +720,15 @@ window.jaxedit = (function(){
             reader = new FileReader();
         reader.onload = function() {
           //console.log(this.readyState);
-          jaxedit.initEditor(this.result);
+          that.initEditor(this.result);
         };
-        document.getElementById('filename').innerHTML = jaxedit.fileName = name;
+        document.getElementById("filename").innerHTML = that.fileName = name;
         reader.readAsText(file);
       }
 
       function fileOpen(event) {
         var ev = event ? event : window.event;
-        switch (jaxedit.useDrive) {
+        switch (that.useDrive) {
           case "localdrive":
             opensel.click();
             ev.preventDefault();
@@ -736,10 +743,10 @@ window.jaxedit = (function(){
         var BlobBuilder = window.BlobBuilder || window.MozBlobBuilder || window.WebKitBlobBuilder || window.MSBlobBuilder;
         var URL = window.URL || window.webkitURL;
         var bb = new BlobBuilder;
-        bb.append(jaxedit.editor.getValue());
+        bb.append(that.editor.getValue());
         var blob = bb.getBlob("text/latex");
         var bloburl = URL.createObjectURL(blob);
-        var name = jaxedit.fileName.split(/\.[^.]+$/)[0] + '.tex';
+        var name = that.fileName.split(/\.[^.]+$/)[0] + ".tex";
         if ($.browser.chrome >= 14) {
           var anchor = document.createElement("a");
           anchor.style.visibility = "hidden";
@@ -759,7 +766,7 @@ window.jaxedit = (function(){
       }
 
       function fileSave() {
-        switch (jaxedit.useDrive) {
+        switch (that.useDrive) {
           case "localdrive":
             doSave();
             break;
@@ -778,15 +785,15 @@ window.jaxedit = (function(){
         bodyload.innerHTML = 'Loading...';
         dlgflist.onclick = dialogClick;
         if (mode == "open") {
-          jaxedit.dialogMode = "open";
+          that.dialogMode = "open";
           dlgtitle.innerHTML = "Open File";
-          jaxedit.changeDialog('bodyload', 'footclose');
+          that.changeDialog('bodyload', 'footclose');
         } else {
-          jaxedit.dialogMode = "save";
+          that.dialogMode = "save";
           dlgtitle.innerHTML = "Save File";
-          savename.value = jaxedit.fileName.split(/\.[^.]+$/)[0];
+          savename.value = that.fileName.split(/\.[^.]+$/)[0];
           dbtnsave.onclick = checkSave;
-          jaxedit.changeDialog('bodyload', 'footsave');
+          that.changeDialog("bodyload", "footsave");
         }
         (function(){
           if (skydrive.homeid){
@@ -823,10 +830,10 @@ window.jaxedit = (function(){
           }
           bodytext += '</tbody></table>';
           dlgflist.innerHTML = bodytext;
-          jaxedit.changeDialog('bodylist');
+          that.changeDialog("bodylist");
         }
         else {
-          jaxedit.toggleLoading('Error in reading LaTeX files!');
+          that.toggleLoading("Error in reading LaTeX files!");
         }
       }
 
@@ -846,22 +853,22 @@ window.jaxedit = (function(){
 
       function getFileContent(url, name) {
         console.log("fetch file: " + url);
-        var path = gatepath + 'drive.php?path=' + encodeURIComponent(jaxedit.encodeText(url));
+        var path = gatepath + "drive.php?path=" + encodeURIComponent(that.encodeText(url));
         var request = createCORSRequest("get", path);
-        jaxedit.toggleLoading('Opening file...');
+        that.toggleLoading("Opening file...");
         if (request) {
           request.onload = function(){
             var status = request.status;
             if ((status >= 200 && status <300) || status == 304) {
-              document.getElementById('filename').innerHTML = jaxedit.fileName = name;
-              jaxedit.initEditor(request.responseText);
-              jaxedit.toggleModal(false);
+              document.getElementById("filename").innerHTML = that.fileName = name;
+              that.initEditor(request.responseText);
+              that.toggleModal(false);
             } else {
-              jaxedit.toggleLoading(status + ' error in opening file!');
+              that.toggleLoading(status + " error in opening file!");
             }
           };
           request.onerror = function(){
-            jaxedit.toggleLoading('An error occurred!');
+            that.toggleLoading("An error occurred!");
           };
         request.send();
         }
@@ -873,16 +880,16 @@ window.jaxedit = (function(){
             querystr = '?access_token=' + encodeURIComponent(skydrive.access_token),
             path = gatepath + 'drive.php';
         var url, boundary, content, request;
-        jaxedit.changeDialog("bodyload", "footclose", "", "Saving file...");
+        that.changeDialog("bodyload", "footclose", "", "Saving file...");
         if (location.search == "?put") { // using PUT method
           url = hostpath + '/' + name + querystr;
-          path += '?path=' + encodeURIComponent(jaxedit.encodeText(url));
+          path += "?path=" + encodeURIComponent(that.encodeText(url));
           content = data;
           request = createCORSRequest('PUT', path);
           request.setRequestHeader('Content-Type', 'text/plain; charset=utf-8');
         } else { // using POST method
           url = hostpath + querystr;
-          path += '?path=' + encodeURIComponent(jaxedit.encodeText(url));
+          path += "?path=" + encodeURIComponent(that.encodeText(url));
           boundary = 'jjaaxxeeddiitt';
           content = ['--' + boundary,
                      'Content-Disposition: form-data; name="file"; filename="' + name + '"',
@@ -897,14 +904,14 @@ window.jaxedit = (function(){
           request.onload = function(){
             var status = request.status;
             if ((status >= 200 && status <300) || status == 304) {
-              document.getElementById('filename').innerHTML = jaxedit.fileName = name;
-              jaxedit.toggleModal(false);
+              document.getElementById("filename").innerHTML = that.fileName = name;
+              that.toggleModal(false);
             } else {
-              jaxedit.toggleLoading(status + ' error in saving file!');
+              that.toggleLoading(status + " error in saving file!");
             }
           };
           request.onerror = function(){
-            jaxedit.toggleLoading('An error occurred!');
+            that.toggleLoading("An error occurred!");
           };
         request.send(content);
         }
@@ -917,7 +924,7 @@ window.jaxedit = (function(){
           return;
         } else {
           //skydrive api doesn't support .tex file, use .txt instead
-          saveFileContent(jaxedit.editor.getValue(), fname + '.txt');
+          saveFileContent(that.editor.getValue(), fname + ".txt");
         }
       }
 
@@ -929,12 +936,12 @@ window.jaxedit = (function(){
           console.log("clicked: fid = " + fid);
           switch (target.parentNode.parentNode.className) {
             case "file":
-              if (jaxedit.dialogMode == 'open') {
+              if (that.dialogMode == "open") {
                 getFileContent(target.getAttribute("data-url"), target.innerHTML);
               }
               break;
             case "folder":
-              jaxedit.toggleLoading('Loading...');
+              that.toggleLoading("Loading...");
               skydrive.finside.push({fid: fid, name: target.innerHTML});
               skydrive.getFilesList(handleResponse);
               break;
@@ -943,7 +950,7 @@ window.jaxedit = (function(){
       }
 
       function dialogWalkup() {
-        jaxedit.changeDialog('bodyload');
+        that.changeDialog("bodyload");
         skydrive.finside.pop();
         skydrive.getFilesList(handleResponse);
       }
@@ -956,7 +963,7 @@ window.jaxedit = (function(){
       function changeDrive(event) {
         var ev = event ? event : window.event,
             sel = ev.target || ev.srcElement;
-        var olddrive = jaxedit.useDrive,
+        var olddrive = that.useDrive,
             newdrive = sel.options[sel.selectedIndex].value;
         if (newdrive == olddrive) return;
         switch (newdrive) {
@@ -977,26 +984,26 @@ window.jaxedit = (function(){
       if ((browser.firefox && browser.firefox >= 6) ||
           (browser.chrome && browser.chrome >= 8 && location.protocol != "file:") ||
           (browser.msie && browser.msie >= 10)) {
-        jaxedit.localDrive = true;
-        jaxedit.useDrive = "localdrive";
+        this.localDrive = true;
+        this.useDrive = "localdrive";
         opensel.style.visibility = "visible";
         opensel.addEventListener("change", doOpen, false);
         addFileHandler();
-        jaxedit.changeFileDisplay(true);
+        this.changeFileDisplay(true);
       } else {
-        jaxedit.localDrive = false;
+        this.localDrive = false;
         opensel.style.display = "none";
       }
 
       if (location.protocol != "file:" && window.XMLHttpRequest && 'withCredentials' in new XMLHttpRequest()) {
         $.loadScript("http://js.live.net/v5.0/wl.js", function(){ // wl.debug.js
           $.loadScript("editor/webdrive/skydrive.js", function(){
-            if (jaxedit.localDrive) {
+            if (that.localDrive) {
               drivesel.style.display = "inline-block";
               drivesel.onchange = changeDrive;
               drivesel.selectedIndex = 0;
             } else {
-              jaxedit.useDrive = "skydrive";
+              that.useDrive = "skydrive";
               addFileHandler();
               loginbtn.style.display = "inline-block";
               loginbtn.onclick = skydrive.signUserInOut;
@@ -1008,7 +1015,7 @@ window.jaxedit = (function(){
 
       /*
       window.onbeforeunload = function() {
-        if (jaxedit.useDrive == 'skydrive') {
+        if (that.useDrive == "skydrive") {
           if ($.browser.chrome || confirm('Do you want to logout from SkyDrive?')) {
             skydrive.signUserOut();
           }
@@ -1066,7 +1073,7 @@ window.jaxedit = (function(){
     },
 
     toggleLoading: function(info) {
-      this.changeDialog('bodyload', null, null, info);
+      this.changeDialog("bodyload", null, null, info);
     },
 
     changeDialog: function(idbody, idfoot, title, info) {
