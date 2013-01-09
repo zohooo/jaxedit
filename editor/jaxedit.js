@@ -4,22 +4,22 @@
 if (!window.console) console = {log : function() {}};
 
 window.jaxedit = (function(){
-  var gatepath = '',
-      mathname = 'MathJax.js?config=TeX-AMS_HTML',
-      mathpath = '',
-      shareurl = '';
+  var gatepath = "",
+      mathname = "MathJax.js?config=TeX-AMS_HTML",
+      mathpath = "",
+      shareurl = "";
 
   var jaxedit = {
     autoScroll: false,
     canPresent: true,
     dialogMode: null,
     fileid: 0,
-    fileName: 'noname.tex',
+    fileName: "noname.tex",
     hasEditor: false,
     hasParser: false,
     localDrive: false,
     useDrive: null,
-    view: 'write',
+    view: "write",
     wcode: null,
 
     options: {
@@ -71,18 +71,18 @@ window.jaxedit = (function(){
       var options = this.options, browser = $.browser, computer = $.computer;
 
       if (browser.chrome || browser.firefox >= 3 || browser.msie >=8 || browser.safari >= 5.2 || browser.opera >= 9) {
-        if (computer == 'desktop') {
+        if (computer == "desktop") {
           options.highlight = true;
         }
       }
 
-      options.localjs = (location.protocol == 'file:');
+      options.localjs = (location.protocol == "file:");
 
-      var qs = location.search.length > 0 ? location.search.substring(1) : '';
-      var items = qs.split('&'), pair, name, value;
+      var qs = location.search.length > 0 ? location.search.substring(1) : "";
+      var items = qs.split("&"), pair, name, value;
 
       for (var i=0; i<items.length; i++) {
-        pair = items[i].split('=');
+        pair = items[i].split("=");
         if (pair.length == 1) {
           var id = parseInt(pair[0]);
           if (isFinite(id)) this.fileid = id;
@@ -91,28 +91,28 @@ window.jaxedit = (function(){
         name = decodeURIComponent(pair[0]);
         value = pair[1] ? decodeURIComponent(pair[1]) : "";
         switch (typeof options[name]) {
-          case 'boolean':
-            if (value == 'true' || value == '1') {
+          case "boolean":
+            if (value == "true" || value == "1") {
               options[name] = true;
-            } else if (value == 'false' || value == '0') {
+            } else if (value == "false" || value == "0") {
               options[name] = false;
             }
             break;
-          case 'number':
+          case "number":
             value = parseFloat(value);
             if (!isNaN(value)) {
               options[name] = value;
             }
             break;
-          case 'string':
+          case "string":
             options[name] = value;
             break;
         }
       }
 
-      mathpath = options.localjs ? 'library/mathjax/unpacked/' : 'http://cdn.mathjax.org/mathjax/2.1-latest/';
-      gatepath = (location.pathname == '/note/') ? 'http://jaxedit.com/gate/' : 'http://jaxedit.com/door/';
-      shareurl = (location.pathname == '/note/') ? 'http://jaxedit.com/note/' : 'http://jaxedit.com/beta/';
+      mathpath = options.localjs ? "library/mathjax/unpacked/" : "http://cdn.mathjax.org/mathjax/2.1-latest/";
+      gatepath = (location.pathname == "/note/") ? "http://jaxedit.com/gate/" : "http://jaxedit.com/door/";
+      shareurl = (location.pathname == "/note/") ? "http://jaxedit.com/note/" : "http://jaxedit.com/beta/";
     },
 
     doResize: function(clientX) {
@@ -160,17 +160,17 @@ window.jaxedit = (function(){
         wsizes.push([preview, 794]); hsizes.push([preview, halfHeight - 8]);
         wsizes.push([showarea, 694]); hsizes.push([showarea, halfHeight - 108]);
         this.resizeElements(wsizes, hsizes);
-        body.style.height = '100%';
-        left.style.display = resizer.style.display = 'none';
-        rtop.style.display = rbot.style.display = 'none';
-        showarea.style.padding = '50px';
-        body.style.margin = 'auto';
-        body.style.backgroundColor = 'gray';
-        right.style.backgroundColor = 'white';
+        body.style.height = "100%";
+        left.style.display = resizer.style.display = "none";
+        rtop.style.display = rbot.style.display = "none";
+        showarea.style.padding = "50px";
+        body.style.margin = "auto";
+        body.style.backgroundColor = "gray";
+        right.style.backgroundColor = "white";
         return;
       };
 
-      if (typeof clientX == 'number') {
+      if (typeof clientX == "number") {
         lHalfWidth = lWrapWidth = clientX - halfBorder,
         rHalfWidth = rWrapWidth = pageWidth - clientX - halfBorder;
       } else {
@@ -178,14 +178,14 @@ window.jaxedit = (function(){
         rHalfWidth = rWrapWidth = Math.floor(pageWidth / 2) - halfBorder;
       }
       if (lHalfWidth < 0) {
-        left.style.display = 'none'; rHalfWidth = pageWidth - halfBorder - 2;
+        left.style.display = "none"; rHalfWidth = pageWidth - halfBorder - 2;
       } else {
-        left.style.display = 'block';
+        left.style.display = "block";
       }
       if (rHalfWidth < 0) {
-        right.style.display = 'none'; lHalfWidth = pageWidth - halfBorder - 2;
+        right.style.display = "none"; lHalfWidth = pageWidth - halfBorder - 2;
       } else {
-        right.style.display = 'block';
+        right.style.display = "block";
       }
 
       wsizes.push([html, pageWidth]);
@@ -197,7 +197,7 @@ window.jaxedit = (function(){
       hsizes.push([left, halfHeight]); hsizes.push([right, halfHeight]);
 
       hsizes.push([resizer, halfHeight + 4]);
-      resizer.style.left = ((lHalfWidth + 2 < 0) ? 0 : (lHalfWidth + 2)) + 'px';
+      resizer.style.left = ((lHalfWidth + 2 < 0) ? 0 : (lHalfWidth + 2)) + "px";
 
       wsizes.push([ltop, lWrapWidth - 6]); wsizes.push([rtop, rWrapWidth - 6]);
 
@@ -293,9 +293,9 @@ window.jaxedit = (function(){
 
       if (!highlight && $.browser.msie) codearea.setActive();
 
-      if (typeof value == 'string') {
+      if (typeof value == "string") {
         if (highlight) {
-          value = value.replace(/\r\n?/g,'\n');
+          value = value.replace(/\r\n?/g,"\n");
         }
         editor.setValue(value);
         data.newtextvalue = value;
@@ -344,7 +344,7 @@ window.jaxedit = (function(){
         this.showWindow(enableShare);
       }
 
-      showarea.innerHTML = '<div style="font-size:1em;margin-top:6em;text-align:center;">Loading TypeJax and MathJax...</div>';
+      showarea.innerHTML = "<div style='font-size:1em;margin-top:6em;text-align:center;'>Loading TypeJax and MathJax...</div>";
       this.loadEditor();
       this.loadParser();
     },
@@ -378,7 +378,7 @@ window.jaxedit = (function(){
       main.onmousemove = function(event) {
         if (that.forResize) {
           var ev = event ? event : window.event;
-          resizer.style.left = (ev.clientX - 2) + 'px';
+          resizer.style.left = (ev.clientX - 2) + "px";
         }
       };
 
@@ -519,21 +519,21 @@ window.jaxedit = (function(){
         presbtn.onclick = function() {
           var w, doc;
           var showarea = that.childs.showarea;
-          var content = ['<!DOCTYPE html><html><head><title>JaxEdit Beamer Presentation</title>',
-                         '<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />',
-                         '<link rel="stylesheet" type="text/css" href="typejax/typejax.css" />',
-                         '<link rel="stylesheet" type="text/css" href="typejax/showjax.css" />',
-                         '<script type="text/x-mathjax-config">',
-                            'MathJax.Hub.Config({\n',
-                            '  TeX: { extensions: ["color.js", "extpfeil.js"] },\n',
-                            '  "HTML-CSS": { imageFont: null }\n',
-                            '});',
-                         '</scr' + 'ipt>',
-                         '<script type="text/javascript" src="' + mathpath + mathname + '"></scr' + 'ipt>',
-                         '<script type="text/javascript" src="jsquick/jsquick.js"></scr' + 'ipt>',
-                         '<script type="text/javascript" src="typejax/showjax.js"></scr' + 'ipt></head><body>',
-                         '<div id="showarea">' + showarea.innerHTML + '</div>',
-                         '</body></html>'].join('');
+          var content = ["<!DOCTYPE html><html><head><title>JaxEdit Beamer Presentation</title>",
+                         "<meta http-equiv='Content-Type' content='text/html; charset=UTF-8' />",
+                         "<link rel='stylesheet' type='text/css' href='typejax/typejax.css' />",
+                         "<link rel='stylesheet' type='text/css' href='typejax/showjax.css' />",
+                         "<script type='text/x-mathjax-config'>",
+                            "MathJax.Hub.Config({\n",
+                            "  TeX: { extensions: ['color.js', 'extpfeil.js'] },\n",
+                            "  'HTML-CSS': { imageFont: null }\n",
+                            "});",
+                         "</scr" + "ipt>",
+                         "<script type='text/javascript' src='" + mathpath + mathname + "'></scr" + "ipt>",
+                         "<script type='text/javascript' src='jsquick/jsquick.js'></scr" + "ipt>",
+                         "<script type='text/javascript' src='typejax/showjax.js'></scr" + "ipt></head><body>",
+                         "<div id='showarea'>" + showarea.innerHTML + "</div>",
+                         "</body></html>"].join("");
           if ($.browser.msie) {
             w = window.open("", "showjax", "fullscreen");
           } else {
@@ -550,7 +550,7 @@ window.jaxedit = (function(){
       var that = this;
       function downloadContent(fid, wcode) {
         console.log("fetch file with fid=" + fid);
-        var path = gatepath + 'share.php', info = 'fid=' + fid + '&wcode=' + wcode;
+        var path = gatepath + "share.php", info = "fid=" + fid + "&wcode=" + wcode;
         path += "?info=" + encodeURIComponent(that.encodeText(encodeURIComponent(info)));
 
         function success(text, status, xhr) {
@@ -566,7 +566,7 @@ window.jaxedit = (function(){
               that.childs.codearea.value = data;
             }
             that.wcode = wcode;
-            var view = xhr.getResponseHeader('Permission');
+            var view = xhr.getResponseHeader("Permission");
             that.toggleModal(false);
             if (that.view !== view) {
               that.view = view;
@@ -586,10 +586,10 @@ window.jaxedit = (function(){
       }
 
       function uploadContent(data, name, fid, wcode, rcode, email) {
-        var path = gatepath + 'share.php', info = 'wcode=' + wcode;
-        if (fid) info += '&fid=' + fid;
-        if (rcode) info += '&rcode=' + rcode;
-        if (email) info += '&email=' + email;
+        var path = gatepath + "share.php", info = "wcode=" + wcode;
+        if (fid) info += "&fid=" + fid;
+        if (rcode) info += "&rcode=" + rcode;
+        if (email) info += "&email=" + email;
         path += "?info=" + encodeURIComponent(that.encodeText(encodeURIComponent(info)));
         var boundary, content, request;
 
@@ -617,23 +617,23 @@ window.jaxedit = (function(){
           url: path,
           data: content,
           success: success,
-          contentType: 'multipart/form-data; boundary=' + boundary
+          contentType: "multipart/form-data; boundary=" + boundary
         });
       }
 
       function showShareUrl(fid) {
-        var url = shareurl + '?' + fid;
-        var info = 'Sharing URL is <a href="' + url + '">' + url + '</a>';
+        var url = shareurl + "?" + fid;
+        var info = "Sharing URL is <a href='" + url + "'>" + url + "</a>";
         that.changeDialog("bodyload", "footclose", "Share File", info);
       }
 
       function setupShare() {
-        var dialog = document.getElementById('dialog'),
-            dlgtitle = document.getElementById('dlgtitle'),
-            dbtnshare = document.getElementById('dbtnshare'),
-            share_email = document.getElementById('share_email'),
-            share_rcode = document.getElementById('share_rcode'),
-            share_wcode = document.getElementById('share_wcode');
+        var dialog = document.getElementById("dialog"),
+            dlgtitle = document.getElementById("dlgtitle"),
+            dbtnshare = document.getElementById("dbtnshare"),
+            share_email = document.getElementById("share_email"),
+            share_rcode = document.getElementById("share_rcode"),
+            share_wcode = document.getElementById("share_wcode");
 
         function checkShare() {
           var name = that.fileName ? that.fileName : "noname.tex";
@@ -642,11 +642,11 @@ window.jaxedit = (function(){
               rcode = share_rcode.value,
               wcode = share_wcode.value;
           if (rcode.length < 4) {
-            note.innerHTML = 'Error: reading password is too short!';
+            note.innerHTML = "Error: reading password is too short!";
           } else if (wcode.length < 6) {
-            note.innerHTML = 'Error: editing password is too short!';
-          } else if (email.indexOf('@') <= 0 || email.indexOf('@') == email.length - 1) {
-            note.innerHTML = 'Error: your email address is invalid!';
+            note.innerHTML = "Error: editing password is too short!";
+          } else if (email.indexOf("@") <= 0 || email.indexOf("@") == email.length - 1) {
+            note.innerHTML = "Error: your email address is invalid!";
           } else {
             that.changeDialog("bodyload", "footclose", "", "Uploading file...");
             uploadContent(that.editor.getValue(), name, null, wcode, rcode, email);
@@ -658,7 +658,7 @@ window.jaxedit = (function(){
           if (ev.keyCode == 13) checkShare();
         }
 
-        dlgtitle.innerHTML = 'Share File';
+        dlgtitle.innerHTML = "Share File";
         share_rcode.value = share_wcode.value = that.randomString(4);
         share_wcode.value += that.randomString(2);
         dbtnshare.onclick = checkShare;
@@ -753,7 +753,7 @@ window.jaxedit = (function(){
           anchor.href = bloburl;
           anchor.download = name;
           document.body.appendChild(anchor);
-          var evt = document.createEvent('Event');
+          var evt = document.createEvent("Event");
           evt.initEvent("click", true, true);
           anchor.dispatchEvent(evt);
           document.body.removeChild(anchor);
@@ -777,17 +777,17 @@ window.jaxedit = (function(){
       }
 
       function driveOpenSave(mode) {
-        var dlgtitle = document.getElementById('dlgtitle'),
-            dlgflist = document.getElementById('dlgflist'),
-            bodyload = document.getElementById('bodyload'),
-            savename = document.getElementById('savename'),
-            dbtnsave = document.getElementById('dbtnsave');
-        bodyload.innerHTML = 'Loading...';
+        var dlgtitle = document.getElementById("dlgtitle"),
+            dlgflist = document.getElementById("dlgflist"),
+            bodyload = document.getElementById("bodyload"),
+            savename = document.getElementById("savename"),
+            dbtnsave = document.getElementById("dbtnsave");
+        bodyload.innerHTML = "Loading...";
         dlgflist.onclick = dialogClick;
         if (mode == "open") {
           that.dialogMode = "open";
           dlgtitle.innerHTML = "Open File";
-          that.changeDialog('bodyload', 'footclose');
+          that.changeDialog("bodyload", "footclose");
         } else {
           that.dialogMode = "save";
           dlgtitle.innerHTML = "Save File";
@@ -805,9 +805,9 @@ window.jaxedit = (function(){
       }
 
       function handleResponse(response) {
-        var dlginside = document.getElementById('dlginside'),
-            dlgwalkup = document.getElementById('dlgwalkup'),
-            dlgflist = document.getElementById('dlgflist');
+        var dlginside = document.getElementById("dlginside"),
+            dlgwalkup = document.getElementById("dlgwalkup"),
+            dlgflist = document.getElementById("dlgflist");
         if (!response.error) {
           var bodytext = "", data, type, name, fid, url, size, time, ftype;
           var finside = skydrive.finside;
@@ -817,7 +817,7 @@ window.jaxedit = (function(){
           } else {
             dlgwalkup.style.display = "inline";
           }
-          bodytext += '<table frame="box" rules="rows"><thead><tr class="finfo"><th>Type</th><th>Name</th><th class="fsize">Size</th><th class="ftime">Modified</th></tr></thead><tbody>';
+          bodytext += "<table frame='box' rules='rows'><thead><tr class='finfo'><th>Type</th><th>Name</th><th class='fsize'>Size</th><th class='ftime'>Modified</th></tr></thead><tbody>";
           for (var i = 0; i < response.data.length; i++) {
             data = response.data[i];
             type = data.type; name = data.name; fid = data.id; time = data.updated_time.slice(0, 10);
@@ -825,10 +825,10 @@ window.jaxedit = (function(){
               url = (type == "file") ? data.source : "#";
               size = (type == "file") ? data.size : "---";
               ftype = (type == "file") ? "File" : "Folder";
-              bodytext += '<tr class="' + type + '"><td>' + ftype + '</td><td><a href="javascript:void(0)" data-fid="' + fid + '" data-url="' + url + '">' + name + '</a></td><td class="fsize">' + size + '</td><td class="ftime">' + time + '</td></tr>';
+              bodytext += "<tr class='" + type + "'><td>" + ftype + "</td><td><a href='javascript:void(0)' data-fid='" + fid + "' data-url='" + url + "'>" + name + "</a></td><td class='fsize'>" + size + "</td><td class='ftime'>" + time + "</td></tr>";
             }
           }
-          bodytext += '</tbody></table>';
+          bodytext += "</tbody></table>";
           dlgflist.innerHTML = bodytext;
           that.changeDialog("bodylist");
         }
@@ -876,17 +876,17 @@ window.jaxedit = (function(){
 
       function saveFileContent(data, name) {
         var fid = skydrive.finside[skydrive.finside.length - 1].fid,
-            hostpath = 'https://apis.live.net/v5.0/' + fid + '/files',
-            querystr = '?access_token=' + encodeURIComponent(skydrive.access_token),
-            path = gatepath + 'drive.php';
+            hostpath = "https://apis.live.net/v5.0/" + fid + "/files",
+            querystr = "?access_token=" + encodeURIComponent(skydrive.access_token),
+            path = gatepath + "drive.php";
         var url, boundary, content, request;
         that.changeDialog("bodyload", "footclose", "", "Saving file...");
         if (location.search == "?put") { // using PUT method
-          url = hostpath + '/' + name + querystr;
+          url = hostpath + "/" + name + querystr;
           path += "?path=" + encodeURIComponent(that.encodeText(url));
           content = data;
-          request = createCORSRequest('PUT', path);
-          request.setRequestHeader('Content-Type', 'text/plain; charset=utf-8');
+          request = createCORSRequest("PUT", path);
+          request.setRequestHeader("Content-Type", "text/plain; charset=utf-8");
         } else { // using POST method
           url = hostpath + querystr;
           path += "?path=" + encodeURIComponent(that.encodeText(url));
@@ -897,8 +897,8 @@ window.jaxedit = (function(){
                      '',
                      data,
                      '--' + boundary + '--'].join('\r\n');
-          request = createCORSRequest('POST', path);
-          request.setRequestHeader('Content-Type', 'multipart/form-data; boundary=' + boundary);
+          request = createCORSRequest("POST", path);
+          request.setRequestHeader("Content-Type", "multipart/form-data; boundary=" + boundary);
         }
         if (request) {
           request.onload = function(){
@@ -918,9 +918,9 @@ window.jaxedit = (function(){
       }
 
       function checkSave() {
-        var fname = document.getElementById('savename').value;
+        var fname = document.getElementById("savename").value;
         if (fname === "") {
-          alert('Filename is empty!');
+          alert("Filename is empty!");
           return;
         } else {
           //skydrive api doesn't support .tex file, use .txt instead
@@ -995,7 +995,7 @@ window.jaxedit = (function(){
         opensel.style.display = "none";
       }
 
-      if (location.protocol != "file:" && window.XMLHttpRequest && 'withCredentials' in new XMLHttpRequest()) {
+      if (location.protocol != "file:" && window.XMLHttpRequest && "withCredentials" in new XMLHttpRequest()) {
         $.loadScript("http://js.live.net/v5.0/wl.js", function(){ // wl.debug.js
           $.loadScript("editor/webdrive/skydrive.js", function(){
             if (that.localDrive) {
@@ -1016,7 +1016,7 @@ window.jaxedit = (function(){
       /*
       window.onbeforeunload = function() {
         if (that.useDrive == "skydrive") {
-          if ($.browser.chrome || confirm('Do you want to logout from SkyDrive?')) {
+          if ($.browser.chrome || confirm("Do you want to logout from SkyDrive?")) {
             skydrive.signUserOut();
           }
         }
@@ -1079,36 +1079,36 @@ window.jaxedit = (function(){
     changeDialog: function(idbody, idfoot, title, info) {
       var childs, element, i;
       if (idbody) {
-        childs = document.getElementById('dlgbody').childNodes;
+        childs = document.getElementById("dlgbody").childNodes;
         for (i = 0; i < childs.length; i++) {
           element = childs[i];
           if (element.nodeType == 1) {
             if (element.id === idbody) {
-              element.style.display = 'block'
+              element.style.display = "block"
             } else {
-              element.style.display = 'none';
+              element.style.display = "none";
             }
           }
         }
       }
       if (idfoot) {
-        childs = document.getElementById('dlgfoot').childNodes;
+        childs = document.getElementById("dlgfoot").childNodes;
         for (i = 0; i < childs.length; i++) {
           element = childs[i];
           if (element.nodeType == 1) {
             if (element.id === idfoot) {
-              element.style.display = 'inline-block'
+              element.style.display = "inline-block"
             } else {
-              element.style.display = 'none';
+              element.style.display = "none";
             }
           }
         }
       }
       if (title) {
-        document.getElementById('dlgtitle').innerHTML = title;
+        document.getElementById("dlgtitle").innerHTML = title;
       }
       if (info) {
-        document.getElementById('bodyload').innerHTML = info;
+        document.getElementById("bodyload").innerHTML = info;
       }
       this.toggleModal(true);
     },
@@ -1117,24 +1117,24 @@ window.jaxedit = (function(){
       if (!text) return text;
       var length = text.length, safePrime = 1964903159, result = [],
           index = navigator.userAgent.length % length, step = safePrime % length;
-      console.log('encodeText: length = ' + length + ' start = ' + index + ' step = ' + step);
+      console.log("encodeText: length = " + length + " start = " + index + " step = " + step);
       for (var i = 0; i < length; i++) {
         result.push(text.charAt(index));
         index = (index - step + length) % length;
       }
-      return result.join('');
+      return result.join("");
     },
 
     decodeText: function(text) {
       if (!text) return text;
       var length = text.length, safePrime = 1964903159, result = [],
           index = navigator.userAgent.length % length, step = safePrime % length;
-      console.log('decodeText: length = ' + length + ' start = ' + index + ' step = ' + step);
+      console.log("decodeText: length = " + length + " start = " + index + " step = " + step);
       for (var i = 0; i < length; i++) {
         result[index] = text.charAt(i);
         index = (index - step + length) % length;
       }
-      return result.join('');
+      return result.join("");
     },
 
     randomString: function(size) {
