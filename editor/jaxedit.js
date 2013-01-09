@@ -8,8 +8,6 @@
  * Release: http://code.google.com/p/jaxedit/
  */
 
-if (!window.console) console = {log : function() {}};
-
 window.jaxedit = (function(){
   var gatepath = "",
       mathname = "MathJax.js?config=TeX-AMS_HTML",
