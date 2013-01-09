@@ -850,41 +850,27 @@ window.jaxedit = (function(){
         }
       }
 
-      function createCORSRequest(method, url) {
-        var xhr = new XMLHttpRequest();
-        if ("withCredentials" in xhr) {
-          xhr.open(method, url, true);
-        } else if (typeof XDomainRequest != "undefined") {
-          xhr = new XDomainRequest();
-          xhr.open(method, url);
-        } else {
-          xhr = null;
-          console.log("no xdr!");
-        }
-        return xhr;
-      }
-
       function getFileContent(url, name) {
         console.log("fetch file: " + url);
         var path = gatepath + "drive.php?path=" + encodeURIComponent(that.encodeText(url));
-        var request = createCORSRequest("get", path);
         that.toggleLoading("Opening file...");
-        if (request) {
-          request.onload = function(){
-            var status = request.status;
-            if ((status >= 200 && status <300) || status == 304) {
-              document.getElementById("filename").innerHTML = that.fileName = name;
-              that.initEditor(request.responseText);
-              that.toggleModal(false);
-            } else {
-              that.toggleLoading(status + " error in opening file!");
-            }
-          };
-          request.onerror = function(){
-            that.toggleLoading("An error occurred!");
-          };
-        request.send();
+
+        function success(text, status) {
+          if ((status >= 200 && status <300) || status == 304) {
+            document.getElementById("filename").innerHTML = that.fileName = name;
+            that.toggleModal(false);
+            that.initEditor(text);
+          } else {
+            that.toggleLoading(status + " error in opening file!");
+          }
         }
+
+        $.ajax({
+          type: "GET",
+          url: path,
+          data: "",
+          success: success
+        });
       }
 
       function saveFileContent(data, name) {
@@ -892,15 +878,17 @@ window.jaxedit = (function(){
             hostpath = "https://apis.live.net/v5.0/" + fid + "/files",
             querystr = "?access_token=" + encodeURIComponent(skydrive.access_token),
             path = gatepath + "drive.php";
-        var url, boundary, content, request;
+        var type, url, boundary, content, contype;
         that.changeDialog("bodyload", "footclose", "", "Saving file...");
+
         if (location.search == "?put") { // using PUT method
+          type = "PUT";
           url = hostpath + "/" + name + querystr;
           path += "?path=" + encodeURIComponent(that.encodeText(url));
           content = data;
-          request = createCORSRequest("PUT", path);
-          request.setRequestHeader("Content-Type", "text/plain; charset=utf-8");
+          contype = "text/plain; charset=utf-8";
         } else { // using POST method
+          type = "POST";
           url = hostpath + querystr;
           path += "?path=" + encodeURIComponent(that.encodeText(url));
           boundary = 'jjaaxxeeddiitt';
@@ -910,24 +898,25 @@ window.jaxedit = (function(){
                      '',
                      data,
                      '--' + boundary + '--'].join('\r\n');
-          request = createCORSRequest("POST", path);
-          request.setRequestHeader("Content-Type", "multipart/form-data; boundary=" + boundary);
+          contype = "multipart/form-data; boundary=" + boundary;
         }
-        if (request) {
-          request.onload = function(){
-            var status = request.status;
+
+        function success(text, status) {
             if ((status >= 200 && status <300) || status == 304) {
               document.getElementById("filename").innerHTML = that.fileName = name;
               that.toggleModal(false);
             } else {
               that.toggleLoading(status + " error in saving file!");
             }
-          };
-          request.onerror = function(){
-            that.toggleLoading("An error occurred!");
-          };
-        request.send(content);
         }
+
+        $.ajax({
+          type: type,
+          url: path,
+          data: content,
+          success: success,
+          contentType: contype
+        });
       }
 
       function checkSave() {
@@ -1008,7 +997,7 @@ window.jaxedit = (function(){
         opensel.style.display = "none";
       }
 
-      if (that.trustHost && window.XMLHttpRequest && "withCredentials" in new XMLHttpRequest()) {
+      if (that.trustHost) {
         $.loadScript("http://js.live.net/v5.0/wl.js", function(){ // wl.debug.js
           $.loadScript("editor/webdrive/skydrive.js", function(){
             if (that.localDrive) {
