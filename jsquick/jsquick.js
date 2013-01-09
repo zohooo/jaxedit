@@ -89,6 +89,17 @@ jsquick.loadScript = function(url, callback) {
   document.body.appendChild(script);
 };
 
+jsquick.inArray = function(value, array) {
+  if (Array.indexOf) {
+    return array.indexOf(value);
+  } else {
+    for (var i = 0; i < array.length; i++) {
+      if (array[i] === value) return i;
+    }
+    return -1;
+  }
+};
+
 jsquick.ajax = function(settings) {
   var xhr = (window.XMLHttpRequest) ?
             new XMLHttpRequest() : new ActiveXObject("Microsoft.XMLHTTP");

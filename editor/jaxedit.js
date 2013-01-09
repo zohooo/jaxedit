@@ -14,9 +14,10 @@ window.jaxedit = (function(){
   var gatepath = "",
       mathname = "MathJax.js?config=TeX-AMS_HTML",
       mathpath = "",
+      ownhosts = ["jaxedit.com", "www.jaxedit.com", "zohooo.github.com", "jaxedit.sourceforge.net"],
       shareurl = "";
 
-  var jaxedit = {
+  return {
     autoScroll: false,
     canPresent: true,
     dialogMode: null,
@@ -25,6 +26,7 @@ window.jaxedit = (function(){
     hasEditor: false,
     hasParser: false,
     localDrive: false,
+    trustHost: false,
     useDrive: null,
     view: "write",
     wcode: null,
@@ -118,8 +120,12 @@ window.jaxedit = (function(){
       }
 
       mathpath = options.localjs ? "library/mathjax/unpacked/" : "http://cdn.mathjax.org/mathjax/2.1-latest/";
-      gatepath = (location.pathname == "/note/") ? "http://jaxedit.com/gate/" : "http://jaxedit.com/door/";
-      shareurl = (location.pathname == "/note/") ? "http://jaxedit.com/note/" : "http://jaxedit.com/beta/";
+      if (location.pathname == "/note/") {
+        gatepath = "http://" + ownhosts[0] + "/gate/"; shareurl = "http://" + ownhosts[0] + "/note/";
+      } else {
+        gatepath = "http://" + ownhosts[0] + "/door/"; shareurl = "http://" + ownhosts[0] + "/beta/";
+      }
+      if ($.inArray(location.hostname, ownhosts) > -1) this.trustHost = true;
     },
 
     doResize: function(clientX) {
@@ -335,7 +341,9 @@ window.jaxedit = (function(){
 
       this.getOptions();
       this.bindCore();
-      var enableShare = this.bindShare();
+      if (this.trustHost) {
+        var enableShare = this.bindShare();
+      }
       this.autoScroll = false;
 
       if (window.localStorage && this.fileid <= 0) {
@@ -362,9 +370,7 @@ window.jaxedit = (function(){
       if (this.view == "write") {
         this.bindDrive();
         this.addResizer();
-        if (location.protocol != "file:") {
-           enableShare();
-        }
+        if (this.trustHost) enableShare();
       }
     },
 
@@ -517,7 +523,7 @@ window.jaxedit = (function(){
           presbtn = document.getElementById("presbtn");
       dbtnclose.onclick = dlgclose.onclick = function(){ that.toggleModal(false); };
       helpbtn.onclick = function() {
-        window.open("http://jaxedit.com/#help", "_blank");
+        window.open("http://" + ownhosts[0] + "/#help", "_blank");
       };
       helpbtn.style.display = "inline-block";
       if (location.search == "?present=off") {
@@ -1002,7 +1008,7 @@ window.jaxedit = (function(){
         opensel.style.display = "none";
       }
 
-      if (location.protocol != "file:" && window.XMLHttpRequest && "withCredentials" in new XMLHttpRequest()) {
+      if (that.trustHost && window.XMLHttpRequest && "withCredentials" in new XMLHttpRequest()) {
         $.loadScript("http://js.live.net/v5.0/wl.js", function(){ // wl.debug.js
           $.loadScript("editor/webdrive/skydrive.js", function(){
             if (that.localDrive) {
@@ -1151,7 +1157,6 @@ window.jaxedit = (function(){
       return text;
     }
   }
-  return jaxedit;
 })();
 
 window.onload = function() {jaxedit.doLoad()};
