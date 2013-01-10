@@ -84,6 +84,18 @@ div.toc-subsubsection {
   margin: 0.3em 6em;
 }
 
+div.enumerate ol {
+  list-style-type: decimal;
+}
+
+div.enumerate div.enumerate ol {
+  list-style-type: lower-alpha;
+}
+
+div.enumerate div.enumerate div.enumerate ol {
+  list-style-type: lower-roman;
+}
+
 a {
   text-decoration: none;
 }
