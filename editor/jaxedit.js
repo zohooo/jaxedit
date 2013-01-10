@@ -619,7 +619,7 @@ window.jaxedit = (function(){
             document.getElementById("filename").innerHTML = that.fileName = name;
             that.fileid = parseInt(text);
             that.wcode = wcode;
-            showShareUrl(text);
+            showShareUrl(parseInt(text));
           } else {
             that.toggleLoading(status + ": " + text);
           }
