@@ -16,14 +16,13 @@ html, body {
   overflow: hidden;
 }
 
-html {
-  background-color: black;
-}
-
 body {
   position: relative;
-  background-color: #141428;
   font-size: 250%;
+}
+
+#preview {
+  background-color: #141428;
 }
 
 #showarea {

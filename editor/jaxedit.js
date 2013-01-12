@@ -19,7 +19,6 @@ window.jaxedit = (function(){
 
   return {
     autoScroll: false,
-    canPresent: true,
     dialogMode: null,
     fileid: 0,
     fileName: "noname.tex",
@@ -372,6 +371,7 @@ window.jaxedit = (function(){
         this.addResizer();
         if (this.trustHost) enableShare();
       }
+      this.bindPresent();
     },
 
     addResizer: function() {
@@ -519,44 +519,26 @@ window.jaxedit = (function(){
       var that = this;
       var dlgclose = document.getElementById("dlgclose"),
           dbtnclose = document.getElementById("dbtnclose"),
-          helpbtn = document.getElementById("helpbtn"),
-          presbtn = document.getElementById("presbtn");
+          helpbtn = document.getElementById("helpbtn");
       dbtnclose.onclick = dlgclose.onclick = function(){ that.toggleModal(false); };
       helpbtn.onclick = function() {
         window.open("http://" + ownhosts[0] + "/#help", "_blank");
       };
       helpbtn.style.display = "inline-block";
-      if (location.search == "?present=off") {
-        this.canPresent = false;
-      } else {
-        presbtn.onclick = function() {
-          var w, doc;
-          var showarea = that.childs.showarea;
-          var content = ["<!DOCTYPE html><html><head><title>JaxEdit Beamer Presentation</title>",
-                         "<meta http-equiv='Content-Type' content='text/html; charset=UTF-8' />",
-                         "<link rel='stylesheet' type='text/css' href='typejax/typejax.css' />",
-                         "<link rel='stylesheet' type='text/css' href='typejax/showjax.css' />",
-                         "<script type='text/x-mathjax-config'>",
-                            "MathJax.Hub.Config({\n",
-                            "  TeX: { extensions: ['color.js', 'extpfeil.js'] },\n",
-                            "  'HTML-CSS': { imageFont: null }\n",
-                            "});",
-                         "</scr" + "ipt>",
-                         "<script type='text/javascript' src='" + mathpath + mathname + "'></scr" + "ipt>",
-                         "<script type='text/javascript' src='jsquick/jsquick.js'></scr" + "ipt>",
-                         "<script type='text/javascript' src='typejax/showjax.js'></scr" + "ipt></head><body>",
-                         "<div id='showarea'>" + showarea.innerHTML + "</div>",
-                         "</body></html>"].join("");
-          if ($.browser.msie) {
-            w = window.open("", "showjax", "fullscreen");
-          } else {
-            w = window.open("", "showjax");
-          }
-          doc = w.document;
-          doc.write(content);
-          doc.close();
-        }
-      }
+    },
+
+    bindPresent: function() {
+      var that = this;
+      var presbtn = document.getElementById("presbtn");
+      $.loadScript("showjax/showjax.js", function(){
+        presbtn.onclick = function(event) {
+          var ev = event ? event : window.event;
+          ev.stopPropagation ? ev.stopPropagation() : ev.cancelBubble = true;
+          window.onresize = function(){};
+          $.loadStyles("showjax/showjax.css");
+          showjax.doPresent(that.childs.showarea);
+        };
+      });
     },
 
     bindShare: function() {
