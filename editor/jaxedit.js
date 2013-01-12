@@ -534,7 +534,6 @@ window.jaxedit = (function(){
         presbtn.onclick = function(event) {
           var ev = event ? event : window.event;
           ev.stopPropagation ? ev.stopPropagation() : ev.cancelBubble = true;
-          window.onresize = function(){};
           $.loadStyles("showjax/showjax.css");
           showjax.doPresent(that.childs.showarea);
         };

@@ -12,6 +12,7 @@ var showjax = {
   frameall: [],
   framedone: [],
   frameidx: 0,
+  oldstyles: [],
   showarea: null,
 };
 
@@ -43,7 +44,6 @@ showjax.startPresent = function() {
       for (i = 1; i < this.frameall.length; i++) {
         showarea.childNodes[this.frameall[i]].style.display = "none";
       }
-      showarea.style.overflow = "hidden";
     }]);
     window.onresize = function(){showjax.resizeShow()};
     document.onclick = document.onkeydown = document.onmousemove = function(event){showjax.navigateShow(event)};
@@ -54,6 +54,7 @@ showjax.initShow = function() {
   var body = document.body, showarea = this.showarea;
   var preview = document.getElementById("preview");
   var parent, childs, chd, i, node = showarea;
+  var styles = [];
   do {
     parent = node.parentNode;
     childs = parent.childNodes;
@@ -61,17 +62,19 @@ showjax.initShow = function() {
       chd = childs[i];
       if (chd.nodeType != 1) continue;
       if (chd == node) {
-        chd.style.height = chd.style.width = "100%";
-        chd.style.margin = chd.style.padding = "0px";
-        chd.style.border = "none";
+        styles.push(chd, [
+          "height", "100%", "width", "100%",
+          "margin", "0px", "padding", "0px",
+          "border", "none"
+        ]);
       } else {
-        chd.style.display = "none";
+        styles.push(chd, ["display", "none"]);
       }
     }
     node = parent;
   } while (parent != body);
 
-  body.style.backgroundColor = "black";
+  styles.push(body, ["backgroundColor", "black"]);
 
   var browser = jsquick.browser, prefix;
   if (browser.firefox >= 3.6) {
@@ -84,12 +87,21 @@ showjax.initShow = function() {
     prefix = "-o-";
   }
   if (prefix) {
-    preview.style.background = prefix + "linear-gradient(top, #000 0%, #141428 50%, #514C60 100%)";
+    styles.push(preview, ["background", prefix + "linear-gradient(top, #000 0%, #141428 50%, #514C60 100%)"]);
+  } else {
+    styles.push(preview, ["backgroundColor", "#141428"]);
   }
 
-  showarea.style.position = "static";
-  showarea.style.width = showarea.style.height = "96%";
-  showarea.style.padding = "2%";
+  styles.push(showarea, [
+    "fontSize", "250%",
+    "position", "static",
+    "width", "96%", "height", "96%",
+    "padding", "2%", "margin", "0px", "border", "none",
+    "overflow", "hidden",
+    "color", "white",
+    "cursor", "pointer" /* fix for click event in ios */
+  ]);
+  this.resetStyle(styles);
 };
 
 showjax.resizeShow = function() {
@@ -118,6 +130,34 @@ showjax.resizeShow = function() {
   preview.style.marginLeft = preview.style.marginRight = (pageWidth - showWidth) / 2 + "px";
 };
 
+showjax.resetStyle = function(styles) {
+  var i, j, el, st, len, old = [];
+  for (i = 0; i < styles.length; i = i + 2) {
+    el = styles[i]; st = styles[i + 1];
+    old.push(el, []); len = old.length;
+    for (j = 0; j < st.length; j = j + 2) {
+      old[len - 1].push(st[j], el.style[st[j]]);
+      el.style[st[j]] = st[j + 1];
+    }
+  }
+  this.oldstyles = old;
+  //console.log(old);
+}
+
+showjax.quitShow = function() {
+  this.resetStyle(this.oldstyles);
+  var showarea = this.showarea, childs = showarea.childNodes;
+  for (var i = 0; i < childs.length; i++) {
+    if (childs[i].nodeType == 1 && !/preamble/.test(childs[i].className)) {
+      childs[i].style.display = "block";
+    }
+  }
+  jaxedit.doResize();
+  MathJax.Hub.Rerender(showarea);
+  window.onresize = function(){jaxedit.doResize()};
+  document.onclick = document.onkeydown = document.onmousemove = null;
+};
+
 showjax.navigateShow = function(event) {
   var ev = event ? event : window.event;
   var k = showjax.frameidx;
@@ -130,8 +170,8 @@ showjax.navigateShow = function(event) {
     case "keydown":
       switch(ev.keyCode) {
         case 27: // escape
-          jaxedit.doResize();
-          break;
+          showjax.quitShow();
+          return;
         case 37: case 63234:  // left arrow
         case 38: case 63232:  // up arrow
           showjax.frameidx = (k == 0) ? showjax.frameall.length - 1 : k - 1;
@@ -160,8 +200,10 @@ showjax.navigateShow = function(event) {
   showarea.childNodes[showjax.frameall[showjax.frameidx]].style.display = "block";
   showarea.childNodes[showjax.frameall[showjax.frameidx]].style.border = "none";
   //if (!showjax.framedone[showjax.frameidx]) {
+  if (showjax.frameidx !== k) {
     MathJax.Hub.Rerender(showarea);
     showjax.framedone[showjax.frameidx] = true;
+  }
   //}
 };
 

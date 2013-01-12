@@ -9,32 +9,8 @@
  */
 
 html, body {
-  padding: 0;
-  margin: 0;
   width: 100%;
   height: 100%;
-  overflow: hidden;
-}
-
-body {
-  position: relative;
-  font-size: 250%;
-}
-
-#preview {
-  background-color: #141428;
-}
-
-#showarea {
-  width: 96%;
-  height: 96%;
-  padding: 2%;
-  margin: 0;
-  border: 0 none;
-  color: white;
-  font-family: Georgia, "Times New Roman", Times, serif;
-  /* http://www.quirksmode.org/blog/archives/2010/10/click_event_del_1.html */
-  cursor: pointer; /* fix for click event in ios */
 }
 
 div.frame {
