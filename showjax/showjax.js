@@ -87,9 +87,9 @@ showjax.initShow = function() {
     prefix = "-o-";
   }
   if (prefix) {
-    styles.push(preview, ["background", prefix + "linear-gradient(top, #000 0%, #141428 50%, #514C60 100%)"]);
+    styles.push(preview, ["background", prefix + "linear-gradient(top, #000 0%, #323232 50%, #646464 100%)"]);
   } else {
-    styles.push(preview, ["backgroundColor", "#141428"]);
+    styles.push(preview, ["backgroundColor", "#323232"]);
   }
 
   styles.push(showarea, [

@@ -1,0 +1,51 @@
+
+/* JaxEdit: online LaTeX editor with live preview
+ * Copyright (c) 2011-2013 JaxEdit project
+ * License: GNU General Public License, Version 3
+ *
+ * Website: http://jaxedit.com
+ * Source:  https://github.com/zohooo/jaxedit
+ * Release: http://code.google.com/p/jaxedit/
+ */
+
+div.frame {
+  color: white;
+  background-color: #323232;
+}
+
+div.frametitle {
+  color: #E2D560;
+}
+
+div.framesubtitle {
+  color: blue;
+}
+
+div.center {
+  border-width: 0;
+}
+
+div.verbatim {
+  border-width: 0;
+}
+
+div.definition, div.definitions, div.example, div.examples, div.fact, div.lemma, div.theorem, div.proposition, div.corollary, div.proof, div.exercise, div.remark, div.solution {
+  border-width: 0;
+}
+
+span.thmname {
+  color: #D7CB70;
+  padding-right: 0.5em;
+}
+
+div.tableofcontents {
+  border-width: 0;
+}
+
+h1 {
+  color: #F6E72A;
+}
+
+ol, ul {
+  margin-left: 1em;
+}

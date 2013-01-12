@@ -838,6 +838,9 @@ typejax.parser = function(input, modstart, modend){
         case "textbf":
           this.cmdTextbf(node);
           break;
+        case "usetheme":
+          this.cmdUseTheme(node);
+          break;
         default:
           //this.cmdsIgnore();
       }
@@ -1039,7 +1042,14 @@ typejax.parser = function(input, modstart, modend){
       this.cmdvalues[csname] = value;
       node.childs = [];
     },
-    
+
+    cmdUseTheme : function(node) {
+      if (node.argarray[0].childs[0]) {
+        var theme = node.argarray[0].childs[0].value;
+        jsquick.loadStyles("typejax/theme/" + theme + ".css");
+      }
+    },
+
     cmdsBeginEnd : function(csname, envname, where) {
       var mathmode = "bmath", mathdelim = true;
       switch (envname) {
@@ -2178,6 +2188,7 @@ typejax.latex = {
     "newtheorem": ["{}", "[]", "{}", "[]"],
     "newtheorem*": ["{}", "{}"],    
     "textbf": ["{}"],
+    "usetheme": ["{}"],
     "transdissolve": ["<>", "[]"],
     "transduration": ["<>", "{}"]
   },
