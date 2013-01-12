@@ -13,7 +13,7 @@ var showjax = {
   framedone: [],
   frameidx: 0,
   oldstyles: [],
-  showarea: null,
+  showarea: null
 };
 
 showjax.startPresent = function() {
