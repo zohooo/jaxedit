@@ -40,6 +40,12 @@ html, body {
   margin: 0 0 0 4px;
 }
 
+#example {
+  position: relative;
+  bottom: 3px;
+  display: none;
+}
+
 #loginbtn, #drivesel {
   position: relative;
   bottom: 3px;

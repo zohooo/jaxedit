@@ -290,6 +290,9 @@ window.jaxedit = (function(){
     initialize: function() {
       if (this.hasEditor && this.hasParser) {
         this.initEditor();
+        if (location.protocol != "file:") {
+          this.bindExample();
+        }
       }
     },
 
@@ -525,6 +528,31 @@ window.jaxedit = (function(){
         window.open("http://" + ownhosts[0] + "/#help", "_blank");
       };
       helpbtn.style.display = "inline-block";
+    },
+
+    bindExample: function() {
+      var example = document.getElementById("example");
+      var that = this;
+
+      function openExample() {
+        var name = example.options[example.selectedIndex].value;
+        $.ajax({
+          type: "GET",
+          url: "editor/example/" + name,
+          data: "",
+          success: success
+        });
+
+        function success(text, status) {
+          if ((status >= 200 && status <300) || status == 304) {
+            that.initEditor(text);
+          } else {
+            that.changeDialog("bodyload", "footclose", "Error", "Error 404: File Not Found!");
+          }
+        }
+      }
+      example.onchange = openExample;
+      example.style.display = "inline-block";
     },
 
     bindPresent: function() {
