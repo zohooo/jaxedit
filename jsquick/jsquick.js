@@ -63,7 +63,7 @@ if (!window.console) console = {log : function() {}};
 
   jsquick.prototype.extend = jsquick.extend = function(obj) {
     var that = this;
-    this.each(obj, function(key, value) {
+    jsquick.each(obj, function(key, value) {
       that[key] = value;
     });
   };
