@@ -149,7 +149,7 @@ if (!window.console) console = {log : function() {}};
     },
 
     inArray: function(value, array) {
-      if (Array.indexOf) {
+      if (Array.prototype.indexOf) {
         return array.indexOf(value);
       } else {
         for (var i = 0; i < array.length; i++) {
