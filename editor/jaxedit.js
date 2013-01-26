@@ -644,7 +644,7 @@ window.jaxedit = (function(){
       }
 
       function showShareUrl(fid) {
-        var url = shareurl + "?" + fid;
+        var url = location.protocol + "//" + location.host + shareurl + "?" + fid;
         var info = "Sharing URL is <a href='" + url + "'>" + url + "</a>";
         that.changeDialog("bodyload", "footclose", "Share File", info);
       }
