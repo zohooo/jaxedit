@@ -14,7 +14,6 @@ window.jaxedit = (function(){
   var gatepath = "",
       mathname = "MathJax.js?config=TeX-AMS_HTML",
       mathpath = "",
-      ownhosts = ["jaxedit.com", "www.jaxedit.com", "zohooo.github.com", "jaxedit.sourceforge.net"],
       shareurl = "";
 
   return {
@@ -119,12 +118,12 @@ window.jaxedit = (function(){
       }
 
       mathpath = options.localjs ? "library/mathjax/unpacked/" : "http://cdn.mathjax.org/mathjax/2.1-latest/";
-      if (location.pathname == "/note/") {
-        gatepath = "http://" + ownhosts[0] + "/gate/"; shareurl = "http://" + ownhosts[0] + "/note/";
+      if (location.pathname.slice(0, 6) == "/note/") {
+        gatepath = "/gate/"; shareurl = "/note/";
       } else {
-        gatepath = "http://" + ownhosts[0] + "/door/"; shareurl = "http://" + ownhosts[0] + "/beta/";
+        gatepath = "/door/"; shareurl = "/beta/";
       }
-      if ($.inArray(location.hostname, ownhosts) > -1) this.trustHost = true;
+      if (/jaxedit/.test(location.hostname)) this.trustHost = true;
     },
 
     doResize: function(clientX) {
@@ -525,7 +524,7 @@ window.jaxedit = (function(){
           helpbtn = document.getElementById("helpbtn");
       dbtnclose.onclick = dlgclose.onclick = function(){ that.toggleModal(false); };
       helpbtn.onclick = function() {
-        window.open("http://" + ownhosts[0] + "/#help", "_blank");
+        window.open("http://jaxedit.com/#help", "_blank");
       };
       helpbtn.style.display = "inline-block";
     },
