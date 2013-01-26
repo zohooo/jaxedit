@@ -83,7 +83,7 @@ window.jaxedit = (function(){
         }
       }
 
-      options.localjs = (location.protocol == "file:");
+      options.localjs = (location.protocol == "file:" || location.protocol == "https:");
 
       var qs = location.search.length > 0 ? location.search.substring(1) : "";
       var items = qs.split("&"), pair, name, value;
