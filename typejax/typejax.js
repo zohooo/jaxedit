@@ -296,7 +296,8 @@ typejax.updater = {
 };
 
 typejax.parser = function(input, modstart, modend){
-  
+  var that = this;
+
   var lexer = {
     snippet : "", // content of the source input
     length : 0,   // length of the source input
@@ -1045,8 +1046,7 @@ typejax.parser = function(input, modstart, modend){
 
     cmdUseTheme : function(node) {
       if (node.argarray[0].childs[0]) {
-        var theme = node.argarray[0].childs[0].value;
-        jsquick.loadStyles("typejax/theme/" + theme + ".css");
+        that.beamer.usetheme = node.argarray[0].childs[0].value;
       }
     },
 
@@ -1353,6 +1353,9 @@ typejax.parser = function(input, modstart, modend){
       if (window.jaxedit) {
         if (doccls == "beamer") {
           jaxedit.childs.presbtn.style.display = "inline-block";
+          var beamer = that.beamer;
+          var theme = (jsquick.inArray(beamer.usetheme, beamer.allthemes) > -1) ? beamer.usetheme : "default";
+          jsquick.loadStyles("typejax/theme/" + theme + ".css");
         } else {
           jaxedit.childs.presbtn.style.display = "none";
         }
@@ -2195,4 +2198,9 @@ typejax.latex = {
   cmdvalues : {},
   counters : {},
   thmnames : {}
+};
+
+typejax.beamer = {
+  allthemes : ["default", "epyt"],
+  usetheme : "default"
 };

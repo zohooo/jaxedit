@@ -23,13 +23,11 @@ div.frame {
 }
 
 div.frametitle {
-  color: blue;
   font-size: 1.1em;
   margin: 0.06em 0.06em 0.31em 0.06em;
 }
 
 div.framesubtitle {
-  color: blue;
   font-size: 1em;
   margin: -0.31em 0.06em 0.31em 0.06em;
 }
