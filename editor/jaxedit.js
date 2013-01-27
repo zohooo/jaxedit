@@ -762,11 +762,16 @@ window.jaxedit = (function(){
       }
 
       function doSave() {
-        var BlobBuilder = window.BlobBuilder || window.MozBlobBuilder || window.WebKitBlobBuilder || window.MSBlobBuilder;
+        var value = that.editor.getValue(), type = "text/latex";
+        if (typeof window.Blob == "function") {
+          var blob = new Blob([value], {type: type});
+        } else {
+          var BlobBuilder = window.BlobBuilder || window.MozBlobBuilder || window.WebKitBlobBuilder || window.MSBlobBuilder;
+          var bb = new BlobBuilder;
+          bb.append(value);
+          var blob = bb.getBlob(type);
+        }
         var URL = window.URL || window.webkitURL;
-        var bb = new BlobBuilder;
-        bb.append(that.editor.getValue());
-        var blob = bb.getBlob("text/latex");
         var bloburl = URL.createObjectURL(blob);
         var name = that.fileName.split(/\.[^.]+$/)[0] + ".tex";
         if ($.browser.chrome >= 14) {
@@ -994,7 +999,9 @@ window.jaxedit = (function(){
       // unless --allow-file-access-from-files switch was added to it
       if ((browser.firefox && browser.firefox >= 6) ||
           (browser.chrome && browser.chrome >= 8 && location.protocol != "file:") ||
-          (browser.msie && browser.msie >= 10)) {
+          (browser.msie && browser.msie >= 10) ||
+          (browser.safari && browser.safari >= 6) ||
+          (browser.opera && browser.opera >= 12.10)) {
         this.localDrive = true;
         this.useDrive = "localdrive";
         opensel.style.visibility = "visible";
