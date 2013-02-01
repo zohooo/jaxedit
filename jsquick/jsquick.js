@@ -11,21 +11,27 @@
 if (!window.console) console = {log : function() {}};
 
 (function(){
-  function jsquick(selector) {
-    return new init(selector);
+  function jsquick() {
+    return new init(arguments[0]);
   }
 
-  function init(selector) {
-    var elems;
-    switch (selector.charAt(0)) {
-      case "#":
-        elems = [document.getElementById(selector.slice(1))];
-        break;
-      case ".":
-        elems = document.getElementsByClassName(selector.slice(1));
-        break;
-      default:
-        elems = document.getElementsByTagName(selector);
+  function init() {
+    var elems, arg = arguments[0];
+    if (typeof arg == "string") {
+      switch (arg.charAt(0)) {
+        case "#":
+          elems = [document.getElementById(arg.slice(1))];
+          break;
+        case ".":
+          elems = document.getElementsByClassName(arg.slice(1));
+          break;
+        default:
+          elems = document.getElementsByTagName(arg);
+      }
+    } else if (arg instanceof Array) {
+      elems = arg;
+    } else if (arg.nodeType) {
+      elems = [arg];
     }
     for (var i = 0; i < elems.length; i++) {
       this[i] = elems[i];
