@@ -175,6 +175,20 @@ if (!window.console) console = {log : function() {}};
     }
   });
 
+  jsquick.prototype.extend({
+    css: function(property, value) {
+      if (typeof value == "string") {
+        this.each(function() {
+          this.style[property] = value;
+        });
+        return this;
+      } else {
+        var style = window.getComputedStyle ? window.getComputedStyle(this[0], null) : this[0].currentStyle;
+        return style[property];
+      }
+    }
+  });
+
   jsquick.fn = jsquick.prototype;
   window.jsquick = jsquick;
 })();
