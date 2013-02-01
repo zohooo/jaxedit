@@ -183,7 +183,7 @@ if (!window.console) console = {log : function() {}};
 
   jsquick.prototype.extend({
     css: function(property, value) {
-      if (typeof value == "string") {
+      if (arguments.length >= 2) {
         this.each(function() {
           this.style[property] = value;
         });
