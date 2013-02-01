@@ -76,18 +76,16 @@ showjax.initShow = function() {
 
   styles.push(body, ["backgroundColor", "black"]);
 
-  var frame = showarea.childNodes[this.frameall[0]];
-  var image = jsquick(frame).css("backgroundImage");
-  var color = jsquick(frame).css("backgroundColor");
-
-  styles.push(preview, [
-    "backgroundImage", image,
-    "backgroundColor", color
-  ]);
+  var frameall = this.frameall;
+  for (var i = 0; i < frameall.length; i++) {
+    styles.push(showarea.childNodes[frameall[i]], [
+      "width", "100%",
+      "height", "100%",
+      "margin", "0px"
+    ]);
+  }
 
   styles.push(showarea, [
-    "backgroundImage", image,
-    "backgroundColor", color,
     "fontSize", "250%",
     "position", "static",
     "width", "96%", "height", "96%",
