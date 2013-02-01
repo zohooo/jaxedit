@@ -8,8 +8,13 @@
  * Release: http://code.google.com/p/jaxedit/
  */
 
-div.frame {
+div.frame, div.maketitle {
   color: white;
+  background-image: linear-gradient(top, #000 0%, #323232 50%, #646464 100%);
+  background-image: -moz-linear-gradient(top, #000 0%, #323232 50%, #646464 100%);
+  background-image: -webkit-linear-gradient(top, #000 0%, #323232 50%, #646464 100%);
+  background-image: -ms-linear-gradient(top, #000 0%, #323232 50%, #646464 100%);
+  background-image: -o-linear-gradient(top, #000 0%, #323232 50%, #646464 100%);
   background-color: #323232;
 }
 
@@ -18,7 +23,7 @@ div.frametitle {
 }
 
 div.framesubtitle {
-  color: blue;
+  color: #E2D560;
 }
 
 div.center {

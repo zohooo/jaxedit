@@ -76,29 +76,23 @@ showjax.initShow = function() {
 
   styles.push(body, ["backgroundColor", "black"]);
 
-  var browser = jsquick.browser, prefix;
-  if (browser.firefox >= 3.6) {
-    prefix = "-moz-";
-  } else if (browser.chrome >= 10 || browser.safari >= 5.1) {
-    prefix = "-webkit-";
-  } else if (browser.msie >= 10) {
-    prefix = "-ms-";
-  } else if (browser.opera >= 11.10) {
-    prefix = "-o-";
-  }
-  if (prefix) {
-    styles.push(preview, ["background", prefix + "linear-gradient(top, #000 0%, #323232 50%, #646464 100%)"]);
-  } else {
-    styles.push(preview, ["backgroundColor", "#323232"]);
-  }
+  var frame = showarea.childNodes[this.frameall[0]];
+  var image = jsquick(frame).css("backgroundImage");
+  var color = jsquick(frame).css("backgroundColor");
+
+  styles.push(preview, [
+    "backgroundImage", image,
+    "backgroundColor", color
+  ]);
 
   styles.push(showarea, [
+    "backgroundImage", image,
+    "backgroundColor", color,
     "fontSize", "250%",
     "position", "static",
     "width", "96%", "height", "96%",
     "padding", "2%", "margin", "0px", "border", "none",
     "overflow", "hidden",
-    "color", "white",
     "cursor", "pointer" /* fix for click event in ios */
   ]);
   this.resetStyle(styles);

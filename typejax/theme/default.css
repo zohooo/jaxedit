@@ -8,9 +8,9 @@
  * Release: http://code.google.com/p/jaxedit/
  */
 
-div.frame {
+div.frame, div.maketitle {
   color: black;
-  background-color: white;
+  background: white;
 }
 
 div.frametitle {

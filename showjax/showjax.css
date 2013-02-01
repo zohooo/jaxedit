@@ -17,14 +17,6 @@ div.frame {
   border-width: 0;
 }
 
-div.frametitle {
-  color: #E2D560;
-}
-
-div.framesubtitle {
-  color: blue;
-}
-
 div.center {
   border-width: 0;
 }
@@ -37,19 +29,6 @@ div.definition, div.definitions, div.example, div.examples, div.fact, div.lemma,
   border-width: 0;
 }
 
-span.thmname {
-  color: #D7CB70;
-  padding-right: 0.5em;
-}
-
 div.tableofcontents {
   border-width: 0;
-}
-
-h1 {
-  color: #F6E72A;
-}
-
-ol, ul {
-  margin-left: 1em;
 }
