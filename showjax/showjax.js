@@ -38,7 +38,6 @@ showjax.startPresent = function() {
     MathJax.Hub.config.showProcessingMessages = false;
     MathJax.Hub.Rerender(showarea); //"Rerender" vs "Reprocess"
     MathJax.Hub.Queue([showjax, function(){
-      var showarea = document.getElementById("showarea");
       this.frameidx = 0;
       this.framedone[0] = true;
       for (i = 1; i < this.frameall.length; i++) {
@@ -52,7 +51,6 @@ showjax.startPresent = function() {
 
 showjax.initShow = function() {
   var body = document.body, showarea = this.showarea;
-  var preview = document.getElementById("preview");
   var parent, childs, chd, i, node = showarea;
   var styles = [];
   do {
@@ -79,17 +77,17 @@ showjax.initShow = function() {
   var frameall = this.frameall;
   for (var i = 0; i < frameall.length; i++) {
     styles.push(showarea.childNodes[frameall[i]], [
-      "width", "100%",
-      "height", "100%",
+      "width", "96%",
+      "height", "96%",
+      "padding", "2%",
+      "border", "none",
       "margin", "0px"
     ]);
   }
 
   styles.push(showarea, [
     "fontSize", "250%",
-    "position", "static",
-    "width", "96%", "height", "96%",
-    "padding", "2%", "margin", "0px", "border", "none",
+    "margin", "0px", "border", "none",
     "overflow", "hidden",
     "cursor", "pointer" /* fix for click event in ios */
   ]);
@@ -97,7 +95,7 @@ showjax.initShow = function() {
 };
 
 showjax.resizeShow = function() {
-  var preview = document.getElementById("preview");
+  var showarea = this.showarea;
   var pageWidth = window.innerWidth;
   var pageHeight = window.innerHeight;
   if (typeof pageWidth != "number" ){
@@ -118,8 +116,8 @@ showjax.resizeShow = function() {
     showHeight = 3 * showWidth / 4;
   }
 
-  preview.style.width = showWidth + "px"; preview.style.height = showHeight + "px";
-  preview.style.marginLeft = preview.style.marginRight = (pageWidth - showWidth) / 2 + "px";
+  showarea.style.width = showWidth + "px"; showarea.style.height = showHeight + "px";
+  showarea.style.marginLeft = showarea.style.marginRight = (pageWidth - showWidth) / 2 + "px";
 };
 
 showjax.resetStyle = function(styles) {
