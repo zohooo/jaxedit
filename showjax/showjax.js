@@ -12,6 +12,7 @@ var showjax = {
   frameall: [],
   framedone: [],
   frameidx: 0,
+  infodiv: null,
   oldstyles: [],
   showarea: null
 };
@@ -135,6 +136,7 @@ showjax.resetStyle = function(styles) {
 }
 
 showjax.quitShow = function() {
+  document.body.removeChild(this.infodiv);
   this.resetStyle(this.oldstyles);
   var showarea = this.showarea, childs = showarea.childNodes;
   for (var i = 0; i < childs.length; i++) {
@@ -175,13 +177,11 @@ showjax.navigateShow = function(event) {
       }
       break;
     case "mousemove":
-      if (jsquick.browser.msie) {
-        var infodiv = document.getElementById("infodiv");
-        if (ev.clientY < 50) {
-          infodiv.style.display = "block";
-        } else {
-          setTimeout(function(){infodiv.style.display = "none";}, 3000);
-        }
+      var infodiv = showjax.infodiv;
+      if (ev.clientY < 50) {
+        infodiv.style.display = "block";
+      } else {
+        infodiv.style.display = "none";
       }
       break;
   }
@@ -198,7 +198,7 @@ showjax.navigateShow = function(event) {
 };
 
 showjax.addInfotip = function() {
-  var shortcut, fullinfo;
+  var shortcut, showinfo;
   switch (jsquick.system) {
     case 'windows':
     case 'linux':
@@ -216,39 +216,17 @@ showjax.addInfotip = function() {
   if (shortcut) {
     fullinfo += ". Press " + shortcut + " for fullscreen";
   }
-  var fulldiv = document.createElement("div");
-  fulldiv.innerHTML = "<span>" + fullinfo + "</span>";
-  fulldiv.style.cssText = "position:absolute; top:0; right: 0; padding:6px; border-radius:4px; font-size:16px; font-family:arial; background-color:white;";
-  document.body.appendChild(fulldiv);
-  setTimeout(function(){document.body.removeChild(fulldiv);}, 5000);
-};
-
-showjax.addExport = function() {
-  var infodiv = document.createElement("div");
-  infodiv.innerHTML = "<span>Export</span>";
-  infodiv.id = "infodiv";
-  infodiv.style.cssText = "position:absolute; left:0; top:0; padding:6px; border-radius:4px; font-size:16px; font-family:arial; background-color:white;";
-  document.body.appendChild(infodiv);
-  setTimeout(function(){infodiv.style.display = "none";}, 3000);
-  infodiv.onclick = function(event) {
-    var ev = event ? event : window.event;
-    if (jsquick.browser.msie) {
-      document.execCommand("SaveAs", false, "showjax.html");
-    } else {
-      var text = encodeURIComponent("<!DOCTYPE html><html>" + document.documentElement.innerHTML + "</html>");
-      var data = "data:x-application/text;charset=utf-8," + text;
-      location.href = data;
-    }
-    ev.stopPropagation ? ev.stopPropagation() : ev.cancelBubble = true;
-  }
+  showinfo = document.createElement("div");
+  showinfo.id = "infodiv";
+  showinfo.innerHTML = "<span>" + fullinfo + "</span>";
+  showinfo.style.cssText = "position:absolute; top:0; right: 0; padding:6px; border: 1px solid gray; border-radius:4px; font-size:16px; font-family:arial; background-color:white;";
+  document.body.appendChild(showinfo);
+  this.infodiv = showinfo;
+  setTimeout(function(){showinfo.style.display = "none";}, 5000);
 };
 
 showjax.doPresent = function(showarea){
   this.showarea = showarea;
   this.startPresent();
-  if (jsquick.browser.msie) {
-    this.addExport();
-  } else {
-    this.addInfotip();
-  }
+  this.addInfotip();
 };
