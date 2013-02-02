@@ -13,6 +13,7 @@ var showjax = {
   framedone: [],
   frameidx: 0,
   infodiv: null,
+  infotimer: 0,
   oldstyles: [],
   showarea: null
 };
@@ -179,9 +180,13 @@ showjax.navigateShow = function(event) {
     case "mousemove":
       var infodiv = showjax.infodiv;
       if (ev.clientY < 50) {
+        clearTimeout(showjax.infotimer);
+        showjax.infotimer = 0;
         infodiv.style.display = "block";
       } else {
-        infodiv.style.display = "none";
+        if (!showjax.infotimer) {
+          showjax.infotimer = setTimeout(function(){infodiv.style.display = "none";}, 2000);
+        }
       }
       break;
   }
