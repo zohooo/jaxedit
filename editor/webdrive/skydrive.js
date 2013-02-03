@@ -35,6 +35,8 @@ var skydrive = {
       case "a.jaxedit.com":
         cid = "000000004C0DE288";
         break;
+      default:
+        cid = "00000000480E7C82";
     }
 
     WL.Event.subscribe("auth.login", this.onLoginComplete);

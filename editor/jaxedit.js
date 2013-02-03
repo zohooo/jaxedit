@@ -1014,7 +1014,7 @@ window.jaxedit = (function(){
       }
 
       if (that.trustHost) {
-        $.loadScript("http://js.live.net/v5.0/wl.js", function(){ // wl.debug.js
+        $.loadScript(location.protocol + "//js.live.net/v5.0/wl.js", function(){ // wl.debug.js
           $.loadScript("editor/webdrive/skydrive.js", function(){
             if (that.localDrive) {
               drivesel.style.display = "inline-block";
