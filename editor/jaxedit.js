@@ -562,7 +562,7 @@ window.jaxedit = (function(){
           var ev = event ? event : window.event;
           ev.stopPropagation ? ev.stopPropagation() : ev.cancelBubble = true;
           window.onresize = null;
-          $.loadStyles("showjax/showjax.css");
+          $.loadStyles("showjax/showjax.css", "showjax-style");
           showjax.doPresent(that.childs.showarea);
         };
       });

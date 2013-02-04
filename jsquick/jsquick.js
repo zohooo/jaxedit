@@ -145,6 +145,12 @@ if (!window.console) console = {log : function() {}};
       head.appendChild(link);
     },
 
+    removeStyles: function(id) {
+      var link = document.getElementById(id);
+      var head = document.getElementsByTagName("head")[0];
+      head.removeChild(link);
+    },
+
     loadScript: function(url, callback) {
       var script = document.createElement("script");
       script.type = "text/javascript";

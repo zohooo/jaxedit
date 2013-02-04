@@ -138,6 +138,7 @@ showjax.resetStyle = function(styles) {
 
 showjax.quitShow = function() {
   document.body.removeChild(this.infodiv);
+  jsquick.removeStyles("showjax-style");
   this.resetStyle(this.oldstyles);
   var showarea = this.showarea, childs = showarea.childNodes;
   for (var i = 0; i < childs.length; i++) {
