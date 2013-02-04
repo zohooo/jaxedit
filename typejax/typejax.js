@@ -1357,7 +1357,8 @@ typejax.parser = function(input, modstart, modend){
           jaxedit.childs.presbtn.style.display = "inline-block";
           var beamer = that.beamer;
           if (beamer.newtheme != beamer.oldtheme) {
-            jsquick.loadStyles("typejax/theme/" + beamer.newtheme + ".css", "beamer-theme");
+            jsquick.loadStyles("typejax/theme/" + beamer.newtheme + ".css", "typejax-theme");
+            beamer.oldtheme = beamer.newtheme;
           }
         } else {
           jaxedit.childs.presbtn.style.display = "none";
