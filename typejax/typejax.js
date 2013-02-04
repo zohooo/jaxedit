@@ -1355,9 +1355,11 @@ typejax.parser = function(input, modstart, modend){
       this.cmdvalues["documentclass"] = doccls;
       if (doccls == "beamer") {
         if (window.jaxedit) jaxedit.childs.presbtn.style.display = "inline-block";
+        if (!beamer.newtheme) beamer.newtheme = "default";
         if (beamer.newtheme != beamer.oldtheme) {
           jsquick.loadStyles("typejax/theme/" + beamer.newtheme + ".css", "typejax-theme");
           beamer.oldtheme = beamer.newtheme;
+          beamer.newtheme = "";
         }
       } else {
         if (window.jaxedit) jaxedit.childs.presbtn.style.display = "none";
@@ -2206,6 +2208,6 @@ typejax.latex = {
 
 typejax.beamer = {
   allthemes : ["default", "epyt"],
-  newtheme : "default",
-  oldtheme : "default"
+  newtheme : "",
+  oldtheme : ""
 };
