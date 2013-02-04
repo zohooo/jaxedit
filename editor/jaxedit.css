@@ -265,7 +265,7 @@ html, body {
   background: #3069B6;
 }
 
-#bodyload {
+#bodyload, #bodydone {
   height: 300px;
   padding-top: 130px;
   text-align: center;
@@ -398,4 +398,20 @@ html, body {
   color: white;
   border: 1px solid #222280;
   background: #3069B6;
+}
+
+#parser-loading {
+  font-size: 18px;
+  line-height: 22px;
+  margin-top: 100px;
+  text-align: center;
+}
+
+.gif-loading {
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  vertical-align: text-top;
+  margin-right: 8px;
+  background-image: url("image/gif-loading.gif");
 }

@@ -360,7 +360,7 @@ window.jaxedit = (function(){
         this.showWindow(enableShare);
       }
 
-      showarea.innerHTML = "<div style='font-size:1em;margin-top:6em;text-align:center;'>Loading TypeJax and MathJax...</div>";
+      showarea.innerHTML = "<div id='parser-loading'><i class='gif-loading'></i>Loading TypeJax and MathJax...</div>";
       this.loadEditor();
       this.loadParser();
     },
@@ -646,7 +646,8 @@ window.jaxedit = (function(){
       function showShareUrl(fid) {
         var url = location.protocol + "//" + location.host + shareurl + "?" + fid;
         var info = "Sharing URL is <a href='" + url + "'>" + url + "</a>";
-        that.changeDialog("bodyload", "footclose", "Share File", info);
+        document.getElementById("bodydone").innerHTML = info;
+        that.changeDialog("bodydone", "footclose", "Share File");
       }
 
       function setupShare() {
@@ -806,10 +807,10 @@ window.jaxedit = (function(){
       function driveOpenSave(mode) {
         var dlgtitle = document.getElementById("dlgtitle"),
             dlgflist = document.getElementById("dlgflist"),
-            bodyload = document.getElementById("bodyload"),
+            loadinfo = document.getElementById("loadinfo"),
             savename = document.getElementById("savename"),
             dbtnsave = document.getElementById("dbtnsave");
-        bodyload.innerHTML = "Loading...";
+        loadinfo.innerHTML = "Loading...";
         dlgflist.onclick = dialogClick;
         if (mode == "open") {
           that.dialogMode = "open";
@@ -1126,7 +1127,7 @@ window.jaxedit = (function(){
         document.getElementById("dlgtitle").innerHTML = title;
       }
       if (info) {
-        document.getElementById("bodyload").innerHTML = info;
+        document.getElementById("loadinfo").innerHTML = info;
       }
       this.toggleModal(true);
     },
