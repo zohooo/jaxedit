@@ -128,10 +128,18 @@ if (!window.console) console = {log : function() {}};
       }
     })(),
 
-    loadStyles: function(url) {
+    loadStyles: function(url, id) {
+      if (id) {
+        var link = document.getElementById(id);
+        if (link) {
+          link.href = url;
+          return;
+        }
+      }
       var link = document.createElement("link");
       link.rel = "stylesheet";
       link.type = "text/css";
+      if (id) link.id = id;
       link.href = url;
       var head = document.getElementsByTagName("head")[0];
       head.appendChild(link);

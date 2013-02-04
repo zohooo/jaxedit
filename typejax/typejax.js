@@ -1046,7 +1046,9 @@ typejax.parser = function(input, modstart, modend){
 
     cmdUseTheme : function(node) {
       if (node.argarray[0].childs[0]) {
-        that.beamer.usetheme = node.argarray[0].childs[0].value;
+        var theme = node.argarray[0].childs[0].value;
+        var beamer = that.beamer;
+        beamer.newtheme = (jsquick.inArray(theme, beamer.allthemes) > -1) ? theme : "default";
       }
     },
 
@@ -1354,8 +1356,9 @@ typejax.parser = function(input, modstart, modend){
         if (doccls == "beamer") {
           jaxedit.childs.presbtn.style.display = "inline-block";
           var beamer = that.beamer;
-          var theme = (jsquick.inArray(beamer.usetheme, beamer.allthemes) > -1) ? beamer.usetheme : "default";
-          jsquick.loadStyles("typejax/theme/" + theme + ".css");
+          if (beamer.newtheme != beamer.oldtheme) {
+            jsquick.loadStyles("typejax/theme/" + beamer.newtheme + ".css", "beamer-theme");
+          }
         } else {
           jaxedit.childs.presbtn.style.display = "none";
         }
@@ -2202,5 +2205,6 @@ typejax.latex = {
 
 typejax.beamer = {
   allthemes : ["default", "epyt"],
-  usetheme : "default"
+  newtheme : "default",
+  oldtheme : "default"
 };
