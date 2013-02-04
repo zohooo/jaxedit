@@ -1351,18 +1351,18 @@ typejax.parser = function(input, modstart, modend){
 
     envPreamble : function(node) {
       var doccls = node.argarray[1].childs[0].value;
+      var beamer = that.beamer;
       this.cmdvalues["documentclass"] = doccls;
-      if (window.jaxedit) {
-        if (doccls == "beamer") {
-          jaxedit.childs.presbtn.style.display = "inline-block";
-          var beamer = that.beamer;
-          if (beamer.newtheme != beamer.oldtheme) {
-            jsquick.loadStyles("typejax/theme/" + beamer.newtheme + ".css", "typejax-theme");
-            beamer.oldtheme = beamer.newtheme;
-          }
-        } else {
-          jaxedit.childs.presbtn.style.display = "none";
+      if (doccls == "beamer") {
+        if (window.jaxedit) jaxedit.childs.presbtn.style.display = "inline-block";
+        if (beamer.newtheme != beamer.oldtheme) {
+          jsquick.loadStyles("typejax/theme/" + beamer.newtheme + ".css", "typejax-theme");
+          beamer.oldtheme = beamer.newtheme;
         }
+      } else {
+        if (window.jaxedit) jaxedit.childs.presbtn.style.display = "none";
+        jsquick.removeStyles("typejax-theme");
+        beamer.oldtheme = beamer.newtheme = "";
       }
     },
     

@@ -148,7 +148,7 @@ if (!window.console) console = {log : function() {}};
     removeStyles: function(id) {
       var link = document.getElementById(id);
       var head = document.getElementsByTagName("head")[0];
-      head.removeChild(link);
+      if (link) head.removeChild(link);
     },
 
     loadScript: function(url, callback) {
