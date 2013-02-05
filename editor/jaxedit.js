@@ -625,7 +625,7 @@ window.jaxedit = (function(){
             that.wcode = wcode;
             showShareUrl(parseInt(text));
           } else {
-            that.toggleInfo(status + ": " + text);
+            that.toggleInfo("Error " + status + ": Failed to upload file!");
           }
         }
 
