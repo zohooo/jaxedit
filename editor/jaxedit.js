@@ -308,14 +308,9 @@ window.jaxedit = (function(){
       if (!highlight && $.browser.msie) codearea.setActive();
 
       if (typeof value == "string") {
-        if (highlight) {
-          value = value.replace(/\r\n?/g,"\n");
-        }
         editor.setValue(value);
-        data.newtextvalue = value;
-      } else {
-        data.newtextvalue = editor.getValue();
       }
+      data.newtextvalue = editor.getValue();
       data.newtextsize = data.newtextvalue.length;
       if (!highlight) {
         data.newselstart = codearea.selectionStart;
