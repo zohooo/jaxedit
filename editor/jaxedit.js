@@ -541,7 +541,7 @@ window.jaxedit = (function(){
           if ((status >= 200 && status <300) || status == 304) {
             that.initEditor(text);
           } else {
-            that.changeDialog("bodyload", "footclose", "Error", "Error 404: File Not Found!");
+            that.changeDialog("bodyinfo", "footclose", "Error", "Error 404: File Not Found!");
           }
         }
       }
@@ -590,7 +590,7 @@ window.jaxedit = (function(){
               that.showWindow(enableShare);
             }
           } else {
-            that.toggleLoading(status + ": " + text);
+            that.toggleInfo(status + ": " + text);
           }
         }
 
@@ -625,7 +625,7 @@ window.jaxedit = (function(){
             that.wcode = wcode;
             showShareUrl(parseInt(text));
           } else {
-            that.toggleLoading(status + ": " + text);
+            that.toggleInfo(status + ": " + text);
           }
         }
 
@@ -641,8 +641,7 @@ window.jaxedit = (function(){
       function showShareUrl(fid) {
         var url = location.protocol + "//" + location.host + shareurl + "?" + fid;
         var info = "Sharing URL is <a href='" + url + "'>" + url + "</a>";
-        document.getElementById("bodydone").innerHTML = info;
-        that.changeDialog("bodydone", "footclose", "Share File");
+        that.changeDialog("bodyinfo", "footclose", "Share File", info);
       }
 
       function setupShare() {
@@ -666,7 +665,7 @@ window.jaxedit = (function(){
           } else if (email.indexOf("@") <= 0 || email.indexOf("@") == email.length - 1) {
             note.innerHTML = "Error: your email address is invalid!";
           } else {
-            that.changeDialog("bodyload", "footclose", "", "Uploading file...");
+            that.changeDialog("bodyinfo", "footclose", "", "Uploading file...", true);
             uploadContent(that.editor.getValue(), name, null, wcode, rcode, email);
           }
         }
@@ -702,7 +701,7 @@ window.jaxedit = (function(){
       function setupFetch() {
         function checkFetch() {
           var scode = document.getElementById("share_scode").value;
-          that.changeDialog("bodyload", "footclose", "Fetch File", "Fetching file...");
+          that.changeDialog("bodyinfo", "footclose", "Fetch File", "Fetching file...", true);
           downloadContent(that.fileid, scode);
         };
 
@@ -800,23 +799,19 @@ window.jaxedit = (function(){
       }
 
       function driveOpenSave(mode) {
-        var dlgtitle = document.getElementById("dlgtitle"),
-            dlgflist = document.getElementById("dlgflist"),
-            loadinfo = document.getElementById("loadinfo"),
+        var dlgflist = document.getElementById("dlgflist"),
             savename = document.getElementById("savename"),
             dbtnsave = document.getElementById("dbtnsave");
-        loadinfo.innerHTML = "Loading...";
+        var info = "Loading...";
         dlgflist.onclick = dialogClick;
         if (mode == "open") {
           that.dialogMode = "open";
-          dlgtitle.innerHTML = "Open File";
-          that.changeDialog("bodyload", "footclose");
+          that.changeDialog("bodyinfo", "footclose", "Open File", info, true);
         } else {
           that.dialogMode = "save";
-          dlgtitle.innerHTML = "Save File";
           savename.value = that.fileName.split(/\.[^.]+$/)[0];
           dbtnsave.onclick = checkSave;
-          that.changeDialog("bodyload", "footsave");
+          that.changeDialog("bodyinfo", "footsave", "Save File", info, true);
         }
         (function(){
           if (skydrive.homeid){
@@ -856,7 +851,7 @@ window.jaxedit = (function(){
           that.changeDialog("bodylist");
         }
         else {
-          that.toggleLoading("Error in reading LaTeX files!");
+          that.toggleInfo("Error in reading LaTeX files!");
         }
       }
 
@@ -871,7 +866,7 @@ window.jaxedit = (function(){
             that.toggleModal(false);
             that.initEditor(text);
           } else {
-            that.toggleLoading(status + " error in opening file!");
+            that.toggleInfo(status + " error in opening file!");
           }
         }
 
@@ -889,7 +884,7 @@ window.jaxedit = (function(){
             querystr = "?access_token=" + encodeURIComponent(skydrive.access_token),
             path = gatepath + "drive.php";
         var type, url, boundary, content, contype;
-        that.changeDialog("bodyload", "footclose", "", "Saving file...");
+        that.changeDialog("bodyinfo", "footclose", "", "Saving file...", true);
 
         if (location.search == "?put") { // using PUT method
           type = "PUT";
@@ -916,7 +911,7 @@ window.jaxedit = (function(){
               document.getElementById("filename").innerHTML = that.fileName = name;
               that.toggleModal(false);
             } else {
-              that.toggleLoading(status + " error in saving file!");
+              that.toggleInfo(status + " error in saving file!");
             }
         }
 
@@ -962,7 +957,7 @@ window.jaxedit = (function(){
       }
 
       function dialogWalkup() {
-        that.changeDialog("bodyload");
+        that.changeDialog("bodyinfo");
         skydrive.finside.pop();
         skydrive.getFilesList(handleResponse);
       }
@@ -1087,10 +1082,14 @@ window.jaxedit = (function(){
     },
 
     toggleLoading: function(info) {
-      this.changeDialog("bodyload", null, null, info);
+      this.changeDialog("bodyinfo", null, null, info, true);
     },
 
-    changeDialog: function(idbody, idfoot, title, info) {
+    toggleInfo: function(info) {
+      this.changeDialog("bodyinfo", null, null, info);
+    },
+
+    changeDialog: function(idbody, idfoot, title, info, loading) {
       var childs, element, i;
       if (idbody) {
         childs = document.getElementById("dlgbody").childNodes;
@@ -1122,7 +1121,8 @@ window.jaxedit = (function(){
         document.getElementById("dlgtitle").innerHTML = title;
       }
       if (info) {
-        document.getElementById("loadinfo").innerHTML = info;
+        if (loading) info = "<i class='gif-loading'></i>" + info;
+        document.getElementById("bodyinfo").innerHTML = info;
       }
       this.toggleModal(true);
     },
