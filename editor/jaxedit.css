@@ -62,17 +62,20 @@ html, body {
   visibility: hidden;
 }
 
-#newbtn, #openbtn, #savebtn, #sharebtn, #presbtn, #helpbtn, #loginbtn {
+#head .button {
   position: relative;
   bottom: 3px;
+  display: none;
+}
+
+.button {
   border: 1px solid #777777;
   background: #E0E0E0;
   border-radius: 2px;
-  display: none;
   font-family: Arial, Helvetica, sans-serif;
 }
 
-#newbtn:hover[disabled=false], #openbtn:hover, #savebtn:hover, #sharebtn:hover, #presbtn:hover, #helpbtn:hover, #loginbtn:hover {
+.button:hover {
   color: white;
   border: 1px solid #222280;
   background: #3069B6;
@@ -385,19 +388,6 @@ html, body {
 
 #savespan {
   margin-right: 10px;
-}
-
-#dbtnsave, #dbtnfetch, #dbtnshare, #dbtnclose {
-  border: 1px solid #777777;
-  background: #E0E0E0;
-  border-radius: 2px;
-  font-family: Arial, Helvetica, sans-serif;
-}
-
-#dbtnsave:hover, #dbtnfetch:hover, #dbtnshare:hover, #dbtnclose:hover {
-  color: white;
-  border: 1px solid #222280;
-  background: #3069B6;
 }
 
 #parser-loading {
