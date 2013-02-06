@@ -531,6 +531,7 @@ window.jaxedit = (function(){
       var that = this;
 
       function openExample() {
+        if (example.selectedIndex == 0) return;
         var name = example.options[example.selectedIndex].value;
         $.ajax({
           type: "GET",
