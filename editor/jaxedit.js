@@ -289,9 +289,6 @@ window.jaxedit = (function(){
     initialize: function() {
       if (this.hasEditor && this.hasParser) {
         this.initEditor();
-        if (location.protocol != "file:") {
-          this.bindExample();
-        }
       }
     },
 
@@ -364,6 +361,9 @@ window.jaxedit = (function(){
       this.doResize();
       this.childs.wrap.style.visibility = "visible";
       if (this.view == "write") {
+        if (location.protocol != "file:") {
+          this.bindExample();
+        }
         this.bindDrive();
         this.addResizer();
         if (this.trustHost) enableShare();
