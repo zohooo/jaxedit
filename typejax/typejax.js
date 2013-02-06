@@ -1350,7 +1350,9 @@ typejax.parser = function(input, modstart, modend){
     },
 
     envPreamble : function(node) {
-      var doccls = node.argarray[1].childs[0].value;
+      var a = node.argarray[1].childs;
+      if (a.length == 0) return; //fix for empty parameter
+      var doccls = a[0].value;
       var beamer = that.beamer;
       this.cmdvalues["documentclass"] = doccls;
       if (doccls == "beamer") {
