@@ -41,6 +41,7 @@ window.jaxedit = (function(){
       body : document.body,
       wrap : document.getElementById("wrap"),
       head : document.getElementById("head"),
+      example : document.getElementById("example"),
       newbtn : document.getElementById("newbtn"),
       openbtn : document.getElementById("openbtn"),
       savebtn : document.getElementById("savebtn"),
@@ -324,6 +325,7 @@ window.jaxedit = (function(){
       scrollers.divheights = [];
 
       editor.setReadOnly(true);
+      this.disableFileElements(true);
       typejax.updater.init(data.newtextvalue, data.newtextsize, showarea);
       this.addHandler();
       editor.setReadOnly(false);
@@ -371,6 +373,14 @@ window.jaxedit = (function(){
         if (this.trustHost) enableShare();
       }
       this.bindPresent();
+    },
+
+    disableFileElements: function(disabled) {
+      var childs = this.childs;
+      var elems = [childs.example, /*childs.newbtn,*/ childs.openbtn, childs.presbtn];
+      for (var i = 0; i < elems.length; i++) {
+        elems[i].disabled = disabled;
+      }
     },
 
     addResizer: function() {

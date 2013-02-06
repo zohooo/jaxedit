@@ -53,7 +53,6 @@ typejax.updater = {
     var localhead = localsize, localtail = localsize;
     var oldsize = localsize;
     var showarea = this.showarea;
-    if (window.jaxedit) var rbot = jaxedit.childs.rbot;
     while (this.thequeue.length > 0) {
       task = this.thequeue.shift();
       delstart = task[0]; delend = task[1]; deltext = task[2]; instext = task[3]; newsize = task[4];
@@ -162,7 +161,10 @@ typejax.updater = {
     //console.log(showarea.innerHTML);
     MathJax.Hub.Queue(["Process", MathJax.Hub, showarea]);
     MathJax.Hub.Queue(["afterTypeset", typejax.updater, divstart, divend, showarea]);
-    if (rbot) rbot.innerHTML = "size: " + typejax.totalsize + "; change: " + delstart + " to " + delend;
+    if (window.jaxedit) {
+      MathJax.Hub.Queue(["disableFileElements", jaxedit, false]);
+      jaxedit.childs.rbot.innerHTML = "size: " + typejax.totalsize + "; change: " + delstart + " to " + delend;
+    }
   },
 
   incSectionCounters : function(counters, sectname) {
