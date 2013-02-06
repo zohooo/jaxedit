@@ -26,6 +26,7 @@ window.jaxedit = (function(){
     localDrive: false,
     trustHost: false,
     useDrive: null,
+    version: "0.26a",
     view: "write",
     wcode: null,
 
@@ -332,6 +333,7 @@ window.jaxedit = (function(){
       var codearea = this.childs.codearea,
           showarea = this.childs.showarea;
 
+      document.getElementById("version").innerHTML = "v" + this.version;
       this.getOptions();
       this.bindCore();
       if (this.trustHost) {
