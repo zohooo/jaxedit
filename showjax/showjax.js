@@ -94,7 +94,7 @@ showjax.initShow = function() {
     "overflow", "hidden",
     "cursor", "pointer" /* fix for click event in ios */
   ]);
-  this.resetStyle(styles);
+  this.setupStyle(styles);
 };
 
 showjax.resizeShow = function() {
@@ -123,19 +123,24 @@ showjax.resizeShow = function() {
   showarea.style.marginLeft = showarea.style.marginRight = (pageWidth - showWidth) / 2 + "px";
 };
 
-showjax.resetStyle = function(styles) {
-  var i, j, el, st, len, old = [];
+showjax.setupStyle = function(styles) {
+  var i, j, el, st, old = [];
   for (i = 0; i < styles.length; i = i + 2) {
     el = styles[i]; st = styles[i + 1];
-    old.push(el, []); len = old.length;
+    old.push([el, el.style.cssText]);
     for (j = 0; j < st.length; j = j + 2) {
-      old[len - 1].push(st[j], el.style[st[j]]);
       el.style[st[j]] = st[j + 1];
     }
   }
   this.oldstyles = old;
   //console.log(old);
 }
+
+showjax.resetStyle = function(elemStyles) {
+  for (var i = 0; i < elemStyles.length; i++) {
+    elemStyles[i][0].style.cssText = elemStyles[i][1];
+  }
+};
 
 showjax.quitShow = function() {
   document.body.removeChild(this.infodiv);
