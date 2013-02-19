@@ -32,3 +32,16 @@ div.definition, div.definitions, div.example, div.examples, div.fact, div.lemma,
 div.tableofcontents {
   border-width: 0;
 }
+
+#infodiv {
+  position: absolute;
+  top: 0;
+  right: 0;
+  padding: 6px;
+  border: 1px solid gray;
+  border-radius: 4px;
+  font-size: 16px;
+  font-family: arial;
+  background-color: white;
+  z-index: 100;
+}

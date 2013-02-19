@@ -14,6 +14,7 @@ var showjax = {
   frameidx: 0,
   infodiv: null,
   infotimer: 0,
+  mobile: false,
   oldstyles: [],
   showarea: null
 };
@@ -47,7 +48,7 @@ showjax.startPresent = function() {
       }
     }]);
     window.onresize = function(){showjax.resizeShow()};
-    document.onclick = document.onkeydown = document.onmousemove = function(event){showjax.navigateShow(event)};
+    document.onclick = document.onkeydown = document.onmousemove = document.ongesturestart = function(event){showjax.navigateShow(event)};
   }
 };
 
@@ -149,13 +150,14 @@ showjax.quitShow = function() {
   jaxedit.doResize();
   MathJax.Hub.Rerender(showarea);
   window.onresize = function(){jaxedit.doResize()};
-  document.onclick = document.onkeydown = document.onmousemove = null;
+  document.onclick = document.onkeydown = document.onmousemove = document.ongesturestart = null;
 };
 
 showjax.navigateShow = function(event) {
   var ev = event ? event : window.event;
   var k = showjax.frameidx;
   var showarea = showjax.showarea;
+  var infodiv = showjax.infodiv;
   switch (ev.type) {
     case "click":
       showjax.frameidx = (k + 1 == showjax.frameall.length) ? 0 : k + 1;
@@ -179,16 +181,25 @@ showjax.navigateShow = function(event) {
       }
       break;
     case "mousemove":
-      var infodiv = showjax.infodiv;
-      if (ev.clientY < 50) {
-        clearTimeout(showjax.infotimer);
-        showjax.infotimer = 0;
-        infodiv.style.display = "block";
-      } else {
-        if (!showjax.infotimer) {
-          showjax.infotimer = setTimeout(function(){infodiv.style.display = "none";}, 2000);
+      if (!showjax.mobile) {
+        if (ev.clientY < 50) {
+          clearTimeout(showjax.infotimer);
+          showjax.infotimer = 0;
+          infodiv.style.display = "block";
+        } else {
+          if (!showjax.infotimer) {
+            showjax.infotimer = setTimeout(function(){infodiv.style.display = "none";}, 2000);
+          }
         }
       }
+      break;
+    case "gesturestart":
+      if (showjax.mobile) {
+        clearTimeout(showjax.infotimer);
+        infodiv.style.display = "block";
+        showjax.infotimer = setTimeout(function(){infodiv.style.display = "none";}, 3000);
+      }
+      ev.preventDefault();
       break;
   }
   //console.log(k, showjax.frameidx);
@@ -218,14 +229,17 @@ showjax.addInfotip = function() {
       }
       break;
   }
-  fullinfo = "Press Esc to quit";
-  if (shortcut) {
-    fullinfo += ". Press " + shortcut + " for fullscreen";
-  }
   showinfo = document.createElement("div");
   showinfo.id = "infodiv";
-  showinfo.innerHTML = "<span>" + fullinfo + "</span>";
-  showinfo.style.cssText = "position:absolute; top:0; right: 0; padding:6px; border: 1px solid gray; border-radius:4px; font-size:16px; font-family:arial; background-color:white;";
+  if (shortcut) {
+    this.mobile = false;
+    fullinfo = "Press Esc to quit. Press " + shortcut + " for fullscreen";
+    showinfo.innerHTML = "<span>" + fullinfo + "</span>";
+  } else {
+    this.mobile = true;
+    showinfo.innerHTML = "<span>Exit</span>";
+    showinfo.onclick = function(){showjax.quitShow();}
+  }
   document.body.appendChild(showinfo);
   this.infodiv = showinfo;
   setTimeout(function(){showinfo.style.display = "none";}, 5000);
