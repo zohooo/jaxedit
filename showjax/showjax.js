@@ -16,7 +16,9 @@ var showjax = {
   infotimer: 0,
   mobile: false,
   oldstyles: [],
-  showarea: null
+  showarea: null,
+  touchCenter: null,
+  touchRadius: null
 };
 
 showjax.startPresent = function() {
@@ -48,7 +50,8 @@ showjax.startPresent = function() {
       }
     }]);
     window.onresize = function(){showjax.resizeShow()};
-    document.onclick = document.onkeydown = document.onmousemove = document.ongesturestart = function(event){showjax.navigateShow(event)};
+    document.onclick = document.onkeydown = document.onmousemove = function(event){showjax.navigateShow(event)};
+    document.ontouchstart = document.ontouchmove = document.ontouchend = function(event){showjax.touchShow(event)};
   }
 };
 
@@ -155,7 +158,8 @@ showjax.quitShow = function() {
   jaxedit.doResize();
   MathJax.Hub.Rerender(showarea);
   window.onresize = function(){jaxedit.doResize()};
-  document.onclick = document.onkeydown = document.onmousemove = document.ongesturestart = null;
+  document.onclick = document.onkeydown = document.onmousemove = null;
+  document.ontouchstart = document.ontouchmove = document.ontouchend = null;
 };
 
 showjax.navigateShow = function(event) {
@@ -198,14 +202,6 @@ showjax.navigateShow = function(event) {
         }
       }
       break;
-    case "gesturestart":
-      if (showjax.mobile) {
-        clearTimeout(showjax.infotimer);
-        infodiv.style.display = "block";
-        showjax.infotimer = setTimeout(function(){infodiv.style.display = "none";}, 3000);
-      }
-      ev.preventDefault();
-      break;
   }
   //console.log(k, showjax.frameidx);
   showarea.childNodes[showjax.frameall[k]].style.display = "none";
@@ -219,31 +215,54 @@ showjax.navigateShow = function(event) {
   //}
 };
 
-showjax.addInfotip = function() {
-  var shortcut, showinfo;
-  switch (jsquick.system) {
-    case 'windows':
-    case 'linux':
-      shortcut = 'F11';
-      break;
-    case 'macos':
-      if (jsquick.browser.safari) {
-        return;
+showjax.touchShow = function(event) {
+  var x0, y0, x1, y1, c, x, y, r, r0, r1;
+  switch(event.type) {
+    case "touchstart":
+      if (event.touches.length == 2) {
+        x0 = event.touches[0].pageX;
+        y0 = event.touches[0].pageY;
+        x1 = event.touches[1].pageX;
+        y1 = event.touches[1].pageY;
+        showjax.touchCenter = [(x0 + x1) / 2, (y0 + y1) / 2];
+        showjax.touchRadius = Math.sqrt((x1 - x0) * (x1 - x0) + (y1 - y0) * (y1 - y0)) / 2;
       } else {
-        shortcut = 'Cmd+Shift+F';
+        showjax.touchCenter = showjax.touchRadius = null;
       }
       break;
+    case "touchmove":
+      if (event.touches.length == 2) {
+        if (showjax.touchCenter) {
+          c = showjax.touchCenter; x = c[0]; y = c[1]; r = showjax.touchRadius;
+          x0 = event.touches[0].pageX;
+          y0 = event.touches[0].pageY;
+          x1 = event.touches[1].pageX;
+          y1 = event.touches[1].pageY;
+          r0 = Math.sqrt((x0 - x) * (x0 - x) + (y0 - y) * (y0 - y));
+          r1 = Math.sqrt((x1 - x) * (x1 - x) + (y1 - y) * (y1 - y));
+          if (r0 < r / 2 || r1 < r / 2) {
+            showjax.quitShow();
+          }
+        }
+      } else {
+        showjax.touchCenter = showjax.touchRadius = null;
+      }
+      break;
+    case "touchend":
+      showjax.touchCenter = showjax.touchRadius = null;
+      break;
   }
+};
+
+showjax.addInfotip = function() {
+  var showinfo;
+  this.mobile = ("ontouchstart" in window);
   showinfo = document.createElement("div");
   showinfo.id = "infodiv";
-  if (shortcut) {
-    this.mobile = false;
-    fullinfo = "Press Esc to quit. Press " + shortcut + " for fullscreen";
-    showinfo.innerHTML = "<span>" + fullinfo + "</span>";
+  if (this.mobile) {
+    showinfo.innerHTML = "Pinch to close presentation";
   } else {
-    this.mobile = true;
-    showinfo.innerHTML = "<span>Exit</span>";
-    showinfo.onclick = function(){showjax.quitShow();}
+    showinfo.innerHTML = "Press Esc to close presentation";
   }
   document.body.appendChild(showinfo);
   this.infodiv = showinfo;
