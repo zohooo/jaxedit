@@ -13,7 +13,6 @@ var showjax = {
   framedone: [],
   frameidx: 0,
   infodiv: null,
-  infotimer: 0,
   oldstyles: [],
   showarea: null,
   touchCenter: null,
@@ -49,7 +48,7 @@ showjax.startPresent = function() {
       }
     }]);
     window.onresize = function(){showjax.resizeShow()};
-    document.onclick = document.onkeydown = document.onmousemove = function(event){showjax.navigateShow(event)};
+    document.onclick = document.onkeydown = function(event){showjax.navigateShow(event)};
     document.ontouchstart = document.ontouchmove = document.ontouchend = function(event){showjax.touchShow(event)};
   }
 };
@@ -157,7 +156,7 @@ showjax.quitShow = function() {
   jaxedit.doResize();
   MathJax.Hub.Rerender(showarea);
   window.onresize = function(){jaxedit.doResize()};
-  document.onclick = document.onkeydown = document.onmousemove = null;
+  document.onclick = document.onkeydown = null;
   document.ontouchstart = document.ontouchmove = document.ontouchend = null;
 };
 
@@ -165,7 +164,6 @@ showjax.navigateShow = function(event) {
   var ev = event ? event : window.event;
   var k = showjax.frameidx;
   var showarea = showjax.showarea;
-  var infodiv = showjax.infodiv;
   switch (ev.type) {
     case "click":
       showjax.frameidx = (k + 1 == showjax.frameall.length) ? 0 : k + 1;
@@ -186,19 +184,6 @@ showjax.navigateShow = function(event) {
           showjax.frameidx = (k + 1 == showjax.frameall.length) ? 0 : k + 1;
           ev.preventDefault ? ev.preventDefault() : ev.returnValue = false;
           break;
-      }
-      break;
-    case "mousemove":
-      if (!jsquick.touch) {
-        if (ev.clientY < 50) {
-          clearTimeout(showjax.infotimer);
-          showjax.infotimer = 0;
-          infodiv.style.display = "block";
-        } else {
-          if (!showjax.infotimer) {
-            showjax.infotimer = setTimeout(function(){infodiv.style.display = "none";}, 2000);
-          }
-        }
       }
       break;
   }
