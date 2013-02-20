@@ -14,7 +14,6 @@ var showjax = {
   frameidx: 0,
   infodiv: null,
   infotimer: 0,
-  mobile: false,
   oldstyles: [],
   showarea: null,
   touchCenter: null,
@@ -190,7 +189,7 @@ showjax.navigateShow = function(event) {
       }
       break;
     case "mousemove":
-      if (!showjax.mobile) {
+      if (!jsquick.touch) {
         if (ev.clientY < 50) {
           clearTimeout(showjax.infotimer);
           showjax.infotimer = 0;
@@ -256,10 +255,9 @@ showjax.touchShow = function(event) {
 
 showjax.addInfotip = function() {
   var showinfo;
-  this.mobile = ("ontouchstart" in window);
   showinfo = document.createElement("div");
   showinfo.id = "infodiv";
-  if (this.mobile) {
+  if (jsquick.touch) {
     showinfo.innerHTML = "Pinch to close presentation";
   } else {
     showinfo.innerHTML = "Press Esc to close presentation";

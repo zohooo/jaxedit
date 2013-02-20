@@ -102,31 +102,7 @@ if (!window.console) console = {log : function() {}};
       };
     })(),
 
-    system: (function() {
-      var pl = navigator.platform;
-      if (pl.indexOf("Win") == 0) {
-        return "windows";
-      } else if (pl.indexOf("Mac") == 0) {
-        return "macos";
-      } else if (pl.indexOf("Linux") == 0 || pl.indexOf("X11") == 0) {
-        return "linux";
-      } else if (pl.indexOf("iPhone") == 0 || pl.indexOf("iPad") == 0) {
-        return "ios";
-      } else if (pl.indexOf("android") == 0) {
-        return "android";
-      } else {
-        return "unknown";
-      }
-    })(),
-
-    computer: (function() {
-      var pl = navigator.platform;
-      if (pl.indexOf("iPhone") == 0 || pl.indexOf("iPad") == 0 || pl.indexOf("android") == 0) {
-        return "mobile";
-      } else {
-        return "desktop";
-      }
-    })(),
+    touch: ("ontouchstart" in window),
 
     loadStyles: function(url, id) {
       if (id) {

@@ -77,10 +77,10 @@ window.jaxedit = (function(){
     },
 
     getOptions: function() {
-      var options = this.options, browser = $.browser, computer = $.computer;
+      var options = this.options, browser = $.browser;
 
       if (browser.chrome || browser.firefox >= 3 || browser.msie >=8 || browser.safari >= 5.2 || browser.opera >= 9) {
-        if (computer == "desktop") {
+        if (!$.touch) {
           options.highlight = true;
         }
       }
