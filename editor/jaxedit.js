@@ -782,13 +782,13 @@ window.jaxedit = (function(){
         var URL = window.URL || window.webkitURL;
         var bloburl = URL.createObjectURL(blob);
         var name = that.fileName.split(/\.[^.]+$/)[0] + ".tex";
-        if ($.browser.chrome >= 14) {
+        if ($.browser.chrome >= 14 || $.browser.firefox >= 20) {
           var anchor = document.createElement("a");
           anchor.style.visibility = "hidden";
           anchor.href = bloburl;
           anchor.download = name;
           document.body.appendChild(anchor);
-          var evt = document.createEvent("Event");
+          var evt = document.createEvent("MouseEvents");
           evt.initEvent("click", true, true);
           anchor.dispatchEvent(evt);
           document.body.removeChild(anchor);
