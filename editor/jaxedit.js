@@ -999,10 +999,8 @@ window.jaxedit = (function(){
       var dlgwalkup = document.getElementById("dlgwalkup");
       dlgwalkup.onclick = dialogWalkup;
 
-      // chrome browser will prevent file reading and saving at local
-      // unless --allow-file-access-from-files switch was added to it
       if ((browser.firefox && browser.firefox >= 6) ||
-          (browser.chrome && browser.chrome >= 8 && location.protocol != "file:") ||
+          (browser.chrome && browser.chrome >= 8) ||
           (browser.msie && browser.msie >= 10) ||
           (browser.safari && browser.safari >= 6) ||
           (browser.opera && browser.opera >= 12.10)) {
