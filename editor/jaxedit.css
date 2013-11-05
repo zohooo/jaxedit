@@ -104,6 +104,11 @@ html, body {
   left: 0;
 }
 
+#right {
+  z-index: 9;
+  background: white;
+}
+
 #resizer {
   width: 0;
   height: 564px;
@@ -135,6 +140,7 @@ html, body {
   overflow: hidden;
   font-weight: 500;
   font-family: Arial, Helvetica, sans-serif;
+  position: relative;
 }
 
 #lbot, #rbot {
@@ -152,6 +158,30 @@ html, body {
   line-height: 20px;
   font-weight: normal;
   font-family: monospace;
+}
+
+#halfview, #quadview {
+  float: right;
+  font-weight: normal;
+  font-family: Arial, Helvetica, sans-serif;
+  color: #0000FF;
+  padding: 0px 1px 1px 1px;
+  border: 1px solid #F3F3F3;
+  position: relative;
+  bottom: 2px;
+}
+
+#halfview:hover, #quadview:hover {
+  border: 1px solid #282828;
+  border-radius: 2px;
+  background: #E0E0E0;
+  color: white;
+  border-color: #222280;
+  background: #3069B6;
+}
+
+#halfview {
+  display: none;
 }
 
 #source {

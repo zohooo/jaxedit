@@ -129,7 +129,8 @@ window.jaxedit = (function(){
     },
 
     doResize: function(clientX) {
-      var childs = this.childs,
+      var that = this;
+      var childs = that.childs,
           html = childs.html,
           body = childs.body,
           head = childs.head,
@@ -162,9 +163,21 @@ window.jaxedit = (function(){
       var headHeight = 42, topHeight = 26, botHeight = 24, halfBorder = 4;
       var mainWidth = pageWidth, mainHeight = pageHeight - headHeight,
           halfHeight = mainHeight - halfBorder, wrapHeight = halfHeight - topHeight - botHeight;
-      var lHalfWidth, lWrapWidth, rHalfWidth, rWrapWidth;
+      var lHalfWidth, lWrapWidth, rHalfWidth, rWrapWidth, lWrapHeight, rWrapHeight;
 
-      if (this.view == "read") {
+      switch (this.view) {
+        case "read":
+          resizeFull();
+          return;
+        case "write":
+          resizeHalf();
+          return;
+        case "tiny":
+          resizeQuad();
+          return;
+      }
+
+      function resizeFull() {
         wsizes.push([html, pageWidth]);
         wsizes.push([body, 802]);
         wsizes.push([head, 798]);
@@ -172,7 +185,8 @@ window.jaxedit = (function(){
         wsizes.push([right, 798]); hsizes.push([right, halfHeight]);
         wsizes.push([preview, 794]); hsizes.push([preview, halfHeight - 8]);
         wsizes.push([showarea, 694]); hsizes.push([showarea, halfHeight - 108]);
-        this.resizeElements(wsizes, hsizes);
+        that.resizeElements(wsizes, hsizes);
+
         body.style.height = "100%";
         left.style.display = resizer.style.display = "none";
         rtop.style.display = rbot.style.display = "none";
@@ -180,55 +194,78 @@ window.jaxedit = (function(){
         body.style.margin = "auto";
         body.style.backgroundColor = "gray";
         right.style.backgroundColor = "white";
-        return;
-      };
-
-      if (typeof clientX == "number") {
-        lHalfWidth = lWrapWidth = clientX - halfBorder,
-        rHalfWidth = rWrapWidth = pageWidth - clientX - halfBorder;
-      } else {
-        lHalfWidth = lWrapWidth = Math.ceil(pageWidth / 2) - halfBorder,
-        rHalfWidth = rWrapWidth = Math.floor(pageWidth / 2) - halfBorder;
-      }
-      if (lHalfWidth < 0) {
-        left.style.display = "none"; rHalfWidth = pageWidth - halfBorder - 2;
-      } else {
-        left.style.display = "block";
-      }
-      if (rHalfWidth < 0) {
-        right.style.display = "none"; lHalfWidth = pageWidth - halfBorder - 2;
-      } else {
-        right.style.display = "block";
       }
 
-      wsizes.push([html, pageWidth]);
-      wsizes.push([body, pageWidth]);
-      wsizes.push([head, pageWidth - 4]);
-      wsizes.push([main, mainWidth]); hsizes.push([main, mainHeight]);
+      function resizeHalf() {
+        if (typeof clientX == "number") {
+          lHalfWidth = lWrapWidth = clientX - halfBorder,
+          rHalfWidth = rWrapWidth = pageWidth - clientX - halfBorder;
+        } else {
+          lHalfWidth = lWrapWidth = Math.ceil(pageWidth / 2) - halfBorder,
+          rHalfWidth = rWrapWidth = Math.floor(pageWidth / 2) - halfBorder;
+        }
+        if (lHalfWidth < 0) {
+          left.style.display = "none"; rHalfWidth = pageWidth - halfBorder - 2;
+        } else {
+          left.style.display = "block";
+        }
+        if (rHalfWidth < 0) {
+          right.style.display = "none"; lHalfWidth = pageWidth - halfBorder - 2;
+        } else {
+          right.style.display = "block";
+        }
+        lWrapHeight = rWrapHeight = wrapHeight;
 
-      wsizes.push([left, lHalfWidth]); wsizes.push([right, rHalfWidth]);
-      hsizes.push([left, halfHeight]); hsizes.push([right, halfHeight]);
+        wsizes.push([left, lHalfWidth]); hsizes.push([left, halfHeight]);
+        wsizes.push([right, rHalfWidth]); hsizes.push([right, halfHeight]);
 
-      hsizes.push([resizer, halfHeight + 4]);
-      resizer.style.left = ((lHalfWidth + 2 < 0) ? 0 : (lHalfWidth + 2)) + "px";
+        right.style.top = 0 + "px";
+        resizer.style.display = "block";
+        rtop.style.display = "block"; rbot.style.display = "block";
 
-      wsizes.push([ltop, lWrapWidth - 6]); wsizes.push([rtop, rWrapWidth - 6]);
+        hsizes.push([resizer, halfHeight + 4]);
+        resizer.style.left = ((lHalfWidth + 2 < 0) ? 0 : (lHalfWidth + 2)) + "px";
 
-      wsizes.push([source, lWrapWidth - 2]); hsizes.push([source, wrapHeight]);
-      if (this.options.highlight && this.editor) {
-        wsizes.push([this.editor.getWrapperElement(), lWrapWidth - 8]);
-        hsizes.push([this.editor.getWrapperElement(), wrapHeight - 10]);
-      } else {
-        wsizes.push([codearea, lWrapWidth - 8]);
-        hsizes.push([codearea, wrapHeight - 10]);
+        adjustSize();
+        that.resizeElements(wsizes, hsizes);
       }
 
-      wsizes.push([preview, rWrapWidth - 6]); hsizes.push([preview, wrapHeight - 8]);
-      wsizes.push([showarea, rWrapWidth - 6]); hsizes.push([showarea, wrapHeight - 10]);
+      function resizeQuad() {
+        lWrapWidth = pageWidth - halfBorder; rWrapWidth = pageWidth * 0.382;
+        lWrapHeight = wrapHeight; rWrapHeight = wrapHeight * 0.382;
 
-      wsizes.push([lbot, lWrapWidth - 6]); wsizes.push([rbot, rWrapWidth - 6]);
+        wsizes.push([left, lWrapWidth]); hsizes.push([left, halfHeight]);
+        wsizes.push([right, rWrapWidth]); hsizes.push([right, rWrapHeight]);
 
-      this.resizeElements(wsizes, hsizes);
+        right.style.top = (topHeight + halfBorder / 2) + "px";
+        resizer.style.display = "none";
+        rtop.style.display = "none"; rbot.style.display = "none";
+
+        adjustSize();
+        that.resizeElements(wsizes, hsizes);
+      }
+
+      function adjustSize() {
+        wsizes.push([html, pageWidth]);
+        wsizes.push([body, pageWidth]);
+        wsizes.push([head, pageWidth - 4]);
+        wsizes.push([main, mainWidth]); hsizes.push([main, mainHeight]);
+
+        wsizes.push([source, lWrapWidth - 2]); hsizes.push([source, lWrapHeight]);
+        if (that.options.highlight && that.editor) {
+          wsizes.push([that.editor.getWrapperElement(), lWrapWidth - 8]);
+          hsizes.push([that.editor.getWrapperElement(), lWrapHeight - 10]);
+        } else {
+          wsizes.push([codearea, lWrapWidth - 8]);
+          hsizes.push([codearea, lWrapHeight - 10]);
+        }
+
+        wsizes.push([preview, rWrapWidth - 6]); hsizes.push([preview, rWrapHeight - 8]);
+        wsizes.push([showarea, rWrapWidth - 6]); hsizes.push([showarea, rWrapHeight - 10]);
+
+        wsizes.push([ltop, lWrapWidth - 6]); wsizes.push([lbot, lWrapWidth - 6]);
+        wsizes.push([rtop, rWrapWidth - 6]); wsizes.push([rbot, rWrapWidth - 6]);
+      }
     },
 
     resizeElements: function(wsizes, hsizes) {
@@ -291,6 +328,7 @@ window.jaxedit = (function(){
     initialize: function() {
       if (this.hasEditor && this.hasParser) {
         this.initEditor();
+        this.bindView();
       }
     },
 
@@ -1042,6 +1080,22 @@ window.jaxedit = (function(){
         }
       }
       */
+    },
+
+    bindView: function() {
+      var that = this;
+      var quad = document.getElementById("quadview"),
+          half = document.getElementById("halfview");
+      quad.onclick = function() {
+        that.view = "tiny";
+        that.doResize();
+        half.style.display = "inline";
+      };
+      half.onclick = function() {
+        that.view = "write";
+        that.doResize();
+        this.style.display = "none";
+      };
     },
 
     changeFileDisplay: function(display) {
