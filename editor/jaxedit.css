@@ -101,11 +101,12 @@ html, body {
 }
 
 #left {
+  z-index: 0;
   left: 0;
 }
 
 #right {
-  z-index: 9;
+  z-index: 4;
   background: white;
 }
 
@@ -117,7 +118,7 @@ html, body {
   position: absolute;
   top: 0;
   left: 482px;
-  z-index: 4;
+  z-index: 8;
   overflow: hidden;
   cursor: w-resize;
   background-color: #C1C1C1;
