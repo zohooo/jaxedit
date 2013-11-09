@@ -1090,11 +1090,13 @@ window.jaxedit = (function(){
         that.view = "tiny";
         that.doResize();
         half.style.display = "inline";
+        typejax.updater.initMode("tiny");
       };
       half.onclick = function() {
         that.view = "write";
         that.doResize();
         this.style.display = "none";
+        typejax.updater.initMode("full");
       };
     },
 
