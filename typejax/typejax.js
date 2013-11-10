@@ -134,7 +134,7 @@ typejax.updater = {
 
   typeFull : function(delstart, delend, deltext, instext, newsize, showarea) {
     var that = this;
-    var outdiv, output, data, divstart, divend, dividx, modstart, modend, pdata, i;
+    var outdiv, output, data, divstart, divend, i;
     if (typejax.totalsize == instext.length) {
       // generate all preview at first time
       // or clear all text content in textarea
