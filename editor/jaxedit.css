@@ -164,7 +164,7 @@ html, body {
 #halfview, #quadview {
   float: right;
   font-weight: normal;
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: Arial, "Segoe UI Symbol", "Arial Unicode MS", "Lucida Sans Unicode", "Lucida Grande", sans-serif;
   color: #0000FF;
   padding: 0px 1px 1px 1px;
   border: 1px solid #F3F3F3;
