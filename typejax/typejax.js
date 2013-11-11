@@ -118,14 +118,16 @@ typejax.updater = {
       showarea.innerHTML = output;
     }
 
+    var isAll = false;
     if (typejax.totalsize == instext.length) {
       changeAll();
+      isAll = true;
     } else {
       changeSome();
     }
     //console.log(showarea.innerHTML);
     MathJax.Hub.Queue(["Typeset", MathJax.Hub, showarea]); // Process or Typeset
-    MathJax.Hub.Queue(["afterTypeTiny", typejax.updater]);
+    MathJax.Hub.Queue(["afterTypeTiny", typejax.updater, isAll]);
     if (window.jaxedit) {
       MathJax.Hub.Queue(["disableFileElements", jaxedit, false]);
       console.log("size: " + typejax.totalsize + "; change: " + delstart + " to " + delend);
@@ -331,7 +333,7 @@ typejax.updater = {
     if (tocdiv) tocdiv.innerHTML = tocstr;
   },
 
-  afterTypeTiny : function() {
+  afterTypeTiny : function(isAll) {
     if (window.jaxedit) {
       var source = jaxedit.childs.source, right = jaxedit.childs.right,
           preview = jaxedit.childs.preview, showarea = jaxedit.childs.showarea;
@@ -354,6 +356,8 @@ typejax.updater = {
       showarea.style.height = (size - 10) + "px";
 
       showarea.style.visibility = "visible";
+
+      jaxedit.autoScroll = isAll;
     }
     if (this.thequeue.length > 0) this.gettask();
     this.isRunning = false;
