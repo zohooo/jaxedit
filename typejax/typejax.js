@@ -332,6 +332,29 @@ typejax.updater = {
   },
 
   afterTypeTiny : function() {
+    if (window.jaxedit) {
+      var source = jaxedit.childs.source, right = jaxedit.childs.right,
+          preview = jaxedit.childs.preview, showarea = jaxedit.childs.showarea;
+      var size;
+
+      showarea.style.visibility = "hidden";
+
+      showarea.style.width = "20px";
+      var mw = source.clientWidth, cw = showarea.clientWidth, sw = showarea.scrollWidth,
+      size = Math.max(Math.min(sw + 30, 0.618 * mw), 0.382 * mw);
+      right.style.width = size + "px";
+      preview.style.width = (size - 6) + "px";
+      showarea.style.width = (size - 8) + "px";
+
+      showarea.style.height = "20px";
+      var mh = source.clientHeight, ch = showarea.clientHeight, sh = showarea.scrollHeight;
+      size = Math.min(sh + 10, 0.5 * mh);
+      right.style.height = size + "px";
+      preview.style.height = (size - 6) + "px";
+      showarea.style.height = (size - 10) + "px";
+
+      showarea.style.visibility = "visible";
+    }
     if (this.thequeue.length > 0) this.gettask();
     this.isRunning = false;
   },
