@@ -26,7 +26,7 @@ window.jaxedit = (function(){
     localDrive: false,
     trustHost: false,
     useDrive: null,
-    version: "0.27",
+    version: "0.28",
     view: "write",
     wcode: null,
 
