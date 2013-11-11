@@ -396,6 +396,7 @@ typejax.tinyParser = function(input, modstart, modend) {
       return "\\begin{" + p1 + "}" + p2.replace(re, arguments.callee) + "\\end{" + p1 + "}";
     }
   });
+  text = text.replace(/(\n|\r\n)*$/, "");
   text = text.replace(/\n|\r\n/g, "<br>");
   return text;
 };
