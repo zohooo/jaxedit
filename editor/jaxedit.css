@@ -81,6 +81,12 @@ html, body {
   background: #3069B6;
 }
 
+.button:disabled {
+  border: 1px solid #777777;
+  background: #E0E0E0;
+  color: gray;
+}
+
 .btngroup {
   margin-left: 50px;
 }

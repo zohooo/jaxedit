@@ -1086,13 +1086,18 @@ window.jaxedit = (function(){
       var that = this;
       var quad = document.getElementById("quadview"),
           half = document.getElementById("halfview");
+      function disable() {
+        that.childs.presbtn.style.display = "none";
+      }
       quad.onclick = function() {
+        disable();
         that.view = "tiny";
         that.doResize();
         half.style.display = "inline";
         typejax.updater.initMode("tiny");
       };
       half.onclick = function() {
+        disable();
         that.view = "write";
         that.doResize();
         this.style.display = "none";
