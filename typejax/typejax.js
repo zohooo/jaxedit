@@ -417,7 +417,7 @@ typejax.tinyParser = function(input, modstart, modend) {
                 "cases", "matrix", "pmatrix", "bmatrix", "Bmatrix", "vmatrix", "Vmatrix"];
   var re = /(?:\n|\r\n)?\\begin\{([\w\*]+)\}([\w\W]*?)\\end\{\1\}(?:\n|\r\n)?/g;
   text = text.replace(re, function(match, p1, p2, offset){
-    if (dmaths.indexOf(p1) != -1) {
+    if ($.inArray(p1, dmaths) != -1) {
       return "$$" + "\\begin{" + p1 + "}" + p2 + "\\end{" + p1 + "}$$";
     } else {
       return "\\begin{" + p1 + "}" + p2.replace(re, arguments.callee) + "\\end{" + p1 + "}";
