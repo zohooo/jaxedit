@@ -145,7 +145,7 @@ showjax.resetStyle = function(elemStyles) {
 
 showjax.quitShow = function() {
   document.body.removeChild(this.infodiv);
-  jsquick.removeStyles("showjax-style");
+  inliner.removeStyles("showjax-style");
   this.resetStyle(this.oldstyles);
   var showarea = this.showarea, childs = showarea.childNodes;
   for (var i = 0; i < childs.length; i++) {
@@ -242,7 +242,7 @@ showjax.addInfotip = function() {
   var showinfo;
   showinfo = document.createElement("div");
   showinfo.id = "infodiv";
-  if (jsquick.touch) {
+  if (inliner.touch) {
     showinfo.innerHTML = "Pinch to close presentation";
   } else {
     showinfo.innerHTML = "Press Esc to close presentation";

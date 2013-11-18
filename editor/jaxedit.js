@@ -8,7 +8,7 @@
  * Release: http://code.google.com/p/jaxedit/
  */
 
-var $ = window.jsquick;
+var $ = window.inliner;
 
 window.jaxedit = (function(){
   var gatepath = "",
@@ -77,9 +77,10 @@ window.jaxedit = (function(){
     },
 
     getOptions: function() {
-      var options = this.options, browser = $.browser;
+      var options = this.options, agent = $.agent, browser = agent.browser, version = agent.version;
 
-      if (browser.chrome || browser.firefox >= 3 || browser.msie >=8 || browser.safari >= 5.2 || browser.opera >= 9) {
+      if (browser == "chrome" || (browser == "firefox" && version >= 3) || (browser == "msie" && version >=8)
+                              || (browser == "safari" && version >= 5.2) || (browser == "opera" && version >= 9)) {
         if (!$.touch) {
           options.highlight = true;
         }
@@ -342,7 +343,7 @@ window.jaxedit = (function(){
           data = this.textdata;
       var highlight = this.options.highlight;
 
-      if (!highlight && $.browser.msie) codearea.setActive();
+      if (!highlight && $.agent.browser == "msie") codearea.setActive();
 
       if (typeof value == "string") {
         editor.setValue(value);
@@ -775,7 +776,8 @@ window.jaxedit = (function(){
 
     bindDrive: function() {
       var that = this;
-      var browser = $.browser, codearea = this.childs.codearea, showarea = this.childs.showarea;
+      var agent = $.agent, browser = agent.browser, version = agent.version;
+      var codearea = this.childs.codearea, showarea = this.childs.showarea;
       var newbtn = document.getElementById("newbtn"),
           openbtn = document.getElementById("openbtn"),
           opensel = document.getElementById("opensel"),
@@ -820,7 +822,7 @@ window.jaxedit = (function(){
         var URL = window.URL || window.webkitURL;
         var bloburl = URL.createObjectURL(blob);
         var name = that.fileName.split(/\.[^.]+$/)[0] + ".tex";
-        if ($.browser.chrome >= 14 || $.browser.firefox >= 20) {
+        if ((browser == "chrome" && version >= 14) || (browser == "firefox" && version >= 20)) {
           var anchor = document.createElement("a");
           anchor.style.visibility = "hidden";
           anchor.href = bloburl;
@@ -830,7 +832,7 @@ window.jaxedit = (function(){
           evt.initEvent("click", true, true);
           anchor.dispatchEvent(evt);
           document.body.removeChild(anchor);
-        } else if ($.browser.msie >= 10) {
+        } else if (browser == "msie" && version >= 10) {
           navigator.msSaveBlob(blob, name);
         } else {
           location.href = bloburl;
@@ -1037,11 +1039,11 @@ window.jaxedit = (function(){
       var dlgwalkup = document.getElementById("dlgwalkup");
       dlgwalkup.onclick = dialogWalkup;
 
-      if ((browser.firefox && browser.firefox >= 6) ||
-          (browser.chrome && browser.chrome >= 8) ||
-          (browser.msie && browser.msie >= 10) ||
-          (browser.safari && browser.safari >= 6) ||
-          (browser.opera && browser.opera >= 12.10)) {
+      if ((browser == "firefox" && version >= 6) ||
+          (browser == "chrome" && version >= 8) ||
+          (browser == "msie" && version >= 10) ||
+          (browser == "safari" && version >= 6) ||
+          (browser == "opera" && version >= 12.10)) {
         this.localDrive = true;
         this.useDrive = "localdrive";
         opensel.style.visibility = "visible";
@@ -1074,7 +1076,7 @@ window.jaxedit = (function(){
       /*
       window.onbeforeunload = function() {
         if (that.useDrive == "skydrive") {
-          if ($.browser.chrome || confirm("Do you want to logout from SkyDrive?")) {
+          if (browser == "chrome" || confirm("Do you want to logout from SkyDrive?")) {
             skydrive.signUserOut();
           }
         }

@@ -1,0 +1,25 @@
+
+/*
+Inliner: Simple Library for Modern Browsers
+Release: Version 0.01 on 2013-11-17
+License: The MIT license
+Source: https://github.com/zohooo/inliner
+*/
+
+/* fix click event delegation in ios */
+
+body {
+  cursor: pointer;
+}
+
+/* fix button styling problem in ios */
+
+button, input[type=button] {
+  -webkit-appearance: button;
+}
+
+/* disable resizing of textarea in webkit browser */
+
+textarea {
+  resize: none;
+}

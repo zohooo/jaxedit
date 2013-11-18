@@ -1,32 +1,29 @@
 
-/* JaxEdit: online LaTeX editor with live preview
- * Copyright (c) 2011-2013 JaxEdit project
- * License: GNU General Public License, Version 3
- *
- * Website: http://jaxedit.com
- * Source:  https://github.com/zohooo/jaxedit
- * Release: http://code.google.com/p/jaxedit/
- */
+// Inliner: Simple Library for Modern Browsers
+// Release: Version 0.01 on 2013-11-17
+// License: The MIT license
+// Source: https://github.com/zohooo/inliner
 
 if (!window.console) console = {log : function() {}};
 
 (function(){
-  function jsquick() {
+  function inliner() {
     return new init(arguments[0]);
   }
 
   function init() {
     var elems, arg = arguments[0];
     if (typeof arg == "string") {
-      switch (arg.charAt(0)) {
-        case "#":
-          elems = [document.getElementById(arg.slice(1))];
-          break;
-        case ".":
-          elems = document.getElementsByClassName(arg.slice(1));
-          break;
-        default:
-          elems = document.getElementsByTagName(arg);
+      if (/^#[\w\-]+$/.test(arg)) {
+        elems = [document.getElementById(arg.slice(1))];
+      } else if (/^[\w]+$/.test(arg)){
+        elems = document.getElementsByTagName(arg);
+      } else if (document.getElementsByClassName && /^\.[\w\-]+$/.test(arg)) {
+        elems = document.getElementsByClassName(arg.slice(1));
+      } else if (document.querySelectorAll) {
+        elems = document.querySelectorAll(arg);
+      } else {
+        elems = [];
       }
     } else if (arg instanceof Array) {
       elems = arg;
@@ -39,15 +36,15 @@ if (!window.console) console = {log : function() {}};
     this.length = elems.length;
   };
 
-  init.prototype = jsquick.prototype;
+  init.prototype = inliner.prototype;
 
-  jsquick.prototype.each = function(callback) {
+  inliner.prototype.each = function(callback) {
     for (var i = 0; i < this.length; i++) {
       callback.call(this[i], i);
     }
   };
 
-  jsquick.each = function(collection, callback) {
+  inliner.each = function(collection, callback) {
     var i, arr = [];
     if (Object.prototype.toString.call(collection) !== "[object Array]") {
       if (Object.getOwnPropertyNames) {
@@ -67,39 +64,30 @@ if (!window.console) console = {log : function() {}};
     }
   };
 
-  jsquick.prototype.extend = jsquick.extend = function(obj) {
+  inliner.prototype.extend = inliner.extend = function(obj) {
     var that = this;
-    jsquick.each(obj, function(key, value) {
+    inliner.each(obj, function(key, value) {
       that[key] = value;
     });
   };
 
-  jsquick.extend({
-    browser: (function() {
+  inliner.extend({
+    agent: (function() {
       var ua = navigator.userAgent;
-      var msie, firefox, opera, safari, chrome, webkit;
-      if (/MSIE ([^;]+)/.test(ua)) {
-        msie = parseFloat(RegExp["$1"]);
-      } else if (/Firefox\/(\S+)/.test(ua)) {
-        firefox = parseFloat(RegExp["$1"]);
-      } else if (/AppleWebKit\/(\S+)/.test(ua)) {
-        webkit = parseFloat(RegExp["$1"]);
-        if (/Chrome\/(\S+)/.test(ua)) {
-          chrome = parseFloat(RegExp["$1"]);
-        } else if (/Version\/(\S+)/.test(ua)) {
-          safari = parseFloat(RegExp["$1"]);
+      var sniffs = [   [/Firefox\/(\S+)/, "firefox", "gecko"]
+      /* IE 10- */    ,[/MSIE ([^;]+)/, "msie", "trident"]
+      /* IE 11+ */    ,[/Trident\/[^;]+; rv:([^\)]+)/, "msie", "trident"]
+      /* Opera 12- */ ,[/Opera.+ Version\/(\S+)/, "opera", "presto"]
+      /* Opera 14+ */ ,[/OPR\/(\S+)/, "opera", "webkit"]
+                      ,[/Chrome\/(\S+)/, "chrome", "webkit"]
+                      ,[/Version\/(\S+) .*Safari/, "safari", "webkit"]
+      ];
+      for (var i = 0; i < sniffs.length; i++) {
+        if (sniffs[i][0].test(ua)) {
+          return {browser: sniffs[i][1], engine: sniffs[i][2], version: parseFloat(RegExp["$1"])};
         }
-      } else if (window.opera) {
-        opera = parseFloat(window.opera.version());
       }
-      return {
-        msie    : (msie)? msie: 0,
-        firefox : (firefox)? firefox: 0,
-        webkit  : (webkit)? webkit: 0,
-        safari  : (safari)? safari: 0,
-        chrome  : (chrome)? chrome: 0,
-        opera   : (opera)? opera: 0
-      };
+      return { browser: "unknown", engine: "unknown", version: 0};
     })(),
 
     touch: ("ontouchstart" in window),
@@ -171,7 +159,7 @@ if (!window.console) console = {log : function() {}};
     }
   });
 
-  jsquick.prototype.extend({
+  inliner.prototype.extend({
     css: function(property, value) {
       if (arguments.length >= 2) {
         this.each(function() {
@@ -185,6 +173,7 @@ if (!window.console) console = {log : function() {}};
     }
   });
 
-  jsquick.fn = jsquick.prototype;
-  window.jsquick = jsquick;
+  inliner.fn = inliner.prototype;
+  window.inliner = inliner;
+  if (!('$' in window)) window.$ = inliner;
 })();

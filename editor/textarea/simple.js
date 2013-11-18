@@ -10,7 +10,7 @@
 
 jaxedit.doChange = function(event) {
   var ev = event ? event : window.event; // standard or ie
-  var browser = $.browser;
+  var agent = $.agent;
   var childs = jaxedit.childs,
       codearea = childs.codearea,
       lbot = childs.lbot,
@@ -36,7 +36,7 @@ jaxedit.doChange = function(event) {
   newtextvalue = codearea.value;
   newtextsize  = codearea.value.length;
 
-  if (browser.msie && browser.msie <= 8) {
+  if (agent.browser == "msie" && agent.version <= 8) {
     var range1 = document.selection.createRange();
     var parent = range1.parentElement();
     if (parent != codearea) {
@@ -67,7 +67,7 @@ jaxedit.doChange = function(event) {
     omitted = true;
   } else if (ev.type == "mouseup" && newselstart == newselend) {
     omitted = true;
-  } else if (ev.type == "keydown" && ev.keyCode == 229 && browser.webkit){
+  } else if (ev.type == "keydown" && ev.keyCode == 229 && agent.engine == "webkit"){
     // todo: iuput method in chrome
     // note: keydown event is also used when pressing a key for some time
   }
@@ -80,14 +80,14 @@ jaxedit.doChange = function(event) {
   delstart = (oldselstart < newselstart) ? oldselstart : newselstart;
   delend = (oldtextsize-oldselend < newtextsize-newselend) ? oldselend : oldtextsize - newtextsize + newselend;
 
-  if (browser.firefox && oldselstart < oldselend && newselstart == newselend) {
+  if (agent.browser == "firefox" && oldselstart < oldselend && newselstart == newselend) {
     // fix for draging selection leftward in firefox
     var tempstart = newselstart - (oldselend - oldselstart);
     if ( newselend < oldselend && tempstart >= 0 && delstart > tempstart)
       delstart = tempstart;
   }
 
-  if (browser.webkit || browser.opera) {
+  if (agent.engine == "webkit" || agent.browser == "opera") {
     // fix for input method in chrome browser
     // this way is dirty, rewrite it another time
     delstart = (delstart - 64 > 0) ? delstart - 64 : 0;
