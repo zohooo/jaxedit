@@ -6,6 +6,40 @@ License: The MIT license
 Source: https://github.com/zohooo/inliner
 */
 
+.dropdown-toggle {
+  position: relative;
+}
+
+.dropdown-toggle > .dropdown-menu {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  z-index: 100;
+  display: none;
+  padding: 0px;
+  margin: 0px;
+  border: 1px solid gray;
+  border-radius: 4px;
+}
+
+.dropdown-toggle:hover > .dropdown-menu {
+  display: inline-block;
+}
+
+.dropdown-menu li {
+  list-style-type: none;
+  padding: 0 .5em;
+  margin: 0;
+  line-height: 2;
+  color: black;
+  background: white;
+}
+
+.dropdown-menu li.hover {
+  color: white;
+  background: #3069B6;
+}
+
 .icon-x12, .icon-x16, .icon-x24, .icon-x32, .icon-x48, .icon-x96 {
   display: inline-block;
   vertical-align: middle;

@@ -22,50 +22,78 @@ html, body {
 }
 
 #head {
-  width: 964px;
-  height: 30px;
-  padding: 6px 0 6px 4px;
+  width: 968px;
+  height: 42px;
+  padding: 0px;
   font-weight: bold;
   font-family: Arial, Helvetica, sans-serif;
   background: #3B5F9B;
-  overflow: hidden;
   white-space: nowrap;
   position: relative;
+  z-index: 10;
 }
 
-#logo a {
+#logo {
+  margin-left: 8px;
+  float: left;
+}
+
+#logo #project {
   font-size: 26px;
+  line-height: 42px;
   text-shadow: 2px 2px 1px #000080;
   color: white;
-  margin: 0 0 0 4px;
 }
 
-#version {
+#logo #version {
   font-size: 12px;
   color: #F0F0F0;
 }
 
-#example {
-  position: relative;
-  bottom: 3px;
-  display: none;
-}
-
 #loginbtn, #drivesel {
   position: relative;
-  bottom: 3px;
   display: none;
 }
 
 #opensel {
   width:0px; height:0px; margin: 0; padding: 0;
   visibility: hidden;
+  float: left;
 }
 
 #head .button {
   position: relative;
-  bottom: 3px;
   display: none;
+  font-size: 14px;
+  height: 42px;
+  color: white;
+  background: transparent;
+  padding: 0px 8px;
+  border: 0px;
+  margin: 0px;
+  border-radius: 0px;
+  outline: none;
+  cursor: pointer;
+}
+
+#head .button:hover {
+  border: 0px;
+  background: gray;
+}
+
+#head .button:disabled {
+  color: #aaa;
+  cursor: default;
+}
+
+#head .dropdown-menu {
+  font-weight: normal;
+  background: gray;
+}
+
+#head .dropdown-menu li:hover {
+  background: #3069B6;
+  color: white;
 }
 
 .button {
@@ -89,6 +117,13 @@ html, body {
 
 .btngroup {
   margin-left: 50px;
+  line-height: 42px;
+  display: inline-block;
+  float: left;
+}
+
+.btngroup > .button {
+  float: left;
 }
 
 #main {
@@ -314,6 +349,11 @@ html, body {
   display: none;
 }
 
+.dlg-optn {
+  margin: 30px 0;
+  display: none;
+}
+
 #dlgfinfo {
   height: 25px;
   padding: 4px 0 1px 4px;
@@ -420,7 +460,7 @@ html, body {
   font-family: Arial, Helvetica, sans-serif;
 }
 
-#footsave, #footfetch, #footshare, #footclose {
+#footdone, #footsave, #footfetch, #footshare, #footclose {
   float: right;
 }
 

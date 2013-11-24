@@ -46,7 +46,6 @@ window.jaxedit = (function(){
       openbtn : document.getElementById("openbtn"),
       savebtn : document.getElementById("savebtn"),
       presbtn : document.getElementById("presbtn"),
-      loginbtn : document.getElementById("loginbtn"),
       drivesel: document.getElementById("drivesel"),
       main : document.getElementById("main"),
       left : document.getElementById("left"),
@@ -249,7 +248,7 @@ window.jaxedit = (function(){
       function adjustSize() {
         wsizes.push([html, pageWidth]);
         wsizes.push([body, pageWidth]);
-        wsizes.push([head, pageWidth - 4]);
+        wsizes.push([head, pageWidth]);
         wsizes.push([main, mainWidth]); hsizes.push([main, mainHeight]);
 
         wsizes.push([source, lWrapWidth - 2]); hsizes.push([source, lWrapHeight]);
@@ -408,6 +407,7 @@ window.jaxedit = (function(){
           this.bindExample();
         }
         this.bindDrive();
+        this.bindOption();
         this.addResizer();
         if (this.trustHost) enableShare();
       }
@@ -416,7 +416,7 @@ window.jaxedit = (function(){
 
     disableFileElements: function(disabled) {
       var childs = this.childs;
-      var elems = [childs.example, /*childs.newbtn,*/ childs.openbtn, childs.presbtn];
+      var elems = [childs.newbtn, childs.openbtn, childs.presbtn];
       for (var i = 0; i < elems.length; i++) {
         elems[i].disabled = disabled;
       }
@@ -576,12 +576,15 @@ window.jaxedit = (function(){
     },
 
     bindExample: function() {
+      var newbtn = document.getElementById("newbtn");
       var example = document.getElementById("example");
       var that = this;
 
-      function openExample() {
-        if (example.selectedIndex == 0) return;
-        var name = example.options[example.selectedIndex].value;
+      function openExample(event) {
+        var ev = event ? event : window.event,
+            target = ev.target || ev.srcElement;
+        if (target.nodeName.toUpperCase() != "LI") return;
+        var name = target.getAttribute("data-name");
         $.ajax({
           type: "GET",
           url: "editor/example/" + name,
@@ -597,8 +600,8 @@ window.jaxedit = (function(){
           }
         }
       }
-      example.onchange = openExample;
-      example.style.display = "inline-block";
+      example.onclick = openExample;
+      newbtn.style.display = "inline-block";
     },
 
     bindPresent: function() {
@@ -778,11 +781,9 @@ window.jaxedit = (function(){
       var that = this;
       var agent = $.agent, browser = agent.browser, version = agent.version;
       var codearea = this.childs.codearea, showarea = this.childs.showarea;
-      var newbtn = document.getElementById("newbtn"),
-          openbtn = document.getElementById("openbtn"),
+      var openbtn = document.getElementById("openbtn"),
           opensel = document.getElementById("opensel"),
           savebtn = document.getElementById("savebtn"),
-          loginbtn = document.getElementById("loginbtn"),
           drivesel = document.getElementById("drivesel");
 
       function doOpen(evt) {
@@ -804,6 +805,7 @@ window.jaxedit = (function(){
             ev.preventDefault();
             break;
           case "skydrive":
+            skydrive.signUserIn();
             driveOpenSave("open");
             break;
         }
@@ -1015,25 +1017,21 @@ window.jaxedit = (function(){
         skydrive.getFilesList(handleResponse);
       }
 
+      function changeFileDisplay(display) {
+        var openbtn = document.getElementById("openbtn"),
+           savebtn = document.getElementById("savebtn");
+        if (display) {
+          openbtn.style.display = "inline-block";
+          savebtn.style.display = "inline-block";
+        } else {
+          openbtn.style.display = "none";
+          savebtn.style.display = "none";
+        }
+      }
+
       function addFileHandler() {
         openbtn.onclick = fileOpen;
         savebtn.onclick = fileSave;
-      }
-
-      function changeDrive(event) {
-        var ev = event ? event : window.event,
-            sel = ev.target || ev.srcElement;
-        var olddrive = that.useDrive,
-            newdrive = sel.options[sel.selectedIndex].value;
-        if (newdrive == olddrive) return;
-        switch (newdrive) {
-          case "localdrive":
-            skydrive.signUserOut();
-            break;
-          case "skydrive":
-            skydrive.signUserIn();
-        }
-        sel.selectedIndex = 0;
       }
 
       var dlgwalkup = document.getElementById("dlgwalkup");
@@ -1049,7 +1047,7 @@ window.jaxedit = (function(){
         opensel.style.visibility = "visible";
         opensel.addEventListener("change", doOpen, false);
         addFileHandler();
-        this.changeFileDisplay(true);
+        changeFileDisplay(true);
       } else {
         this.localDrive = false;
         opensel.style.display = "none";
@@ -1059,14 +1057,11 @@ window.jaxedit = (function(){
         $.loadScript(location.protocol + "//js.live.net/v5.0/wl.js", function(){ // wl.debug.js
           $.loadScript("editor/webdrive/skydrive.js", function(){
             if (that.localDrive) {
-              drivesel.style.display = "inline-block";
-              drivesel.onchange = changeDrive;
-              drivesel.selectedIndex = 0;
+              document.getElementById("dlg-optn-drive").style.display = "block";
             } else {
               that.useDrive = "skydrive";
               addFileHandler();
-              loginbtn.style.display = "inline-block";
-              loginbtn.onclick = skydrive.signUserInOut;
+              changeFileDisplay(true);
             }
             skydrive.initDrive();
           });
@@ -1082,6 +1077,26 @@ window.jaxedit = (function(){
         }
       }
       */
+    },
+
+    bindOption: function() {
+      var that = this;
+      var optbtn = document.getElementById("optbtn");
+      var dbtndone = document.getElementById("dbtndone");
+      optbtn.onclick = function() {
+        that.changeDialog("bodyoptn", "footdone", "Options");
+      };
+      dbtndone.onclick = function() {
+        that.toggleModal(false);
+        var radios = document.getElementsByName('drive');
+        for (var i = 0, length = radios.length; i < length; i++) {
+          if (radios[i].checked) {
+            that.useDrive = radios[i].value;
+            break;
+          }
+        }
+      }
+      optbtn.style.display = "inline-block";
     },
 
     bindView: function() {
@@ -1105,42 +1120,6 @@ window.jaxedit = (function(){
         this.style.display = "none";
         typejax.updater.initMode("full");
       };
-    },
-
-    changeFileDisplay: function(display) {
-      var newbtn = document.getElementById("newbtn"),
-         openbtn = document.getElementById("openbtn"),
-         savebtn = document.getElementById("savebtn");
-      if (display) {
-        //newbtn.style.display = "inline-block";
-        openbtn.style.display = "inline-block";
-        savebtn.style.display = "inline-block";
-      } else {
-        //newbtn.style.display = "none";
-        openbtn.style.display = "none";
-        savebtn.style.display = "none";
-      }
-    },
-
-    changeStatus: function(status) {
-      if (status == "connected") {
-        this.useDrive = "skydrive";
-        if (this.localDrive) {
-          document.getElementById("drivesel").selectedIndex = 1;
-        } else {
-          this.changeFileDisplay(true);
-          document.getElementById("loginbtn").value = "Logout";
-        }
-      } else {
-        if (this.localDrive) {
-          this.useDrive = "localdrive";
-          document.getElementById("drivesel").selectedIndex = 0;
-        } else {
-          this.useDrive = null;
-          document.getElementById("loginbtn").value = "Login";
-          this.changeFileDisplay(false);
-        }
-      }
     },
 
     toggleModal: function(view) {

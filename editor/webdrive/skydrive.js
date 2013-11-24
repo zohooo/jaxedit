@@ -150,18 +150,16 @@ var skydrive = {
       alert("Error signing in: " + session.error);
     }
     else {
-      alert("You have been logged into SkyDrive.");
+      console.log("You have been logged into SkyDrive.");
       skydrive.access_token = session.access_token;
       skydrive.homeid = null;
       skydrive.finside = [];
       skydrive.findMainFolder();
-      jaxedit.changeStatus("connected");
     }
   },
 
   onLogoutComplete: function() {
-    alert("You have been logged out of SkyDrive.");
-    jaxedit.changeStatus("notConnected");
+    console.log("You have been logged out of SkyDrive.");
     skydrive.homeid = null;
     skydrive.finside = [];
   },
@@ -177,8 +175,7 @@ var skydrive = {
   onStatusChange: function() {
     WL.getLoginStatus(function(response) {
       skydrive.status = response.status;
-      jaxedit.changeStatus(response.status);
-      console.log("skydrive: your status has changed.");
+      console.log("skydrive: your status has changed to " + response.status + ".");
     });
   },
 

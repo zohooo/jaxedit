@@ -14,40 +14,42 @@
 -->
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 <meta name="description" content="online LaTeX editor with live preview" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0">
+<link rel="stylesheet" type="text/css" href="inliner/outliner.css" />
 <link rel="stylesheet" type="text/css" href="editor/jaxedit.css" />
 </head>
 <body>
 <div id="wrap">
   <div id="head">
-    <span id="logo"><a href="http://jaxedit.com" target="_blank" title="goto jaxedit homepage">JaxEdit</a></span>
-    <span><a id="version" href="https://github.com/zohooo/jaxedit/releases" target="_blank" title="download latest version"></a></span>
+    <span id="logo">
+      <a id="project" href="http://jaxedit.com" target="_blank" title="JaxEdit">JaxEdit</a>
+      <a id="version" href="https://github.com/zohooo/jaxedit/releases" target="_blank" title="Download"></a>
+    </span>
+    <input type="file" id="opensel">
     <span class="btngroup">
-      <select id="example" size="1" disabled>
-        <option disabled>&mdash; Examples &mdash;</option>
-        <option value="article.tex">article.tex</option>
-        <option value="beamer.tex" selected>beamer.tex</option>
-        <option value="jaxedit.tex">jaxedit.tex</option>
-      </select>
+      <span class="btngroup dropdown-toggle">
+        <button type="button" class="button" id="newbtn" disabled>New &#9662;</button>
+        <ul class="dropdown-menu" id="example">
+          <li data-name="article.tex">Example Article</li>
+          <li data-name="beamer.tex">Example Beamer</li>
+          <li data-name="jaxedit.tex">JaxEdit Introduction</li>
+        </ul>
+      </span>
+      <button type="button" class="button" id="openbtn" disabled>Open</button>
+      <button type="button" class="button" id="savebtn">Save</button>
     </span>
     <span class="btngroup">
-      <input type="button" class="button" id="loginbtn" value="Login" />
-      <select id="drivesel" size="1">
-        <option value="localdrive">Local Drive</option>
-        <option value="skydrive">SkyDrive</option>
-      </select>
-      <input type="file" id="opensel" />
-      <input type="button" class="button" id="newbtn" value="New" disabled />
-      <input type="button" class="button" id="openbtn" value="Open" disabled />
-      <input type="button" class="button" id="savebtn" value="Save" />
+      <button type="button" class="button" id="symbol-btn">Symbol</button>
+      <button type="button" class="button" id="table-btn">Table</button>
+      <button type="button" class="button" id="image-btn">Image</button>
     </span>
     <span class="btngroup">
-      <input type="button" class="button" id="sharebtn" value="Share" />
+      <button type="button" class="button" id="sharebtn">Share</button>
+      <button type="button" class="button" id="presbtn" disabled>Present</button>
+      <button type="button" class="button" id="optbtn">Option</button>
     </span>
     <span class="btngroup">
-      <input type="button" class="button" id="presbtn" value="Present" disabled />
-    </span>
-    <span class="btngroup">
-      <input type="button" class="button" id="helpbtn" value="Help" />
+      <button type="button" class="button" id="helpbtn">Help</button>
     </span>
   </div>
   <div id="main">
@@ -126,6 +128,18 @@ Then there exists $\xi\in(a,b)$ such that $f'(\xi)=0$.
     </div>
     <div id="dlgbody">
       <div id="bodyinfo">Loading...</div>
+      <div id="bodyoptn">
+        <div id="dlg-optn-drive" class="dlg-optn">
+          <span>Default Drive: </span>
+          <input type="radio" name="drive" value="localdrive" checked>Local Drive
+          <input type="radio" name="drive" value="skydrive">SkyDrive
+        </div>
+        <div id="dlg-optn-code" class="dlg-optn">
+          <span>Code Editor: </span>
+          <input type="radio" name="highlight" value="simple" checked>Simple
+          <input type="radio" name="highlight" value="colorful">Colorful
+        </div>
+      </div>
       <div id="bodylist">
         <div id="dlgfinfo">
           <span>Current folder:</span>
@@ -152,6 +166,9 @@ Then there exists $\xi\in(a,b)$ such that $f'(\xi)=0$.
       </div>
     </div>
     <div id="dlgfoot">
+      <span id="footdone">
+        <button type="button" class="button" id="dbtndone">Done</button>
+      </span>
       <span id="footsave">
         <span id="savespan">save file as: <input type="text" size="20" id="savename" value="hello" />.txt</span>
         <input type="button" class="button" id="dbtnsave" value="Save" />
