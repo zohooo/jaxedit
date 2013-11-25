@@ -20,6 +20,7 @@ Source: https://github.com/zohooo/inliner
   margin: 0px;
   border: 1px solid gray;
   border-radius: 4px;
+  background: white;
 }
 
 .dropdown-toggle:hover > .dropdown-menu {
@@ -32,7 +33,6 @@ Source: https://github.com/zohooo/inliner
   margin: 0;
   line-height: 2;
   color: black;
-  background: white;
 }
 
 .dropdown-menu li.hover {
