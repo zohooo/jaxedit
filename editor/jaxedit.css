@@ -34,7 +34,7 @@ html, body {
 }
 
 #logo {
-  margin-left: 8px;
+  margin: 0 8px;
   float: left;
 }
 
@@ -89,6 +89,7 @@ html, body {
 #head .dropdown-menu {
   font-weight: normal;
   background: gray;
+  font-size: 13px;
 }
 
 #head .dropdown-menu li:hover {
@@ -116,10 +117,14 @@ html, body {
 }
 
 .btngroup {
-  margin-left: 50px;
+  margin-left: 3%;
   line-height: 42px;
   display: inline-block;
   float: left;
+}
+
+.btngroup .btngroup {
+  margin-left: 0;
 }
 
 .btngroup > .button {
@@ -482,4 +487,13 @@ html, body {
   vertical-align: text-top;
   margin-right: 8px;
   background-image: url("image/gif-loading.gif");
+}
+
+@media all and (max-width: 540px) {
+  #logo #version {
+    display: none;
+  }
+  #head .button {
+    padding: 0 2px;
+  }
 }
