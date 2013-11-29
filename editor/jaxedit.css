@@ -91,11 +91,6 @@ html, body {
   font-size: 13px;
 }
 
-#head .dropdown-menu li:hover {
-  background: #3069B6;
-  color: white;
-}
-
 .button {
   border: 1px solid #777777;
   background: #E0E0E0;

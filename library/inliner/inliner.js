@@ -1,6 +1,6 @@
 
 // Inliner: Simple Library for Modern Browsers
-// Release: Version 0.01 on 2013-11-17
+// Release: Version 0.10 on 2013-11-29
 // License: The MIT license
 // Source: https://github.com/zohooo/inliner
 
