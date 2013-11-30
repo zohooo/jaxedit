@@ -476,11 +476,23 @@ html, body {
   background-image: url("image/gif-loading.gif");
 }
 
-@media all and (max-width: 540px) {
+@media all and (max-width: 767px) {
   #logo #version {
     display: none;
   }
+  [class^="icon-"], [class*=" icon-"] {
+    display: none;
+  }
   #head .button {
-    padding: 0 2px;
+    padding: 0 5px;
+  }
+}
+
+@media all and (max-width: 540px) {
+  [class^="icon-"], [class*=" icon-"] {
+    display: inline;
+  }
+  .btn-name {
+    display: none;
   }
 }
