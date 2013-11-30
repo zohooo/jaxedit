@@ -6,16 +6,17 @@ License: The MIT license
 Source: https://github.com/zohooo/inliner
 */
 
-/* fix click event delegation in ios */
-
-body {
-  cursor: pointer;
-}
-
 /* fix button styling problem in ios */
 
 button, input[type=button] {
   -webkit-appearance: button;
+}
+
+/* remove button padding in firefox */
+
+button::-moz-focus-inner {
+  border: 0;
+  padding: 0;
 }
 
 /* disable resizing of textarea in webkit browser */
