@@ -196,29 +196,23 @@ html, body {
 #filename {
   float: right;
   margin-right: 6px;
-  line-height: 20px;
+  line-height: 16px;
   font-weight: normal;
   font-family: monospace;
 }
 
 #halfview, #quadview {
   float: right;
+  font-size: 16px;
   font-weight: normal;
-  font-family: Arial, "Segoe UI Symbol", "Arial Unicode MS", "Lucida Sans Unicode", "Lucida Grande", sans-serif;
-  color: #0000FF;
-  padding: 0px 1px 1px 1px;
-  border: 1px solid #F3F3F3;
-  position: relative;
-  bottom: 2px;
+  color: #333;
+  margin-right: 3px;
 }
 
 #halfview:hover, #quadview:hover {
-  border: 1px solid #282828;
-  border-radius: 2px;
-  background: #E0E0E0;
-  color: white;
-  border-color: #222280;
-  background: #3069B6;
+  background: white;
+  color: #0000FF;
+  cursor: pointer;
 }
 
 #halfview {
