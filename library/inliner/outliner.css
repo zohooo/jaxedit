@@ -65,9 +65,12 @@ Source: https://github.com/zohooo/inliner
 }
 
 @font-face {
-  font-family: "outliner";
-  src: url("outliner.woff") format("woff"),
-       url("outliner.svg#outliner") format("svg");
+  font-family: 'outliner';
+  src: url('outliner.eot');
+  src: url('outliner.eot?#iefix') format('embedded-opentype'),
+       url('outliner.woff') format('woff'),
+       url('outliner.ttf') format('truetype'),
+       url('outliner.svg#outliner') format('svg');
   font-weight: normal;
   font-style: normal;
 }
