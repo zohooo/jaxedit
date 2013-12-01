@@ -80,7 +80,7 @@ window.jaxedit = (function(){
 
       if (browser == "chrome" || (browser == "firefox" && version >= 3) || (browser == "msie" && version >=8)
                               || (browser == "safari" && version >= 5.2) || (browser == "opera" && version >= 9)) {
-        if (!$.touch) {
+        if (!$.has("touch")) {
           options.highlight = true;
         }
       }
@@ -824,8 +824,8 @@ window.jaxedit = (function(){
         var URL = window.URL || window.webkitURL;
         var bloburl = URL.createObjectURL(blob);
         var name = that.fileName.split(/\.[^.]+$/)[0] + ".tex";
-        if ((browser == "chrome" && version >= 14) || (browser == "firefox" && version >= 20)) {
-          var anchor = document.createElement("a");
+        var anchor = document.createElement("a");
+        if ("download" in anchor) {
           anchor.style.visibility = "hidden";
           anchor.href = bloburl;
           anchor.download = name;
@@ -834,7 +834,7 @@ window.jaxedit = (function(){
           evt.initEvent("click", true, true);
           anchor.dispatchEvent(evt);
           document.body.removeChild(anchor);
-        } else if (browser == "msie" && version >= 10) {
+        } else if (navigator.msSaveBlob) {
           navigator.msSaveBlob(blob, name);
         } else {
           location.href = bloburl;
@@ -1037,11 +1037,7 @@ window.jaxedit = (function(){
       var dlgwalkup = document.getElementById("dlgwalkup");
       dlgwalkup.onclick = dialogWalkup;
 
-      if ((browser == "firefox" && version >= 6) ||
-          (browser == "chrome" && version >= 8) ||
-          (browser == "msie" && version >= 10) ||
-          (browser == "safari" && version >= 6) ||
-          (browser == "opera" && version >= 12.10)) {
+      if ($.has("file-open") && $.has("file-save")) {
         this.localDrive = true;
         this.useDrive = "localdrive";
         opensel.style.visibility = "visible";

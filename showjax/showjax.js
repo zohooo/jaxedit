@@ -242,7 +242,7 @@ showjax.addInfotip = function() {
   var showinfo;
   showinfo = document.createElement("div");
   showinfo.id = "infodiv";
-  if (inliner.touch) {
+  if (inliner.has("touch")) {
     showinfo.innerHTML = "Pinch to close presentation";
   } else {
     showinfo.innerHTML = "Press Esc to close presentation";

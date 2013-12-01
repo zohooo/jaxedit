@@ -71,6 +71,22 @@ if (!window.console) console = {log : function() {}};
     });
   };
 
+  var features = {
+    "touch": function(){
+      return ("ontouchstart" in window);
+    },
+    "file-open": function(){
+      return (typeof(window.FileReader) == "function");
+    },
+    "file-save": function(){
+      return !!(window.URL || window.webkitURL);
+  }};
+
+  inliner.has = function(name) {
+    var r = features[name];
+    return features[name] = ((typeof(r) == "function") ? r() : r);
+  };
+
   inliner.extend({
     agent: (function() {
       var ua = navigator.userAgent;
@@ -89,8 +105,6 @@ if (!window.console) console = {log : function() {}};
       }
       return { browser: "unknown", engine: "unknown", version: 0};
     })(),
-
-    touch: ("ontouchstart" in window),
 
     loadStyles: function(url, id) {
       if (id) {
