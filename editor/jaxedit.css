@@ -22,8 +22,8 @@ html, body {
 }
 
 #head {
-  width: 968px;
-  height: 42px;
+  width: 320px;
+  height: 40px;
   padding: 0px;
   font-weight: bold;
   font-family: Arial, Helvetica, sans-serif;
@@ -40,7 +40,7 @@ html, body {
 
 #logo #project {
   font-size: 26px;
-  line-height: 42px;
+  line-height: 40px;
   text-shadow: 2px 2px 1px #000080;
   color: white;
 }
@@ -65,7 +65,7 @@ html, body {
   position: relative;
   display: none;
   font-size: 16px;
-  height: 42px;
+  height: 40px;
   color: white;
   background: transparent;
   padding: 0px 8px;
@@ -112,7 +112,7 @@ html, body {
 
 .btngroup {
   margin-left: 3%;
-  line-height: 42px;
+  line-height: 40px;
   display: inline-block;
   float: left;
 }
@@ -127,8 +127,8 @@ html, body {
 
 #main {
   position: relative;
-  width: 968px;
-  height: 564px;
+  width: 320px;
+  height: 200px;
   padding: 0;
   margin: 0;
 }
@@ -136,7 +136,7 @@ html, body {
 #left, #right {
   position: absolute;
   top: 0;
-  width: 480px;
+  width: 156px;
   border: 2px solid #C1C1C1;
 }
 
@@ -152,12 +152,12 @@ html, body {
 
 #resizer {
   width: 0;
-  height: 564px;
+  height: 200px;
   padding: 0 2px;
   margin: 0;
   position: absolute;
   top: 0;
-  left: 482px;
+  left: 158px;
   z-index: 8;
   overflow: hidden;
   cursor: w-resize;
@@ -173,7 +173,7 @@ html, body {
 }
 
 #ltop, #rtop {
-  width: 474px;
+  width: 150px;
   height: 16px;
   padding: 3px 0 5px 4px;
   border: 1px solid rgb(128,128,128);
@@ -185,7 +185,7 @@ html, body {
 }
 
 #lbot, #rbot {
-  width: 474px;
+  width: 150px;
   height: 14px;
   padding: 3px 0 5px 4px;
   border: 1px solid rgb(50%,50%,50%);
@@ -220,8 +220,8 @@ html, body {
 }
 
 #source {
-  width: 478px;
-  height: 510px;
+  width: 154px;
+  height: 146px;
   padding: 0px;
   margin: 0px;
   border-left: 1px solid #C1C1C1;
@@ -229,25 +229,29 @@ html, body {
 }
 
 #codearea {
-  width: 472px;
-  height: 500px;
+  width: 148px;
+  height: 136px;
   border: 0 none;
   margin: 0px;
   padding: 4px 0px 4px 4px;
   font-family: monospace;
 }
 
+#source .CodeMirror {
+  height: 136px;
+}
+
 #preview {
-  width: 474px;
-  height: 502px;
+  width: 150px;
+  height: 138px;
   padding: 4px 0 4px 4px;
   border-left: 1px solid #C1C1C1;
   border-right: 1px solid #C1C1C1;
 }
 
 #showarea {
-  width: 474px;
-  height: 500px;
+  width: 150px;
+  height: 136px;
   overflow: auto;
   position: relative;
   font-family: Georgia, "Times New Roman", Times, serif;
