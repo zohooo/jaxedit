@@ -297,7 +297,9 @@ html, body {
 #dialog {
   width: 480px;
   height: 360px;
-  margin: 100px auto;
+  margin: auto;
+  position: absolute;
+  left: 0; right: 0; top: 0; bottom: 0;
   border: 1px solid #000;
   border-radius: 2px;
   text-align: left;
@@ -317,7 +319,7 @@ html, body {
   line-height: 24px;
   padding: 0 15px;
   background-color: white;
-  overflow: hidden;
+  overflow: auto;
 }
 
 #dlgfoot {
@@ -358,6 +360,10 @@ html, body {
 .dlg-optn {
   margin: 30px 0;
   display: none;
+}
+
+.dlg-optn span {
+  float: left;
 }
 
 #dlgfinfo {
@@ -433,7 +439,6 @@ html, body {
 #bodyshare {
   padding: 30px 0 10px 0;
   font-size: 16px;
-  height: 100%;
   position: relative;
 }
 
@@ -458,9 +463,6 @@ html, body {
 }
 
 #share_note {
-  position: absolute;
-  left: 0px;
-  bottom: 45px;
   font-size: 16px;
   color: #EE2736;
   font-family: Arial, Helvetica, sans-serif;
@@ -521,5 +523,12 @@ html, body {
   }
   #codeview, #showview {
     display: inline;
+  }
+  #dialog {
+    width: 318px;
+    height: 318px;
+  }
+  #dlgbody {
+    height: 258px;
   }
 }
