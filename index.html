@@ -29,36 +29,40 @@
 <body>
 <div id="wrap">
   <div id="head">
-    <span id="logo">
+    <div id="logo">
       <a id="project" href="http://jaxedit.com" target="_blank" title="JaxEdit">JaxEdit</a>
       <a id="version" href="https://github.com/zohooo/jaxedit/releases" target="_blank" title="Download"></a>
-    </span>
+    </div>
     <input type="file" id="opensel">
-    <span class="btngroup">
-      <span class="btngroup dropdown-toggle">
-        <button type="button" class="button" id="newbtn" disabled><i class="icon-new"></i> <span class="btn-name">New</span></button>
-        <ul class="dropdown-menu" id="example">
-          <li data-name="article.tex">Example Article</li>
-          <li data-name="beamer.tex">Example Beamer</li>
-          <li data-name="jaxedit.tex">JaxEdit Introduction</li>
-        </ul>
+    <div id="menubar">
+      <span class="btngroup">
+        <span class="btngroup dropdown-toggle">
+          <button type="button" class="button" id="newbtn" disabled><i class="icon-new"></i> <span class="btn-name">New</span></button>
+          <ul class="dropdown-menu" id="example">
+            <li data-name="article.tex">Example Article</li>
+            <li data-name="beamer.tex">Example Beamer</li>
+            <li data-name="jaxedit.tex">JaxEdit Introduction</li>
+          </ul>
+        </span>
+        <button type="button" class="button" id="openbtn" disabled><i class="icon-disk-open"></i> <span class="btn-name">Open</span></button>
+        <button type="button" class="button" id="savebtn"><i class="icon-disk-save"></i> <span class="btn-name">Save</span></button>
       </span>
-      <button type="button" class="button" id="openbtn" disabled><i class="icon-disk-open"></i> <span class="btn-name">Open</span></button>
-      <button type="button" class="button" id="savebtn"><i class="icon-disk-save"></i> <span class="btn-name">Save</span></button>
-    </span>
-    <span class="btngroup">
-      <button type="button" class="button" id="symbol-btn"><span class="btn-name">Symbol</span></button>
-      <button type="button" class="button" id="table-btn"><span class="btn-name">Table</span></button>
-      <button type="button" class="button" id="image-btn"><span class="btn-name">Image</span></button>
-    </span>
-    <span class="btngroup">
-      <button type="button" class="button" id="sharebtn"><i class="icon-share"></i> <span class="btn-name">Share</span></button>
-      <button type="button" class="button" id="presbtn" disabled><i class="icon-present"></i> <span class="btn-name">Present</span></button>
-      <button type="button" class="button" id="optbtn"><i class="icon-option"></i> <span class="btn-name">Option</span></button>
-    </span>
-    <span class="btngroup">
-      <button type="button" class="button" id="helpbtn"><i class="icon-help"></i> <span class="btn-name">Help</span></button>
-    </span>
+      <!--
+      <span class="btngroup">
+        <button type="button" class="button" id="symbol-btn"><span class="btn-name">Symbol</span></button>
+        <button type="button" class="button" id="table-btn"><span class="btn-name">Table</span></button>
+        <button type="button" class="button" id="image-btn"><span class="btn-name">Image</span></button>
+      </span>
+      -->
+      <span class="btngroup">
+        <button type="button" class="button" id="sharebtn"><i class="icon-share"></i> <span class="btn-name">Share</span></button>
+        <button type="button" class="button" id="presbtn" disabled><i class="icon-present"></i> <span class="btn-name">Present</span></button>
+        <button type="button" class="button" id="optbtn"><i class="icon-option"></i> <span class="btn-name">Option</span></button>
+      </span>
+      <span class="btngroup">
+        <button type="button" class="button" id="helpbtn"><i class="icon-help"></i> <span class="btn-name">Help</span></button>
+      </span>
+    </div>
   </div>
   <div id="main">
     <div id="left">

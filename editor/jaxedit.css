@@ -50,9 +50,9 @@ html, body {
   color: #F0F0F0;
 }
 
-#loginbtn, #drivesel {
-  position: relative;
-  display: none;
+#menubar {
+  height: 40px;
+  float: right;
 }
 
 #opensel {
@@ -111,7 +111,7 @@ html, body {
 }
 
 .btngroup {
-  margin-left: 3%;
+  margin-left: 28px;
   line-height: 40px;
   display: inline-block;
   float: left;
@@ -495,8 +495,12 @@ html, body {
 @media all and (max-width: 540px) {
   #head [class^="icon-"], #head [class*=" icon-"] {
     display: inline;
+    font-size: 20px;
   }
-  .btn-name {
+  #head .btngroup {
+    margin: 0;
+  }
+  #head .btn-name {
     display: none;
   }
 }
