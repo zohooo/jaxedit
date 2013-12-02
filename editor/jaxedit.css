@@ -484,7 +484,7 @@ html, body {
   #logo #version {
     display: none;
   }
-  [class^="icon-"], [class*=" icon-"] {
+  #head [class^="icon-"], #head [class*=" icon-"] {
     display: none;
   }
   #head .button {
@@ -493,7 +493,7 @@ html, body {
 }
 
 @media all and (max-width: 540px) {
-  [class^="icon-"], [class*=" icon-"] {
+  #head [class^="icon-"], #head [class*=" icon-"] {
     display: inline;
   }
   .btn-name {
