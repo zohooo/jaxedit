@@ -189,19 +189,21 @@ window.jaxedit = (function(){
       }
 
       function resizeFull() {
+        var w = (pageWidth > 802) ? 802 : pageWidth, p = Math.floor(w / 16);
         wsizes.push([html, pageWidth]);
-        wsizes.push([body, 802]);
-        wsizes.push([head, 798]);
-        wsizes.push([main, 802]); hsizes.push([main, mainHeight]);
-        wsizes.push([right, 798]); hsizes.push([right, halfHeight]);
-        wsizes.push([preview, 794]); hsizes.push([preview, halfHeight - 8]);
-        wsizes.push([showarea, 694]); hsizes.push([showarea, halfHeight - 108]);
+        wsizes.push([body, w]);
+        wsizes.push([head, w]);
+        wsizes.push([main, w]); hsizes.push([main, mainHeight]);
+        wsizes.push([right, w - 4]); hsizes.push([right, halfHeight]);
+        wsizes.push([preview, w - 8]); hsizes.push([preview, halfHeight - 8]);
+        wsizes.push([showarea, w - 8 - 2*p]); hsizes.push([showarea, halfHeight - 8 - 2*p]);
         that.resizeElements(wsizes, hsizes);
 
         body.style.height = "100%";
         left.style.display = resizer.style.display = "none";
+        right.style.display = "block";
         rtop.style.display = rbot.style.display = "none";
-        showarea.style.padding = "50px";
+        showarea.style.padding = p + "px";
         body.style.margin = "auto";
         body.style.backgroundColor = "gray";
         right.style.backgroundColor = "white";
