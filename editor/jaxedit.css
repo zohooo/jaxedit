@@ -209,7 +209,17 @@ html, body {
   margin-right: 3px;
 }
 
-#halfview:hover, #quadview:hover {
+#codeview, #showview {
+  float: right;
+  color: #333;
+  margin-right: 3px;
+  font-size: 12px;
+  padding: 0px 2px;
+  border: 1px solid gray;
+  display: none;
+}
+
+#halfview:hover, #quadview:hover, #codeview:hover, #showview:hover {
   background: white;
   color: #0000FF;
   cursor: pointer;
@@ -502,5 +512,14 @@ html, body {
   }
   #head .btn-name {
     display: none;
+  }
+  #resizer {
+    display: none;
+  }
+  #halfview, #quadview {
+    display: none;
+  }
+  #codeview, #showview {
+    display: inline;
   }
 }

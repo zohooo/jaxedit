@@ -27,7 +27,8 @@ window.jaxedit = (function(){
     trustHost: false,
     useDrive: null,
     version: "0.28",
-    view: "write",
+    mode: "write",
+    view: "half",
     wcode: null,
 
     options: {
@@ -160,6 +161,10 @@ window.jaxedit = (function(){
          }
       }
 
+      if (pageWidth > 540 && (this.view == "code" || this.view == "show")) this.view = "half";
+      if (pageWidth <= 540 && (this.view == "half" || this.view == "quad")) this.view = "code";
+      if (pageWidth < 320) pageWidth = 320; if (pageHeight < 240) pageHeight = 240;
+
       var headHeight = 42, topHeight = 26, botHeight = 24, halfBorder = 4;
       var mainWidth = pageWidth, mainHeight = pageHeight - headHeight,
           halfHeight = mainHeight - halfBorder, wrapHeight = halfHeight - topHeight - botHeight;
@@ -169,11 +174,17 @@ window.jaxedit = (function(){
         case "read":
           resizeFull();
           return;
-        case "write":
+        case "half":
           resizeHalf();
           return;
-        case "tiny":
+        case "quad":
           resizeQuad();
+          return;
+        case "code":
+          resizeCode();
+          return;
+        case "show":
+          resizeShow();
           return;
       }
 
@@ -240,6 +251,28 @@ window.jaxedit = (function(){
         right.style.top = (topHeight + halfBorder / 2) + "px";
         resizer.style.display = "none";
         rtop.style.display = "none"; rbot.style.display = "none";
+
+        adjustSize();
+        that.resizeElements(wsizes, hsizes);
+      }
+
+      function resizeCode() {
+        left.style.display = "block"; right.style.display = "none";
+        resizer.style.display = "none";
+        lWrapWidth = pageWidth - halfBorder;
+        lWrapHeight = wrapHeight;
+        wsizes.push([left, lWrapWidth]); hsizes.push([left, halfHeight]);
+
+        adjustSize();
+        that.resizeElements(wsizes, hsizes);
+      }
+
+      function resizeShow() {
+        left.style.display = "none"; right.style.display = "block";
+        resizer.style.display = "none";
+        rWrapWidth = pageWidth - halfBorder;
+        rWrapHeight = wrapHeight;
+        wsizes.push([right, rWrapWidth]); hsizes.push([right, halfHeight]);
 
         adjustSize();
         that.resizeElements(wsizes, hsizes);
@@ -390,7 +423,7 @@ window.jaxedit = (function(){
         }
       }
 
-      if (this.view == "write") {
+      if (this.mode == "write") {
         this.showWindow(enableShare);
       }
 
@@ -402,7 +435,7 @@ window.jaxedit = (function(){
     showWindow: function(enableShare) {
       this.doResize();
       this.childs.wrap.style.visibility = "visible";
-      if (this.view == "write") {
+      if (this.mode == "write") {
         if (location.protocol != "file:") {
           this.bindExample();
         }
@@ -638,10 +671,11 @@ window.jaxedit = (function(){
               that.childs.codearea.value = data;
             }
             that.wcode = wcode;
-            var view = xhr.getResponseHeader("Permission");
+            var mode = xhr.getResponseHeader("Permission");
             that.toggleModal(false);
-            if (that.view !== view) {
-              that.view = view;
+            that.view = (mode == "read") ? "read" : "half";
+            if (that.mode !== mode) {
+              that.mode = mode;
               that.showWindow(enableShare);
             }
           } else {
@@ -766,7 +800,7 @@ window.jaxedit = (function(){
         }
 
         that.childs.codearea.value = "";
-        that.view = "load";
+        that.mode = "load";
         document.getElementById("dbtnfetch").onclick = checkFetch;
         document.getElementById("dialog").onkeypress = checkPress;
         that.changeDialog("bodyfetch", "footfetch", "Enter Password");
@@ -1098,23 +1132,33 @@ window.jaxedit = (function(){
     bindView: function() {
       var that = this;
       var quad = document.getElementById("quadview"),
-          half = document.getElementById("halfview");
+          half = document.getElementById("halfview"),
+          code = document.getElementById("codeview"),
+          show = document.getElementById("showview");
       function disable() {
         that.childs.presbtn.style.display = "none";
       }
       quad.onclick = function() {
         disable();
-        that.view = "tiny";
+        that.view = "quad";
         that.doResize();
         half.style.display = "inline";
         typejax.updater.initMode("tiny");
       };
       half.onclick = function() {
         disable();
-        that.view = "write";
+        that.view = "half";
         that.doResize();
         this.style.display = "none";
         typejax.updater.initMode("full");
+      };
+      code.onclick = function() {
+        that.view = "code";
+        that.doResize();
+      };
+      show.onclick = function() {
+        that.view = "show";
+        that.doResize();
       };
     },
 
