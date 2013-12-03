@@ -600,10 +600,13 @@ window.jaxedit = (function(){
 
     bindCore: function() {
       var that = this;
-      var dlgclose = document.getElementById("dlgclose"),
-          dbtnclose = document.getElementById("dbtnclose"),
-          helpbtn = document.getElementById("helpbtn");
-      dbtnclose.onclick = dlgclose.onclick = function(){ that.toggleModal(false); };
+      var helpbtn = document.getElementById("helpbtn");
+      $(".dlgclose").each(function(){
+        this.onclick = function(){ that.toggleModal(false); };
+      });
+      $(".dbtnclose").each(function(){
+        this.onclick = function(){ that.toggleModal(false); };
+      });
       helpbtn.onclick = function() {
         window.open("http://jaxedit.com/#help", "_blank");
       };
@@ -631,7 +634,7 @@ window.jaxedit = (function(){
           if ((status >= 200 && status <300) || status == 304) {
             that.initEditor(text);
           } else {
-            that.changeDialog("bodyinfo", "footclose", "Error", "Error 404: File Not Found!");
+            that.changeDialog("dialog-info", "Error", "Error 404: File Not Found!");
           }
         }
       }
@@ -732,12 +735,12 @@ window.jaxedit = (function(){
       function showShareUrl(fid) {
         var url = location.protocol + "//" + location.host + shareurl + "?" + fid;
         var info = "Sharing URL is <a href='" + url + "'>" + url + "</a>";
-        that.changeDialog("bodyinfo", "footclose", "Share File", info);
+        that.changeDialog("dialog-info", "Share File", info);
       }
 
       function setupShare() {
         var dialog = document.getElementById("dialog"),
-            dlgtitle = document.getElementById("dlgtitle"),
+            dlgtitle = $("#dialog-share .dlgtitle")[0],
             dbtnshare = document.getElementById("dbtnshare"),
             share_email = document.getElementById("share_email"),
             share_rcode = document.getElementById("share_rcode"),
@@ -756,7 +759,7 @@ window.jaxedit = (function(){
           } else if (email.indexOf("@") <= 0 || email.indexOf("@") == email.length - 1) {
             note.innerHTML = "Error: your email address is invalid!";
           } else {
-            that.changeDialog("bodyinfo", "footclose", "", "Uploading file...", true);
+            that.changeDialog("dialog-info", "", "Uploading file...", true);
             uploadContent(that.editor.getValue(), name, null, wcode, rcode, email);
           }
         }
@@ -771,7 +774,7 @@ window.jaxedit = (function(){
         share_wcode.value += that.randomString(2);
         dbtnshare.onclick = checkShare;
         dialog.onkeypress = checkPress;
-        that.changeDialog("bodyshare", "footshare");
+        that.changeDialog("dialog-share");
         share_email.focus();
       }
 
@@ -792,7 +795,7 @@ window.jaxedit = (function(){
       function setupFetch() {
         function checkFetch() {
           var scode = document.getElementById("share_scode").value;
-          that.changeDialog("bodyinfo", "footclose", "Fetch File", "Fetching file...", true);
+          that.changeDialog("dialog-info", "Fetch File", "Fetching file...", true);
           downloadContent(that.fileid, scode);
         };
 
@@ -805,7 +808,7 @@ window.jaxedit = (function(){
         that.mode = "load";
         document.getElementById("dbtnfetch").onclick = checkFetch;
         document.getElementById("dialog").onkeypress = checkPress;
-        that.changeDialog("bodyfetch", "footfetch", "Enter Password");
+        that.changeDialog("dialog-fetch", "Enter Password");
         document.getElementById("share_scode").focus();
       }
 
@@ -893,16 +896,20 @@ window.jaxedit = (function(){
         var dlgflist = document.getElementById("dlgflist"),
             savename = document.getElementById("savename"),
             dbtnsave = document.getElementById("dbtnsave");
+        var footclose = document.getElementById("footclose"),
+            footsave = document.getElementById("footsave");
         var info = "Loading...";
         dlgflist.onclick = dialogClick;
         if (mode == "open") {
+          footclose.style.display = "inline"; footsave.style.display = "none";
           that.dialogMode = "open";
-          that.changeDialog("bodyinfo", "footclose", "Open File", info, true);
+          that.changeDialog("dialog-info", "Open File", info, true);
         } else {
+          footclose.style.display = "none"; footsave.style.display = "inline";
           that.dialogMode = "save";
           savename.value = that.fileName.split(/\.[^.]+$/)[0];
           dbtnsave.onclick = checkSave;
-          that.changeDialog("bodyinfo", "footsave", "Save File", info, true);
+          that.changeDialog("dialog-info", "Save File", info, true);
         }
         (function(){
           if (skydrive.homeid){
@@ -939,7 +946,7 @@ window.jaxedit = (function(){
           }
           bodytext += "</tbody></table>";
           dlgflist.innerHTML = bodytext;
-          that.changeDialog("bodylist");
+          that.changeDialog("dialog-list", "Browse Files");
         }
         else {
           that.toggleInfo("Error in reading LaTeX files!");
@@ -975,7 +982,7 @@ window.jaxedit = (function(){
             querystr = "?access_token=" + encodeURIComponent(skydrive.access_token),
             path = gatepath + "drive.php";
         var type, url, boundary, content, contype;
-        that.changeDialog("bodyinfo", "footclose", "", "Saving file...", true);
+        that.changeDialog("dialog-info", "", "Saving file...", true);
 
         if (location.search == "?put") { // using PUT method
           type = "PUT";
@@ -1048,7 +1055,7 @@ window.jaxedit = (function(){
       }
 
       function dialogWalkup() {
-        that.changeDialog("bodyinfo");
+        that.changeDialog("dialog-info");
         skydrive.finside.pop();
         skydrive.getFilesList(handleResponse);
       }
@@ -1116,7 +1123,7 @@ window.jaxedit = (function(){
       var optbtn = document.getElementById("optbtn");
       var dbtndone = document.getElementById("dbtndone");
       optbtn.onclick = function() {
-        that.changeDialog("bodyoptn", "footdone", "Options");
+        that.changeDialog("dialog-option", "Options");
       };
       dbtndone.onclick = function() {
         that.toggleModal(false);
@@ -1177,21 +1184,21 @@ window.jaxedit = (function(){
     },
 
     toggleLoading: function(info) {
-      this.changeDialog("bodyinfo", null, null, info, true);
+      this.changeDialog("dialog-info", "Loading", info, true);
     },
 
     toggleInfo: function(info) {
-      this.changeDialog("bodyinfo", null, null, info);
+      this.changeDialog("dialog-info", "Info", info);
     },
 
-    changeDialog: function(idbody, idfoot, title, info, loading) {
+    changeDialog: function(idname, title, info, loading) {
       var childs, element, i;
-      if (idbody) {
-        childs = document.getElementById("dlgbody").childNodes;
+      if (idname) {
+        childs = document.getElementById("dialog").childNodes;
         for (i = 0; i < childs.length; i++) {
           element = childs[i];
           if (element.nodeType == 1) {
-            if (element.id === idbody) {
+            if (element.id === idname) {
               element.style.display = "block"
             } else {
               element.style.display = "none";
@@ -1199,25 +1206,12 @@ window.jaxedit = (function(){
           }
         }
       }
-      if (idfoot) {
-        childs = document.getElementById("dlgfoot").childNodes;
-        for (i = 0; i < childs.length; i++) {
-          element = childs[i];
-          if (element.nodeType == 1) {
-            if (element.id === idfoot) {
-              element.style.display = "inline-block"
-            } else {
-              element.style.display = "none";
-            }
-          }
-        }
-      }
       if (title) {
-        document.getElementById("dlgtitle").innerHTML = title;
+        $("#" + idname + " .dlgtitle")[0].innerHTML = title;
       }
       if (info) {
         if (loading) info = "<i class='gif-loading'></i>" + info;
-        document.getElementById("bodyinfo").innerHTML = info;
+        document.getElementById("dialog-info-content").innerHTML = info;
       }
       this.toggleModal(true);
     },

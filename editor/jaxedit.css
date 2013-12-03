@@ -305,7 +305,12 @@ html, body {
   text-align: left;
 }
 
-#dlghead {
+#dialog > div {
+  width: 100%;
+  height: 100%;
+}
+
+.dlghead {
   height: 30px;
   padding: 0 15px;
   color: white;
@@ -314,15 +319,15 @@ html, body {
   font-family: Arial, Helvetica, sans-serif;
 }
 
-#dlgbody {
-  height: 300px;
+.dlgbody {
+  height: 270px;
   line-height: 24px;
-  padding: 0 15px;
+  padding: 15px;
   background-color: white;
   overflow: auto;
 }
 
-#dlgfoot {
+.dlgfoot {
   height: 30px;
   line-height: 30px;
   padding: 0 15px;
@@ -330,12 +335,12 @@ html, body {
   font-family: Arial, Helvetica, sans-serif;
 }
 
-#dlgtitle {
+.dlgtitle {
   float: left;
   margin: 5px 0;
 }
 
-#dlgclose {
+.dlgclose {
   float: right;
   width: 16px;
   height: 16px;
@@ -344,17 +349,15 @@ html, body {
   margin: 5px 0;
 }
 
-#dlgclose:hover {
+.dlgclose:hover {
   border: 1px solid #222280;
   background: #3069B6;
 }
 
-#bodyinfo {
-  height: 300px;
+#dialog-info-content {
   padding-top: 130px;
   text-align: center;
   background-color: white;
-  display: none;
 }
 
 .dlg-optn {
@@ -369,7 +372,6 @@ html, body {
 #dlgfinfo {
   height: 25px;
   padding: 4px 0 1px 4px;
-  margin-top: 15px;
   border: 1px solid #CCC;
   line-height: 25px;
   font-weight: bold;
@@ -389,57 +391,49 @@ html, body {
 }
 
 #dlgflist {
-  height: 235px;
-  margin-bottom: 15px;
   padding: 0;
   padding-right: 0px;
   overflow-x: hidden;
   overflow-y: auto;
 }
 
-#dlgbody table {
+.dlgbody table {
   width: 100%;
   margin-right: 2px;
 }
 
-#dlgbody th {
+.dlgbody th {
   text-align: left;
 }
 
-#dlgbody th, #dlgbody td {
+.dlgbody th, .dlgbody td {
   padding-left: 4px;
 }
 
-#dlgbody .finfo {
+.dlgbody .finfo {
   background-color: #F5F5F5;
 }
 
-#dlgbody .folder {
+.dlgbody .folder {
   background-color: #FFFFE1;
 }
 
-#dlgbody .file {
+.dlgbody .file {
   background-color: #FFF;
 }
 
-#dlgbody .fsize, #dlgbody .ftime {
+.dlgbody .fsize, .dlgbody .ftime {
   text-align: right;
   padding-right: 4px;
 }
 
-#dlgbody table, #dlgbody tr, #dlgbody th, #dlgbody td
+.dlgbody table, .dlgbody tr, .dlgbody th, .dlgbody td
 {
   border-color: #DCDCDC;
 }
 
-#bodyfetch {
+#dialog-fetch .dlgbody {
   padding: 100px 0 10px 0;
-}
-
-#bodyshare {
-  padding: 30px 0 10px 0;
-  font-size: 16px;
-  position: relative;
 }
 
 .share_info {
@@ -468,7 +462,9 @@ html, body {
   font-family: Arial, Helvetica, sans-serif;
 }
 
-#footdone, #footsave, #footfetch, #footshare, #footclose {
+.dlgfoot button {
+  height: 20px;
+  margin: 5px 0;
   float: right;
 }
 
@@ -528,7 +524,7 @@ html, body {
     width: 318px;
     height: 318px;
   }
-  #dlgbody {
-    height: 258px;
+  .dlgbody {
+    height: 228px;
   }
 }

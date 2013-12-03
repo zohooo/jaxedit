@@ -135,13 +135,24 @@ Then there exists a point $\xi\in(a,b)$ such that $f(\xi)=0$.
 <div id="overlay"></div>
 <div id="container">
   <div id="dialog">
-    <div id="dlghead">
-      <span id="dlgtitle"></span>
-      <span id="dlgclose">&#215;</span>
+    <div id="dialog-info">
+      <div class="dlghead">
+        <span class="dlgtitle"></span>
+        <span class="dlgclose">&#215;</span>
+      </div>
+      <div class="dlgbody">
+        <div id="dialog-info-content">Loading...</div>
+      </div>
+      <div class="dlgfoot">
+        <button type="button" class="button dbtnclose">Close</button>
+      </div>
     </div>
-    <div id="dlgbody">
-      <div id="bodyinfo">Loading...</div>
-      <div id="bodyoptn">
+    <div id="dialog-option">
+      <div class="dlghead">
+        <span class="dlgtitle"></span>
+        <span class="dlgclose">&#215;</span>
+      </div>
+      <div class="dlgbody">
         <div id="dlg-optn-drive" class="dlg-optn">
           <span>Default Drive: </span>
           <span>
@@ -157,7 +168,16 @@ Then there exists a point $\xi\in(a,b)$ such that $f(\xi)=0$.
           </span>
         </div>
       </div>
-      <div id="bodylist">
+      <div class="dlgfoot">
+        <button type="button" class="button" id="dbtndone">Done</button>
+      </div>
+    </div>
+    <div id="dialog-list">
+      <div class="dlghead">
+        <span class="dlgtitle"></span>
+        <span class="dlgclose">&#215;</span>
+      </div>
+      <div class="dlgbody">
         <div id="dlgfinfo">
           <span>Current folder:</span>
           <span id="dlginside"></span>
@@ -165,11 +185,35 @@ Then there exists a point $\xi\in(a,b)$ such that $f(\xi)=0$.
         </div>
         <div id='dlgflist'></div>
       </div>
-      <div id="bodyfetch">
+      <div class="dlgfoot">
+        <span id="footsave">
+          <span id="savespan">Save file as: <input type="text" size="20" id="savename" value="hello" />.txt</span>
+          <button type="button" class="button" id="dbtnsave">Save</button>
+        </span>
+        <span id="footclose">
+          <button type="button" class="button dbtnclose">Close</button>
+        </span>
+      </div>
+    </div>
+    <div id="dialog-fetch">
+      <div class="dlghead">
+        <span class="dlgtitle"></span>
+        <span class="dlgclose">&#215;</span>
+      </div>
+      <div class="dlgbody">
         <div class="share_info">Please enter sharing password:</div>
         <input id="share_scode" type="text" class="share_input" name="scode" maxlength="15" tabindex="1" />
       </div>
-      <div id="bodyshare">
+      <div class="dlgfoot">
+        <button type="button" class="button" id="dbtnfetch" tabindex="4">Submit</button>
+      </div>
+    </div>
+    <div id="dialog-share">
+      <div class="dlghead">
+        <span class="dlgtitle"></span>
+        <span class="dlgclose">&#215;</span>
+      </div>
+      <div class="dlgbody">
         <div class="share_info">Password for reading html output:</div>
         <input id="share_rcode" type="text" class="share_input" name="rcode" maxlength="15" tabindex="1" />
         <div class="share_info">Password for editing latex source:</div>
@@ -181,24 +225,9 @@ Then there exists a point $\xi\in(a,b)$ such that $f(\xi)=0$.
           <span><a href="http://jaxedit.com/#help" target="_blank">[help]</a></span>
         </div>
       </div>
-    </div>
-    <div id="dlgfoot">
-      <span id="footdone">
-        <button type="button" class="button" id="dbtndone">Done</button>
-      </span>
-      <span id="footsave">
-        <span id="savespan">save file as: <input type="text" size="20" id="savename" value="hello" />.txt</span>
-        <input type="button" class="button" id="dbtnsave" value="Save" />
-      </span>
-      <span id="footfetch">
-        <input type="button" class="button" id="dbtnfetch" value="Submit" tabindex="4" />
-      </span>
-      <span id="footshare">
-        <input type="button" class="button" id="dbtnshare" value="Share" tabindex="4" />
-      </span>
-      <span id="footclose">
-        <input type="button" class="button" id="dbtnclose" value="Close"/>
-      </span>
+      <div class="dlgfoot">
+        <button type="button" class="button" id="dbtnshare" tabindex="4">Share</button>
+      </div>
     </div>
   </div>
 </div>
