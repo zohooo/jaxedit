@@ -134,20 +134,11 @@ window.jaxedit = (function(){
       var childs = that.childs,
           html = childs.html,
           body = childs.body,
-          head = childs.head,
-          main = childs.main,
           left = childs.left,
-          ltop = childs.ltop,
-          source = childs.source,
-          codearea = childs.codearea,
-          lbot = childs.lbot,
           resizer = childs.resizer,
           right = childs.right,
-          rtop = childs.rtop,
           preview = childs.preview,
-          showarea = childs.showarea,
-          rbot = childs.rbot;
-      var wsizes = [], hsizes = [];
+          showarea = childs.showarea;
 
       var pageWidth = window.innerWidth;
       var pageHeight = window.innerHeight;
@@ -161,155 +152,29 @@ window.jaxedit = (function(){
          }
       }
 
-      if (pageWidth > 540 && (this.view == "code" || this.view == "show")) this.view = "half";
-      if (pageWidth <= 540 && (this.view == "half" || this.view == "quad")) this.view = "code";
-      if (pageWidth < 320) pageWidth = 320; if (pageHeight < 240) pageHeight = 240;
-
-      var headHeight = 42, topHeight = 26, botHeight = 24, halfBorder = 4;
-      var mainWidth = pageWidth, mainHeight = pageHeight - headHeight,
-          halfHeight = mainHeight - halfBorder, wrapHeight = halfHeight - topHeight - botHeight;
-      var lHalfWidth, lWrapWidth, rHalfWidth, rWrapWidth, lWrapHeight, rWrapHeight;
-
-      switch (this.view) {
-        case "read":
-          resizeFull();
-          return;
-        case "half":
-          resizeHalf();
-          return;
-        case "quad":
-          resizeQuad();
-          return;
-        case "code":
-          resizeCode();
-          return;
-        case "show":
-          resizeShow();
-          return;
+      if (typeof clientX == "number") { // resizer
+        if (clientX < 80) clientX = 2;
+        if (pageWidth - clientX < 80) clientX = pageWidth - 2;
+        left.style.right = pageWidth - clientX + "px";
+        right.style.left = clientX + "px";
+        resizer.style.left = clientX - 2 + "px";
+        return;
+      } else {
+        left.removeAttribute("style"); right.removeAttribute("style"); resizer.removeAttribute("style");
       }
 
-      function resizeFull() {
-        var w = (pageWidth > 802) ? 802 : pageWidth, p = Math.floor(w / 16);
-        wsizes.push([html, pageWidth]);
-        wsizes.push([body, w]);
-        wsizes.push([head, w]);
-        wsizes.push([main, w]); hsizes.push([main, mainHeight]);
-        wsizes.push([right, w - 4]); hsizes.push([right, halfHeight]);
-        wsizes.push([preview, w - 8]); hsizes.push([preview, halfHeight - 8]);
-        wsizes.push([showarea, w - 8 - 2*p]); hsizes.push([showarea, halfHeight - 8 - 2*p]);
-        that.resizeElements(wsizes, hsizes);
-
-        body.style.height = "100%";
-        left.style.display = resizer.style.display = "none";
-        right.style.display = "block";
-        rtop.style.display = rbot.style.display = "none";
-        showarea.style.padding = p + "px";
-        body.style.margin = "auto";
-        body.style.backgroundColor = "gray";
-        right.style.backgroundColor = "white";
+      var view = this.view;
+      if (pageWidth > 540 && (view == "code" || view == "show")) {
+        this.view = "half";
+      } else if (pageWidth <= 540 && (view == "half" || view == "quad")) {
+        /* cause overflow in ie9
+        if (view == "quad") typejax.updater.initMode("full");
+        */
+        this.view = "code";
       }
 
-      function resizeHalf() {
-        if (typeof clientX == "number") {
-          lHalfWidth = lWrapWidth = clientX - halfBorder,
-          rHalfWidth = rWrapWidth = pageWidth - clientX - halfBorder;
-        } else {
-          lHalfWidth = lWrapWidth = Math.ceil(pageWidth / 2) - halfBorder,
-          rHalfWidth = rWrapWidth = Math.floor(pageWidth / 2) - halfBorder;
-        }
-        if (lHalfWidth < 0) {
-          left.style.display = "none"; rHalfWidth = pageWidth - halfBorder - 2;
-        } else {
-          left.style.display = "block";
-        }
-        if (rHalfWidth < 0) {
-          right.style.display = "none"; lHalfWidth = pageWidth - halfBorder - 2;
-        } else {
-          right.style.display = "block";
-        }
-        lWrapHeight = rWrapHeight = wrapHeight;
-
-        wsizes.push([left, lHalfWidth]); hsizes.push([left, halfHeight]);
-        wsizes.push([right, rHalfWidth]); hsizes.push([right, halfHeight]);
-
-        right.style.top = 0 + "px";
-        resizer.style.display = "block";
-        rtop.style.display = "block"; rbot.style.display = "block";
-
-        hsizes.push([resizer, halfHeight + 4]);
-        resizer.style.left = ((lHalfWidth + 2 < 0) ? 0 : (lHalfWidth + 2)) + "px";
-
-        adjustSize();
-        that.resizeElements(wsizes, hsizes);
-      }
-
-      function resizeQuad() {
-        lWrapWidth = pageWidth - halfBorder; rWrapWidth = pageWidth * 0.382;
-        lWrapHeight = wrapHeight; rWrapHeight = wrapHeight * 0.382;
-
-        wsizes.push([left, lWrapWidth]); hsizes.push([left, halfHeight]);
-        wsizes.push([right, rWrapWidth]); hsizes.push([right, rWrapHeight]);
-
-        right.style.top = (topHeight + halfBorder / 2) + "px";
-        resizer.style.display = "none";
-        rtop.style.display = "none"; rbot.style.display = "none";
-
-        adjustSize();
-        that.resizeElements(wsizes, hsizes);
-      }
-
-      function resizeCode() {
-        left.style.display = "block"; right.style.display = "none";
-        resizer.style.display = "none";
-        lWrapWidth = pageWidth - halfBorder;
-        lWrapHeight = wrapHeight;
-        wsizes.push([left, lWrapWidth]); hsizes.push([left, halfHeight]);
-
-        adjustSize();
-        that.resizeElements(wsizes, hsizes);
-      }
-
-      function resizeShow() {
-        left.style.display = "none"; right.style.display = "block";
-        resizer.style.display = "none";
-        rWrapWidth = pageWidth - halfBorder;
-        rWrapHeight = wrapHeight;
-        wsizes.push([right, rWrapWidth]); hsizes.push([right, halfHeight]);
-
-        adjustSize();
-        that.resizeElements(wsizes, hsizes);
-      }
-
-      function adjustSize() {
-        wsizes.push([html, pageWidth]);
-        wsizes.push([body, pageWidth]);
-        wsizes.push([head, pageWidth]);
-        wsizes.push([main, mainWidth]); hsizes.push([main, mainHeight]);
-
-        wsizes.push([source, lWrapWidth - 2]); hsizes.push([source, lWrapHeight]);
-        if (that.options.highlight && that.editor) {
-          wsizes.push([that.editor.getWrapperElement(), lWrapWidth - 8]);
-          hsizes.push([that.editor.getWrapperElement(), lWrapHeight - 10]);
-        } else {
-          wsizes.push([codearea, lWrapWidth - 8]);
-          hsizes.push([codearea, lWrapHeight - 10]);
-        }
-
-        wsizes.push([preview, rWrapWidth - 6]); hsizes.push([preview, rWrapHeight - 8]);
-        wsizes.push([showarea, rWrapWidth - 6]); hsizes.push([showarea, rWrapHeight - 10]);
-
-        wsizes.push([ltop, lWrapWidth - 6]); wsizes.push([lbot, lWrapWidth - 6]);
-        wsizes.push([rtop, rWrapWidth - 6]); wsizes.push([rbot, rWrapWidth - 6]);
-      }
-    },
-
-    resizeElements: function(wsizes, hsizes) {
-      for (var i = 0; i < wsizes.length; i++) {
-        wsizes[i][0].style.width = wsizes[i][1] + "px";
-      };
-      for (i = 0; i < hsizes.length; i++) {
-        hsizes[i][0].style.height = hsizes[i][1] + "px";
-      };
+      html.id = "view-" + this.view;
+      right.removeAttribute("style"); preview.removeAttribute("style"); showarea.removeAttribute("style");
     },
 
     loadEditor: function() {
@@ -474,7 +339,11 @@ window.jaxedit = (function(){
       main.onmousemove = function(event) {
         if (that.forResize) {
           var ev = event ? event : window.event;
-          resizer.style.left = (ev.clientX - 2) + "px";
+          var x = (ev.clientX > 2) ? ev.clientX - 2 : 0;
+          var style = resizer.style;
+          style.position = "absolute";
+          style.margin = "0";
+          style.left = x + "px";
         }
       };
 
@@ -1140,10 +1009,10 @@ window.jaxedit = (function(){
 
     bindView: function() {
       var that = this;
-      var quad = document.getElementById("quadview"),
-          half = document.getElementById("halfview"),
-          code = document.getElementById("codeview"),
-          show = document.getElementById("showview");
+      var quad = document.getElementById("toggle-quadview"),
+          half = document.getElementById("toggle-halfview"),
+          code = document.getElementById("toggle-codeview"),
+          show = document.getElementById("toggle-showview");
       function disable() {
         that.childs.presbtn.style.display = "none";
       }
@@ -1151,14 +1020,12 @@ window.jaxedit = (function(){
         disable();
         that.view = "quad";
         that.doResize();
-        half.style.display = "inline";
         typejax.updater.initMode("tiny");
       };
       half.onclick = function() {
         disable();
         that.view = "half";
         that.doResize();
-        this.style.display = "none";
         typejax.updater.initMode("full");
       };
       code.onclick = function() {

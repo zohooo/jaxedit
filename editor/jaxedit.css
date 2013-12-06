@@ -10,19 +10,25 @@
 
 html, body {
   margin: 0px;
+  width: 100%;
+  height: 100%;
+  min-width: 320px;
+  min-height: 240px;
   overflow: hidden;
 }
 
 #wrap {
+  position: relative;
   width: 100%;
   height: 100%;
+  max-width: none;
   margin: 0;
   padding: 0;
   visibility: hidden;
 }
 
 #head {
-  width: 320px;
+  width: 100%;
   height: 40px;
   padding: 0px;
   font-weight: bold;
@@ -126,9 +132,10 @@ html, body {
 }
 
 #main {
-  position: relative;
-  width: 320px;
-  height: 200px;
+  position: absolute;
+  width: 100%;
+  top: 40px;
+  bottom: 0px;
   padding: 0;
   margin: 0;
 }
@@ -136,28 +143,114 @@ html, body {
 #left, #right {
   position: absolute;
   top: 0;
-  width: 156px;
+  bottom: 0;
   border: 2px solid #C1C1C1;
+  overflow: hidden;
 }
 
 #left {
   z-index: 0;
   left: 0;
+  right: 50%;
 }
 
 #right {
   z-index: 4;
+  right: 0;
+  left: 50%;
   background: white;
 }
 
-#resizer {
-  width: 0;
-  height: 200px;
-  padding: 0 2px;
-  margin: 0;
-  position: absolute;
+#view-half #right {
+  width: auto;
+  height: auto;
+}
+
+#view-half #rtop, #view-half #rbot, #view-half #resizer {
+  display: block;
+}
+
+#view-half #toggle-halfview, #view-half #toggle-codeview, #view-half #toggle-showview {
+  display: none;
+}
+
+#view-quad #left {
+  right: 0;
+}
+
+#view-quad #right {
+  left: auto;
+  top: 28px;
+  width: 38.2%;
+  height: 38.2%;
+}
+
+#view-quad #preview {
   top: 0;
-  left: 158px;
+}
+
+#view-quad #rtop, #view-quad #rbot, #view-quad #resizer {
+  display: none;
+}
+
+#view-quad #toggle-codeview, #view-quad #toggle-showview {
+  display: none;
+}
+
+#view-code #left {
+  right: 0;
+}
+
+#view-code #right {
+  display: none;
+}
+
+#view-show #left {
+  display: none;
+}
+
+#view-show #right {
+  left: 0;
+}
+
+#view-read body {
+  background: gray;
+}
+
+#view-read #wrap {
+  max-width: 802px;
+  margin: 0 auto;
+}
+
+#view-read #left, #view-read #resizer, #view-read #rtop, #view-read #rbot {
+  display: none;
+}
+
+#view-read #right {
+  left: 0;
+}
+
+#view-read #preview {
+  top: 0;
+  bottom: 0;
+  overflow: auto;
+}
+
+#view-read #showarea {
+  left: 6.25%;
+  right: 6.25%;
+  top: 6.25%;
+  bottom: 6.25%;
+  overflow: visible;
+}
+
+#resizer {
+  position: relative;
+  width: 0;
+  height: 100%;
+  padding: 0 2px;
+  margin: 0 auto;
+  top: 0;
   z-index: 8;
   overflow: hidden;
   cursor: w-resize;
@@ -168,12 +261,11 @@ html, body {
   background-color: #B0C4DE;
 }
 
-#right {
-  right: 0;
-}
-
 #ltop, #rtop {
-  width: 150px;
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
   height: 16px;
   padding: 3px 0 5px 4px;
   border: 1px solid rgb(128,128,128);
@@ -181,11 +273,13 @@ html, body {
   overflow: hidden;
   font-weight: 500;
   font-family: Arial, Helvetica, sans-serif;
-  position: relative;
 }
 
 #lbot, #rbot {
-  width: 150px;
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
   height: 14px;
   padding: 3px 0 5px 4px;
   border: 1px solid rgb(50%,50%,50%);
@@ -201,7 +295,7 @@ html, body {
   font-family: monospace;
 }
 
-#halfview, #quadview {
+#toggle-halfview, #toggle-quadview {
   float: right;
   font-size: 16px;
   font-weight: normal;
@@ -209,29 +303,27 @@ html, body {
   margin-right: 3px;
 }
 
-#codeview, #showview {
+#toggle-codeview, #toggle-showview {
   float: right;
   color: #333;
   margin-right: 3px;
   font-size: 12px;
   padding: 0px 2px;
   border: 1px solid gray;
-  display: none;
 }
 
-#halfview:hover, #quadview:hover, #codeview:hover, #showview:hover {
+#toggle-halfview:hover, #toggle-quadview:hover, #toggle-codeview:hover, #toggle-showview:hover {
   background: white;
   color: #0000FF;
   cursor: pointer;
 }
 
-#halfview {
-  display: none;
-}
-
 #source {
-  width: 154px;
-  height: 146px;
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 26px;
+  bottom: 24px;
   padding: 0px;
   margin: 0px;
   border-left: 1px solid #C1C1C1;
@@ -239,31 +331,37 @@ html, body {
 }
 
 #codearea {
-  width: 148px;
-  height: 136px;
+  width: 99%;
+  height: 98%;
   border: 0 none;
   margin: 0px;
-  padding: 4px 0px 4px 4px;
+  padding: 1% 0px 1% 1%;
   font-family: monospace;
+  -webkit-overflow-scrolling: touch;
 }
 
 #source .CodeMirror {
-  height: 136px;
+  height: 100%;
 }
 
 #preview {
-  width: 150px;
-  height: 138px;
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 26px;
+  bottom: 24px;
   padding: 4px 0 4px 4px;
   border-left: 1px solid #C1C1C1;
   border-right: 1px solid #C1C1C1;
 }
 
 #showarea {
-  width: 150px;
-  height: 136px;
+  position: absolute;
+  left: 4px;
+  right: 0;
+  top: 4px;
+  bottom: 4px;
   overflow: auto;
-  position: relative;
   font-family: Georgia, "Times New Roman", Times, serif;
   line-height: 1.3;
 }
@@ -514,10 +612,10 @@ html, body {
   #resizer {
     display: none;
   }
-  #halfview, #quadview {
+  #toggle-halfview, #toggle-quadview {
     display: none;
   }
-  #codeview, #showview {
+  #toggle-codeview, #toggle-showview {
     display: inline;
   }
   #dialog {
