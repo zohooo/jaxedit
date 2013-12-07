@@ -1078,7 +1078,7 @@ window.jaxedit = (function(){
       }
       if (info) {
         if (loading) info = "<i class='gif-loading'></i>" + info;
-        document.getElementById("dialog-info-content").innerHTML = info;
+        $("#dialog-info .dialog-middle")[0].innerHTML = info;
       }
       this.toggleModal(true);
     },

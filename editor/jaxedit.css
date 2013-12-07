@@ -425,6 +425,7 @@ html, body {
   padding: 15px;
   background-color: white;
   overflow: auto;
+  position: relative;
 }
 
 .dlgfoot {
@@ -454,10 +455,19 @@ html, body {
   background: #3069B6;
 }
 
-#dialog-info-content {
-  padding-top: 130px;
+.dialog-middle {
+  position: absolute;
+  top: 15px;
+  bottom: 15px;
+  left: 15px;
+  right: 15px;
+  margin: auto;
+  height: 24px;
+}
+
+#dialog-info .dialog-middle {
+  height: 44px;
   text-align: center;
-  background-color: white;
 }
 
 .dlg-optn {
@@ -532,8 +542,8 @@ html, body {
   border-color: #DCDCDC;
 }
 
-#dialog-fetch .dlgbody {
-  padding: 100px 0 10px 0;
+#dialog-fetch .dialog-middle {
+  height: 44px;
 }
 
 .share_info {
