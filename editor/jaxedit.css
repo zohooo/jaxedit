@@ -574,6 +574,9 @@ html, body {
 
 .dlgfoot button {
   height: 20px;
+  font-size: 12px;
+  line-height: 12px;
+  padding: 3px;
   margin: 5px 0;
   float: right;
 }
