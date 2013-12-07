@@ -412,6 +412,7 @@ html, body {
 
 .dlghead {
   height: 30px;
+  line-height: 20px;
   padding: 0 15px;
   color: white;
   background-color: #5D7685;
