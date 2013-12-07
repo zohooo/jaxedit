@@ -445,14 +445,14 @@ html, body {
   float: right;
   width: 16px;
   height: 16px;
-  border: 1px solid #5D7685;
   text-align: center;
   margin: 5px 0;
+  color: #eee;
 }
 
 .dlgclose:hover {
-  border: 1px solid #222280;
-  background: #3069B6;
+  color: white;
+  cursor: pointer;
 }
 
 .dialog-middle {
