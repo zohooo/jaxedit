@@ -57,8 +57,10 @@ html, body {
 }
 
 #menubar {
+  position: absolute;
   height: 40px;
-  float: right;
+  top: 0;
+  right: 0;
 }
 
 #opensel {
