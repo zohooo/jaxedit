@@ -161,6 +161,7 @@ window.jaxedit = (function(){
         return;
       } else {
         left.removeAttribute("style"); right.removeAttribute("style"); resizer.removeAttribute("style");
+        preview.removeAttribute("style"); showarea.removeAttribute("style");
       }
 
       var view = this.view;
@@ -174,7 +175,6 @@ window.jaxedit = (function(){
       }
 
       html.id = "view-" + this.view;
-      right.removeAttribute("style"); preview.removeAttribute("style"); showarea.removeAttribute("style");
     },
 
     loadEditor: function() {
