@@ -239,10 +239,8 @@ html, body {
 }
 
 #view-read #showarea {
-  left: 6.25%;
-  right: 6.25%;
-  top: 6.25%;
-  bottom: 6.25%;
+  position: static;
+  padding: 6.25%;
   overflow: visible;
 }
 
