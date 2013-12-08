@@ -168,9 +168,7 @@ window.jaxedit = (function(){
       if (pageWidth > 540 && (view == "code" || view == "show")) {
         this.view = "half";
       } else if (pageWidth <= 540 && (view == "half" || view == "quad")) {
-        /* cause overflow in ie9
-        if (view == "quad") typejax.updater.initMode("full");
-        */
+        if (view == "quad") setTimeout(function(){typejax.updater.initMode("full");}, 0);
         this.view = "code";
       }
 
