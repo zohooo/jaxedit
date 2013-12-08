@@ -403,6 +403,7 @@ html, body {
   border: 1px solid #000;
   border-radius: 2px;
   text-align: left;
+  font-size: 16px;
 }
 
 #dialog > div {
@@ -416,7 +417,6 @@ html, body {
   padding: 0 15px;
   color: white;
   background-color: #5D7685;
-  font-size: 16px;
   font-family: Arial, Helvetica, sans-serif;
 }
 
@@ -480,7 +480,8 @@ html, body {
   float: left;
 }
 
-#dlgfinfo {
+#dialog-file-info {
+  position: relative;
   height: 25px;
   padding: 4px 0 1px 4px;
   border: 1px solid #CCC;
@@ -490,18 +491,30 @@ html, body {
   font-family: Arial, Helvetica, sans-serif;
 }
 
-#dlginside {
-  margin: 0 10px;
+#dialog-file-current {
+  position: absolute;
+  left: 4px;
+  right: 55px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+#dialog-file-inside {
+  margin-left: 0 5px;
   font-weight: 500;
   font-family: Georgia, "Times New Roman", Times, serif;
+  white-space: nowrap;
 }
 
-#dlgwalkup {
-  float: right;
-  margin-right: 4px;
+#dialog-file-walkup {
+  position: absolute;
+  right: 4px;
+  width: 50px;
+  text-align: right;
 }
 
-#dlgflist {
+#dialog-file-list {
   padding: 0;
   padding-right: 0px;
   overflow-x: hidden;
@@ -543,6 +556,10 @@ html, body {
   border-color: #DCDCDC;
 }
 
+#savespan input {
+  width: 130px;
+}
+
 #dialog-fetch .dialog-middle {
   height: 44px;
 }
@@ -580,10 +597,6 @@ html, body {
   padding: 3px;
   margin: 5px 0;
   float: right;
-}
-
-#savespan {
-  margin-right: 10px;
 }
 
 #parser-loading {
@@ -640,5 +653,8 @@ html, body {
   }
   .dlgbody {
     height: 228px;
+  }
+  #dialog-file .ftime {
+    display: none;
   }
 }

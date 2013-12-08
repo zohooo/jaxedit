@@ -172,22 +172,21 @@ Then there exists a point $\xi\in(a,b)$ such that $f(\xi)=0$.
         <button type="button" class="button" id="dbtndone">Done</button>
       </div>
     </div>
-    <div id="dialog-list">
+    <div id="dialog-file">
       <div class="dlghead">
         <span class="dlgtitle"></span>
         <span class="dlgclose icon-close"></span>
       </div>
       <div class="dlgbody">
-        <div id="dlgfinfo">
-          <span>Current folder:</span>
-          <span id="dlginside"></span>
-          <span id="dlgwalkup"><a href="javascript:void(0)">Go Up</a></span>
+        <div id="dialog-file-info">
+          <span id="dialog-file-current">Current folder: <span id="dialog-file-inside"></span></span>
+          <span id="dialog-file-walkup"><a href="javascript:void(0)">Go Up</a></span>
         </div>
-        <div id='dlgflist'></div>
+        <div id='dialog-file-list'></div>
       </div>
       <div class="dlgfoot">
         <span id="footsave">
-          <span id="savespan">Save file as: <input type="text" size="20" id="savename" value="hello" />.txt</span>
+          <span id="savespan">Save as: <input type="text" size="20" id="savename" value="hello" />.txt</span>
           <button type="button" class="button" id="dbtnsave">Save</button>
         </span>
         <span id="footclose">

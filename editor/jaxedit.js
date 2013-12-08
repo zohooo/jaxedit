@@ -763,7 +763,7 @@ window.jaxedit = (function(){
       }
 
       function driveOpenSave(mode) {
-        var dlgflist = document.getElementById("dlgflist"),
+        var dlgflist = document.getElementById("dialog-file-list"),
             savename = document.getElementById("savename"),
             dbtnsave = document.getElementById("dbtnsave");
         var footclose = document.getElementById("footclose"),
@@ -791,9 +791,9 @@ window.jaxedit = (function(){
       }
 
       function handleResponse(response) {
-        var dlginside = document.getElementById("dlginside"),
-            dlgwalkup = document.getElementById("dlgwalkup"),
-            dlgflist = document.getElementById("dlgflist");
+        var dlginside = document.getElementById("dialog-file-inside"),
+            dlgwalkup = document.getElementById("dialog-file-walkup"),
+            dlgflist = document.getElementById("dialog-file-list");
         if (!response.error) {
           var bodytext = "", data, type, name, fid, url, size, time, ftype;
           var finside = skydrive.finside;
@@ -816,7 +816,7 @@ window.jaxedit = (function(){
           }
           bodytext += "</tbody></table>";
           dlgflist.innerHTML = bodytext;
-          that.changeDialog("dialog-list", "Browse Files");
+          that.changeDialog("dialog-file", "Browse Files");
         }
         else {
           that.toggleInfo("Error in reading LaTeX files!");
@@ -947,7 +947,7 @@ window.jaxedit = (function(){
         savebtn.onclick = fileSave;
       }
 
-      var dlgwalkup = document.getElementById("dlgwalkup");
+      var dlgwalkup = document.getElementById("dialog-file-walkup");
       dlgwalkup.onclick = dialogWalkup;
 
       if ($.has("file-open") && $.has("file-save")) {
