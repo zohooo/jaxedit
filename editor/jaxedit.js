@@ -966,9 +966,11 @@ window.jaxedit = (function(){
         $.loadScript(location.protocol + "//js.live.net/v5.0/wl.js", function(){ // wl.debug.js
           $.loadScript("editor/webdrive/skydrive.js", function(){
             if (that.localDrive) {
-              document.getElementById("dlg-optn-drive").style.display = "block";
+              document.getElementById("dialog-option-drive").style.display = "block";
+              document.getElementById("optbtn").style.display = "inline-block"; // remove later
             } else {
               that.useDrive = "skydrive";
+              that.changeDriveIcons("cloud");
               addFileHandler();
               changeFileDisplay(true);
             }
@@ -1000,12 +1002,15 @@ window.jaxedit = (function(){
         var radios = document.getElementsByName('drive');
         for (var i = 0, length = radios.length; i < length; i++) {
           if (radios[i].checked) {
-            that.useDrive = radios[i].value;
+            var value = radios[i].value;
+            var prefix = value == "localdrive" ? "disk" : "cloud";
+            that.useDrive = value;
+            that.changeDriveIcons(prefix);
             break;
           }
         }
       }
-      optbtn.style.display = "inline-block";
+      // optbtn.style.display = "inline-block";
     },
 
     bindView: function() {
@@ -1037,6 +1042,11 @@ window.jaxedit = (function(){
         that.view = "show";
         that.doResize();
       };
+    },
+
+    changeDriveIcons: function(prefix) {
+        $("#openbtn i")[0].className = "icon-" + prefix + "-open";
+        $("#savebtn i")[0].className = "icon-" + prefix + "-save";
     },
 
     toggleModal: function(view) {

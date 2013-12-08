@@ -471,12 +471,12 @@ html, body {
   text-align: center;
 }
 
-.dlg-optn {
+#dialog-option .the-option {
   margin: 30px 0;
   display: none;
 }
 
-.dlg-optn span {
+#dialog-option .the-option span {
   float: left;
 }
 
