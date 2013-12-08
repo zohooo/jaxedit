@@ -65,6 +65,7 @@ showjax.initShow = function() {
       if (chd.nodeType != 1) continue;
       if (chd == node) {
         styles.push(chd, [
+          "display", "block",
           "position", "static",
           "maxWidth", "none", "maxHeight", "none",
           "height", "100%", "width", "100%",
