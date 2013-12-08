@@ -756,6 +756,7 @@ window.jaxedit = (function(){
             doSave();
             break;
           case "skydrive":
+            skydrive.signUserIn();
             driveOpenSave("save");
             break;
         }
