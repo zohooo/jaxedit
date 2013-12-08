@@ -167,7 +167,7 @@ window.jaxedit = (function(){
       var view = this.view;
       if (pageWidth > 540 && (view == "code" || view == "show")) {
         this.view = "half";
-      } else if (pageWidth <= 540 && (view == "half" || view == "quad")) {
+      } else if (pageWidth <= 540 && (view == "half" || view == "quad") && !($.agent.browser == "msie" && $.agent.version < 9)) {
         if (view == "quad") setTimeout(function(){typejax.updater.initMode("full");}, 0);
         this.view = "code";
       }
