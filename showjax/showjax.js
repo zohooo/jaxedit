@@ -125,6 +125,8 @@ showjax.resizeShow = function() {
 
   showarea.style.width = showWidth + "px"; showarea.style.height = showHeight + "px";
   showarea.style.marginLeft = showarea.style.marginRight = (pageWidth - showWidth) / 2 + "px";
+  showarea.style.fontSize = (showWidth / 4) + "%";
+  MathJax.Hub.Rerender(showarea);
 };
 
 showjax.setupStyle = function(styles) {
