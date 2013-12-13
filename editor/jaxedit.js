@@ -480,7 +480,7 @@ window.jaxedit = (function(){
         this.onclick = function(){ that.toggleModal(false); };
       });
       helpbtn.onclick = function() {
-        window.open("http://jaxedit.com/#help", "_blank");
+        window.open("http://jaxedit.com/?help", "_blank");
       };
       helpbtn.style.display = "inline-block";
     },
