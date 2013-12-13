@@ -47,7 +47,6 @@ window.jaxedit = (function(){
       openbtn : document.getElementById("openbtn"),
       savebtn : document.getElementById("savebtn"),
       presbtn : document.getElementById("presbtn"),
-      drivesel: document.getElementById("drivesel"),
       main : document.getElementById("main"),
       left : document.getElementById("left"),
       ltop : document.getElementById("ltop"),
@@ -689,8 +688,7 @@ window.jaxedit = (function(){
       var codearea = this.childs.codearea, showarea = this.childs.showarea;
       var openbtn = document.getElementById("openbtn"),
           opensel = document.getElementById("opensel"),
-          savebtn = document.getElementById("savebtn"),
-          drivesel = document.getElementById("drivesel");
+          savebtn = document.getElementById("savebtn");
 
       function doOpen(evt) {
         var file = evt.target.files[0],
