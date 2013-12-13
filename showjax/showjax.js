@@ -83,6 +83,7 @@ showjax.initShow = function() {
   var frameall = this.frameall;
   for (var i = 0; i < frameall.length; i++) {
     styles.push(showarea.childNodes[frameall[i]], [
+      "overflow", "hidden",
       "width", "96%",
       "height", "96%",
       "padding", "2%",
