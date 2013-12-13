@@ -104,6 +104,7 @@ html, body {
   background: #E0E0E0;
   border-radius: 2px;
   font-family: Arial, Helvetica, sans-serif;
+  cursor: pointer;
 }
 
 .button:hover {
@@ -328,6 +329,7 @@ html, body {
   margin: 0px;
   border-left: 1px solid #C1C1C1;
   border-right: 1px solid #C1C1C1;
+  font-size: 14px;
 }
 
 #codearea {
