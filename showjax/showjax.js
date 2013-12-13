@@ -67,6 +67,7 @@ showjax.initShow = function() {
         styles.push(chd, [
           "display", "block",
           "position", "static",
+          "backgroundColor", "black",
           "maxWidth", "none", "maxHeight", "none",
           "height", "100%", "width", "100%",
           "margin", "0px", "padding", "0px",
@@ -78,8 +79,6 @@ showjax.initShow = function() {
     }
     node = parent;
   } while (parent != body);
-
-  styles.push(body, ["backgroundColor", "black"]);
 
   var frameall = this.frameall;
   for (var i = 0; i < frameall.length; i++) {
