@@ -134,6 +134,10 @@ html, body {
   float: left;
 }
 
+.busy #menu-new:hover > .dropdown-menu {
+  display: none;
+}
+
 #main {
   position: absolute;
   width: 100%;

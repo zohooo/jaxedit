@@ -317,6 +317,12 @@ window.jaxedit = (function(){
       for (var i = 0; i < elems.length; i++) {
         elems[i].disabled = disabled;
       }
+      var menubar = document.getElementById("menubar");
+      if (disabled) {
+        menubar.className = "busy";
+      } else {
+        menubar.className = "idle";
+      }
     },
 
     addResizer: function() {
