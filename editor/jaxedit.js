@@ -8,9 +8,7 @@
  * Release: http://code.google.com/p/jaxedit/
  */
 
-var $ = window.inliner;
-
-window.jaxedit = (function(){
+window.jaxedit = (function($){
   var gatepath = "",
       mathname = "MathJax.js?config=TeX-AMS_HTML",
       mathpath = "",
@@ -1127,7 +1125,7 @@ window.jaxedit = (function(){
       return text;
     }
   }
-})();
+})(inliner);
 
 window.onload = function() {jaxedit.doLoad()};
 window.onresize = function() {jaxedit.doResize()};
