@@ -419,7 +419,7 @@ window.typejax = (function($){
                   "cases", "matrix", "pmatrix", "bmatrix", "Bmatrix", "vmatrix", "Vmatrix"];
     var re = /(?:\n|\r\n)?\\begin\{([\w\*]+)\}([\w\W]*?)\\end\{\1\}(?:\n|\r\n)?/g;
     text = text.replace(re, function(match, p1, p2, offset){
-      if (inliner.inArray(p1, dmaths) != -1) {
+      if ($.inArray(p1, dmaths) != -1) {
         return "$$" + "\\begin{" + p1 + "}" + p2 + "\\end{" + p1 + "}$$";
       } else {
         return "\\begin{" + p1 + "}" + p2.replace(re, arguments.callee) + "\\end{" + p1 + "}";
@@ -1184,7 +1184,7 @@ window.typejax = (function($){
         if (node.argarray[0].childs[0]) {
           var theme = node.argarray[0].childs[0].value;
           var beamer = that.beamer;
-          beamer.newtheme = (inliner.inArray(theme, beamer.allthemes) > -1) ? theme : "default";
+          beamer.newtheme = ($.inArray(theme, beamer.allthemes) > -1) ? theme : "default";
         }
       },
 
@@ -1495,13 +1495,13 @@ window.typejax = (function($){
           if (window.jaxedit) jaxedit.childs.presbtn.style.display = "inline-block";
           if (!beamer.newtheme) beamer.newtheme = "default";
           if (beamer.newtheme != beamer.oldtheme) {
-            inliner.loadStyles("typejax/theme/" + beamer.newtheme + ".css", "typejax-theme");
+            $.loadStyles("typejax/theme/" + beamer.newtheme + ".css", "typejax-theme");
             beamer.oldtheme = beamer.newtheme;
             beamer.newtheme = "";
           }
         } else {
           if (window.jaxedit) jaxedit.childs.presbtn.style.display = "none";
-          inliner.removeStyles("typejax-theme");
+          $.removeStyles("typejax-theme");
           beamer.oldtheme = beamer.newtheme = "";
         }
       },
