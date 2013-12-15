@@ -1331,49 +1331,14 @@ window.typejax = (function($){
       },
       
       doEnvironment : function(node) {
-        var envname = node.name, from = node.from, to = node.to, argarray = node.argarray;
-        switch (envname) {
-          case "definition":
-          case "definition*":
-          case "definitions":
-          case "definitions*":
-          case "example":
-          case "example*":
-          case "examples":
-          case "examples*":
-          case "fact":
-          case "fact*":
-          case "lemma":
-          case "lemma*":
-          case "theorem":
-          case "theorem*":
-          case "proposition":
-          case "proposition*": 
-          case "corollary":
-          case "corollary*":
-          case "proof":
-          case "exercise":
-          case "remark":
-          case "solution":
-            this.envsTheorem(node);
-            break;
-          case "enumerate":
-          case "itemize":
-            this.envsList(node);
-            break;
-          case "frame":
-            this.envFrame(node);
-            break;
-          case "preamble":
-            this.envPreamble(node);
-            break;
-          case "tabular":
-            this.envTabular(node);
-            break;
-          default:
-            if (this.thmnames[envname]) {
-              this.envsTheorem(node);
-            }
+        var name = node.name, same = this.getGroupSame(name);
+        var work = this["env" + same.charAt(0).toUpperCase() + same.slice(1)];
+        if (work) {
+          work.call(this, node);
+        } else {
+          if (this.thmnames[name]) {
+            this.envTheorem(node);
+          }
         }
       },
 
@@ -1445,10 +1410,14 @@ window.typejax = (function($){
         }
       },
 
-      envsList : function(node) {
+      envItemize: function(node) {
         // itemize, enumerate
         if (node.childs.length == 0) return; //fix for empty content in lists
         if (node.childs[0].mode == "inline") node.childs.shift();
+      },
+
+      envEnumerate: function(node) {
+        this.envItemize(node);
       },
 
       envPreamble : function(node) {
@@ -1496,7 +1465,7 @@ window.typejax = (function($){
         this.intabular = false;
       },
       
-      envsTheorem : function(node) {
+      envTheorem: function(node) {
         if (node.childs.length == 0) return; //fix for empty content in theorems
         var envname = node.name, thmname = this.thmnames[envname];
         var cname = (envname.slice(-1) == '*') ? envname.slice(0, -1) : envname;
