@@ -567,12 +567,7 @@ window.typejax = (function($){
         typejax.innerdata = [];
         typejax.innersect = [];
 
-        var latex = typejax.latex;
-        this.cmdargs = latex.cmdargs;
-        this.envargs = latex.envargs;
-        this.grpsame = latex.grpsame;
-        this.grpmode = latex.grpmode;
-        this.grpsout = latex.grpsout;
+        var latex = this.latex = typejax.latex;
         this.cmdvalues = latex.cmdvalues;
         this.counters = latex.counters;
         this.thmnames = latex.thmnames;
@@ -1128,7 +1123,7 @@ window.typejax = (function($){
         } else {
           this.thmnames[envname] = argarray[1].childs[0].value;
         }
-        this.grpsame[envname] = "theorem";
+        this.latex.environment[envname] = "theorem";
       },
 
       cmdsParagraph : function(node) {
@@ -2096,14 +2091,12 @@ window.typejax = (function($){
           this.addText(value, position);
         }
       },
-      
+
       // test if group1 could include group2
       includeGroup : function(name1, name2) {
         var same1, same2, mode1, mode2;
-        same1 = this.grpsame[name1]; if (!same1) same1 = name1;
-        same2 = this.grpsame[name2]; if (!same2) same2 = name2;
-        mode1 = this.grpmode[same1]; if (!mode1) mode1 = "inline";
-        mode2 = this.grpmode[same2]; if (!mode2) mode2 = "inline";
+        same1 = this.getGroupSame(name1); same2 = this.getGroupSame(name2);
+        mode1 = this.getGroupMode(same1); mode2 = this.getGroupMode(same2);
         if (same2 == "section") return false;
         if ((same1 == "enumerate" || same1 == "itemize") && same2 == "item") return true;
         if (same1 == "tabular" || mode2 == "inline") return true;
@@ -2113,7 +2106,7 @@ window.typejax = (function($){
           console.log("includeGroup:", name1, name2, false);
           return false;
         }
-        var out = this.grpsout[same2];
+        var out = this.getGroupOuts(same2);
         if (out) {
           for (i = 0; i < out.length; i++) {
             if (out[i] == same1) return false;
@@ -2123,21 +2116,37 @@ window.typejax = (function($){
       },
       
       getArgsType : function(type, name) {
-        var same = this.grpsame[name], args;
-        if (!same) same = name;
+        var same = this.getGroupSame(name), group, args;
+        var latex = this.latex;
         if (type == "env") {
-          args = this.envargs[same];
-          return args ? args : ["||"];
+          group = latex.environment[same];
+          args = (group && ("args" in group)) ? group.args : ["||"];
         } else {
-          args = this.cmdargs[same]
-          return args ? args : [];
+          group = latex.command[same];
+          args = (group && ("args" in group)) ? group.args : [];
         }
+        return args;
       },
-      
+
+      getGroupOuts: function(same) {
+        var latex = this.latex;
+        var group = latex.environment[same] || latex.command[same];
+        if (group) return group.outs;
+      },
+
       getGroupMode : function(name) {
-        var same = this.grpsame[name]; if (!same) same = name;
-        var mode = this.grpmode[same]; if (!mode) mode = "inline";
+        var same = this.getGroupSame(name);
+        var latex = this.latex;
+        var group = latex.environment[same] || latex.command[same];
+        var mode = group ? group.mode : "inline";
         return mode;
+      },
+
+      getGroupSame: function(name) {
+        var latex = this.latex;
+        if (typeof latex.environment[name] == "string") return latex.environment[name];
+        if (typeof latex.command[name] == "string") return latex.command[name];
+        return name;
       }
     };
 
@@ -2219,125 +2228,98 @@ window.typejax = (function($){
     });
   };
 
+  /* group.mode
+   * main group could include main and block groups
+   * block group cuuld include inline groups and bmath elements
+   * inline group could include inline commands and itext/imath elements
+   * bmath element should include display math directly
+   * imath element should include inline math directly
+   */
+  // group.outs: list of groups which could not include it
   typejax.latex = {
-    grpsame : {
-      "part" : "section",
-      "part*" : "section",
-      "chapter" : "section",
-      "chapter*" : "section",
-      "section" : "section",
-      "section*" : "section",
-      "subsection" : "section",
-      "subsection*" : "section",
-      "subsubsection" : "section",  
-      "subsubsection*" : "section",
-      "paragraph": "paragraph",
-      "paragraph*": "paragraph",
-      "subparagraph": "paragraph",
-      "subparagraph*": "paragraph",
-      "definition" : "theorem",
-      "definition*" : "theorem",
-      "definitions" : "theorem",
-      "definitions*" : "theorem",
-      "example" : "theorem",
-      "example*" : "theorem",
-      "examples" : "theorem",
-      "examples*" : "theorem",
-      "fact" : "theorem",
-      "fact*" : "theorem",
-      "lemma" : "theorem",
-      "lemma*" : "theorem",
-      "theorem" : "theorem",
-      "theorem*" : "theorem",
-      "proposition" : "theorem",
-      "proposition*" : "theorem",
-      "corollary" : "theorem",
-      "corollary*" : "theorem",
-      "proof" : "theorem",
-      "exercise" : "theorem",
-      "remark" : "theorem",
-      "solution" : "theorem",
-      "transboxin": "transdissolve",
-      "transboxout": "transdissolve",
-      "transblindshorizontal": "transdissolve",
-      "transblindsvertical": "transdissolve",
-      "transsplithorizontalin": "transdissolve",
-      "transsplithorizontalout": "transdissolve",
-      "transsplitverticalin": "transdissolve",
-      "transsplitverticalout": "transdissolve",
-      "transglitter": "transdissolve",
-      "transwipe": "transdissolve",
-      "transdissolve": "transdissolve"
+    command: {
+      "address":                  {mode: "inline", args: ["{}"]},
+      "author":                   {mode: "inline", args: ["[]", "{}"]},
+      "chapter":                  "section",
+      "chapter*":                 "section",
+      "curraddr":                 {mode: "inline", args: ["{}"]},
+      "date":                     {mode: "inline", args: ["{}"]},
+      "dedicatory":               {mode: "inline", args: ["{}"]},
+      "email":                    {mode: "inline", args: ["{}"]},
+      "framesubtitle":            {mode: "block", args: ["{}"]},
+      "frametitle":               {mode: "block", args: ["{}"]},
+      "institute":                {mode: "inline", args: ["{}"]},
+      "keywords":                 {mode: "inline", args: ["{}"]},
+      "maketitle":                {mode: "block", args: []},
+      "newtheorem":               {mode: "inline", args: ["{}", "[]", "{}", "[]"]},
+      "newtheorem*":              {mode: "inline", args: ["{}", "{}"]},
+      "paragraph":                {mode: "inline", args: ["[]", "{}"]},
+      "paragraph*":               "paragraph",
+      "part":                     "section",
+      "part*":                    "section",
+      "section":                  {mode: "block", args: ["[]", "{}"]},
+      "section*":                 "section",
+      "subjclass":                {mode: "inline", args: ["{}"]},
+      "subparagraph":             "paragraph",
+      "subparagraph*":            "paragraph",
+      "subsection":               "section",
+      "subsection*":              "section",
+      "subsubsection":            "section",
+      "subsubsection*":           "section",
+      "tableofcontents":          {mode: "block", args: ["[]"], outs: ["par"]},
+      "textbf":                   {mode: "inline", args: ["{}"]},
+      "thanks":                   {mode: "inline", args: ["{}"]},
+      "title":                    {mode: "inline", args: ["[]", "{}"]},
+      "titlepage":                {mode: "block", args: []},
+      "transblindshorizontal":    "transdissolve",
+      "transblindsvertical":      "transdissolve",
+      "transboxin":               "transdissolve",
+      "transboxout":              "transdissolve",
+      "transdissolve":            {mode: "inline", args: ["<>", "[]"]},
+      "transduration":            {mode: "inline", args: ["<>", "{}"]},
+      "transglitter":             "transdissolve",
+      "translator":               {mode: "inline", args: ["{}"]},
+      "transsplithorizontalin":   "transdissolve",
+      "transsplithorizontalout":  "transdissolve",
+      "transsplitverticalin":     "transdissolve",
+      "transsplitverticalout":    "transdissolve",
+      "transwipe":                "transdissolve",
+      "usetheme":                 {mode: "inline", args: ["{}"]}
     },
-    // main group could include main and block groups
-    // block group cuuld include inline groups and bmath elements
-    // inline group could include inline commands and itext/imath elements
-    // bmath element should include display math directly
-    // imath element should include inline math directly
-    grpmode : {
-      "bmath": "block",
-      "center" : "main",
-      "enumerate": "block",
-      "frame": "main",
-      "frametitle": "block",
-      "framesubtitle": "block",
-      "group": "inline",
-      "item": "main",
-      "itemize": "block",
-      "maketitle": "block",
-      "par" : "block",
-      "preamble" : "main",
-      "section" : "block",
-      "tableofcontents" : "block",
-      "tabular" : "inline",
-      "textbf" : "inline",
-      "theorem" : "main",
-      "titlepage": "block",
-      "verbatim" : "block"
-    },
-    // list of groups which could not include it
-    grpsout : {
-      "par" : ["par", "section"],
-      "center" : ["par", "center"],
-      "frame" : ["par", "frame", "center", "theorem"],
-      "tableofcontents" : ["par"],
-      "theorem" : ["par", "theorem"],
-      "verbatim" : ["par"]
-    },
-    envargs : {
-      "enumerate" : ["[]", "||"],
-      "frame" :    ["<>", "[]", "[]", "{]", "{]", "||"],
-      "item": ["<>", "||"],
-      "itemize" : ["[]", "||"],
-      "preamble": ["[]", "{}", "||"],
-      "tabular" :  ["{}", "||"],
-      "theorem" :  ["[]", "||"]
-    },
-    cmdargs : {
-      "tableofcontents": ["[]"],
-      "title": ["[]", "{}"],
-      "author": ["[]", "{}"],
-      "institute": ["{}"],
-      "date": ["{}"],
-      "address": ["{}"],
-      "curraddr": ["{}"],
-      "email": ["{}"],
-      "translator": ["{}"],
-      "keywords": ["{}"],
-      "subjclass": ["{}"],
-      "thanks": ["{}"],
-      "dedicatory" : ["{}"],
-      "section": ["[]", "{}"],
-      "paragraph": ["[]", "{}"],
-      "frametitle": ["{}"],
-      "framesubtitle": ["{}"],
-      "group": ["{}"],
-      "newtheorem": ["{}", "[]", "{}", "[]"],
-      "newtheorem*": ["{}", "{}"],    
-      "textbf": ["{}"],
-      "usetheme": ["{}"],
-      "transdissolve": ["<>", "[]"],
-      "transduration": ["<>", "{}"]
+    environment: {
+      "bmath":                    {mode: "block"},
+      "center":                   {mode: "main", args: ["||"], outs: ["par", "center"]},
+      "corollary":                "theorem",
+      "corollary*":               "theorem",
+      "definition":               "theorem",
+      "definition*":              "theorem",
+      "definitions":              "theorem",
+      "definitions*":             "theorem",
+      "enumerate":                {mode: "block", args: ["[]", "||"]},
+      "example":                  "theorem",
+      "example*":                 "theorem",
+      "examples":                 "theorem",
+      "examples*":                "theorem",
+      "exercise":                 "theorem",
+      "fact":                     "theorem",
+      "fact*":                    "theorem",
+      "frame":                    {mode: "main", args: ["<>", "[]", "[]", "{]", "{]", "||"], outs: ["par", "frame", "center", "theorem"]},
+      "group":                    {mode: "inline", args: ["{}"]},
+      "item":                     {mode: "main", args: ["<>", "||"]},
+      "itemize":                  {mode: "block", args: ["[]", "||"]},
+      "lemma":                    "theorem",
+      "lemma*":                   "theorem",
+      "par":                      {mode: "block", args: ["||"], outs: ["par", "section"]},
+      "preamble":                 {mode: "main", args: ["[]", "{}", "||"]},
+      "proof":                    "theorem",
+      "proposition":              "theorem",
+      "proposition*":             "theorem",
+      "tabular":                  {mode: "inline", args: ["{}", "||"]},
+      "theorem":                  {mode: "main", args: ["[]", "||"], outs: ["par", "theorem"]},
+      "theorem*":                 "theorem",
+      "remark":                   "theorem",
+      "solution":                 "theorem",
+      "verbatim":                 {mode: "block", args: ["||"], outs: ["par"]}
     },
     cmdvalues : {},
     counters : {},
