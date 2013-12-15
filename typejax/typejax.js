@@ -2168,6 +2168,28 @@ window.typejax = (function($){
     });
   };
 
+  typejax.message = {
+    log: function(type) {
+      var msg = Array.prototype.slice.call(arguments, 1).join(" ");
+      var sto = this.storage;
+      sto[type] = sto[type] ? sto[type] + "\n" + msg : msg;
+    },
+
+    get: function(type) {
+      return (this.storage[type] || "");
+    },
+
+    print: function(type) {
+      console.log(this.storage[type] || "");
+    },
+
+    clear: function(type) {
+      delete this.storage[type];
+    },
+
+    storage: {}
+  };
+
   /* group.mode
    * main group could include main and block groups
    * block group cuuld include inline groups and bmath elements
