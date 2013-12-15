@@ -1765,7 +1765,7 @@ window.typejax = (function($){
       
       printTree : function(tree, spaces) {
         if (!spaces) spaces = "";
-        console.log("|" + spaces + tree.mode, tree.name, tree.from, tree.to, tree.value);
+        that.message.log("tree", "|" + spaces + tree.mode, tree.name, tree.from, tree.to, tree.value);
         for (var i = 0; i < tree.childs.length; i++) {
           this.printTree(tree.childs[i], spaces + "--"); 
         }
