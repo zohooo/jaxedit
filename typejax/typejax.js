@@ -930,52 +930,9 @@ window.typejax = (function($){
       },
 
       doCommand : function(node) {
-        var csname = node.name, from = node.from, to= node.to, argarray = node.argarray;
-        switch (csname) {
-          case "title":
-          case "author":
-          case "institute":
-          case "date":
-            this.cmdsTitle(node);
-            break;
-          case "maketitle":
-          case "titlepage":
-            this.cmdsMaketitle(node);
-            break;
-          case "tableofcontents":
-            this.cmdTableofcontents(node);
-            break;
-          case "part":
-          case "part*":
-          case "chapter":
-          case "chapter*":
-          case "section":
-          case "section*":
-          case "subsection":
-          case "subsection*":
-          case "subsubsection":
-          case "subsubsection*":
-            this.cmdsHeading(node);
-            break;
-          case "paragraph":
-          case "paragraph*":
-          case "subparagraph":
-          case "subparagraph*":
-            this.cmdsParagraph(node);
-            break;
-          case "newtheorem":
-          case "newtheorem*":
-            this.cmdNewtheorem(node);
-            break;
-          case "textbf":
-            this.cmdTextbf(node);
-            break;
-          case "usetheme":
-            this.cmdUseTheme(node);
-            break;
-          default:
-            //this.cmdsIgnore();
-        }
+        var name = node.name, same = this.getGroupSame(name);
+        var work = this["cmd" + same.charAt(0).toUpperCase() + same.slice(1)];
+        if (work) work.call(this, node);
       },
 
       cmdsSimple : function(csname, where) { // with single parameter
@@ -1022,7 +979,7 @@ window.typejax = (function($){
         }
       },
 
-      cmdsHeading : function(node) {
+      cmdSection: function(node) {
         var csname = node.name, argarray = node.argarray;
         var counters = this.counters, headstr, numstr = "", sectintoc;
         var value1 = typejax.builder(argarray[1], false),
@@ -1085,9 +1042,7 @@ window.typejax = (function($){
         node.value = s;
       },
 
-      //cmdsIgnore : function() {},
-
-      cmdsMaketitle : function(node) {
+      cmdMaketitle: function(node) {
         if (typeof this.cmdvalues["title"] == "undefined") return;
         var result = "<h1>" + this.cmdvalues["title"] + "</h1>";
         
@@ -1112,6 +1067,10 @@ window.typejax = (function($){
         node.value = result;
       },
       
+      cmdTitlepage: function(node) {
+        this.cmdMaketitle(node);
+      },
+
       cmdNewtheorem : function(node) {
         // \newtheorem{envname}{thmname}[numberby]
         // \newtheorem{envname}[counter]{thmname}
@@ -1126,7 +1085,7 @@ window.typejax = (function($){
         this.latex.environment[envname] = "theorem";
       },
 
-      cmdsParagraph : function(node) {
+      cmdParagraph: function(node) {
         var csname = node.name, argarray = node.argarray;
         switch (csname) {
           case "paragraph":
@@ -1152,7 +1111,7 @@ window.typejax = (function($){
         }
       },
 
-      cmdsTitle : function(node) {
+      cmdTitle: function(node) {
         var csname = node.name, argarray = node.argarray;
         var argnode, child, i, value = "";
         switch (csname) {
@@ -1175,7 +1134,19 @@ window.typejax = (function($){
         node.childs = [];
       },
 
-      cmdUseTheme : function(node) {
+      cmdAuthor: function(node) {
+        this.cmdTitle(node);
+      },
+
+      cmdDate: function(node) {
+        this.cmdTitle(node);
+      },
+
+      cmdInstitute: function(node) {
+        this.cmdTitle(node);
+      },
+
+      cmdUsetheme: function(node) {
         if (node.argarray[0].childs[0]) {
           var theme = node.argarray[0].childs[0].value;
           var beamer = that.beamer;
