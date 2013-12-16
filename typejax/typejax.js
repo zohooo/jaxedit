@@ -1252,43 +1252,6 @@ window.typejax = (function($){
             }
             break;
           // text environments
-          case "definition":
-          case "definition*":
-          case "definitions":
-          case "definitions*":
-          case "example":
-          case "example*":
-          case "examples":
-          case "examples*":
-          case "fact":
-          case "fact*":
-          case "lemma":
-          case "lemma*":
-          case "theorem":
-          case "theorem*":
-          case "proposition":
-          case "proposition*": 
-          case "corollary":
-          case "corollary*":
-          case "proof":
-          case "exercise":
-          case "remark":
-          case "solution":
-            this.closeOldMath(where);
-            if (csname == "begin") {
-              this.beginGroup("env", envname, where, where + 8 + envname.length);
-            } else {
-              this.endGroup("env", envname, where, where + 6 + envname.length);
-            }
-            break;
-          case "center":
-            this.closeOldMath(where);
-            if (csname == "begin") {
-              this.beginGroup("env", envname, where, where + 8 + envname.length);
-            } else {
-              this.endGroup("env", envname, where, where + 6 + envname.length);
-            }
-            break;
           case "CJK":
           case "CJK*":
             this.addText("\\" + csname + "{" + envname + "}");
@@ -1299,23 +1262,6 @@ window.typejax = (function($){
               this.endGroup("env", "preamble", where, where + 8 + "document".length);
             } else {
               this.beginGroup("env", "par", where);
-            }
-            break;
-          case "enumerate":
-          case "itemize":
-            this.closeOldMath(where);
-            if (csname == "begin") {
-              this.beginGroup("env", envname, where, where + 8 + envname.length);
-            } else {
-              this.endGroup("env", envname, where, where + 6 + envname.length);
-            }       
-            break;
-          case "frame":
-            this.closeOldMath(where);
-            if (csname == "begin") {
-              this.beginGroup("env", envname, where, where + 8 + envname.length);
-            } else {
-              this.endGroup("env", envname, where, where + 6 + envname.length);
             }
             break;
           case "tabular":
@@ -1337,17 +1283,15 @@ window.typejax = (function($){
               this.addText("\\" + csname + "{" + envname + "}", where);
             }
             break;
-          // unknown environment, could be a math or text environment
           default:
-            var thmname = this.thmnames[envname];
-            if (thmname) {
+            if (envname in this.latex.environment) {
               this.closeOldMath(where);
               if (csname == "begin") {
                 this.beginGroup("env", envname, where, where + 8 + envname.length);
               } else {
                 this.endGroup("env", envname, where, where + 6 + envname.length);
               }
-            } else {
+            } else { // unknown environment, could be a math or text environment
               this.addText("\\" + csname + "{" + envname + "}", where);
             }
         }
