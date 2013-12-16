@@ -979,6 +979,71 @@ window.typejax = (function($){
         }
       },
 
+      cmdAuthor: function(node) {
+        this.cmdTitle(node);
+      },
+
+      cmdDate: function(node) {
+        this.cmdTitle(node);
+      },
+
+      cmdInstitute: function(node) {
+        this.cmdTitle(node);
+      },
+
+      cmdMaketitle: function(node) {
+        if (typeof this.cmdvalues["title"] == "undefined") return;
+        var result = "<h1>" + this.cmdvalues["title"] + "</h1>";
+
+        if (typeof this.cmdvalues["author"] == "undefined") {
+          this.cmdvalues["author"] = "";
+        }
+        result += "<div class='author'>" + this.cmdvalues["author"] + "</div>";
+        if (typeof this.cmdvalues["institute"] != "undefined") {
+          result += "<div class='institute'>" + this.cmdvalues["institute"] + "</div>";
+        }
+        if (typeof this.cmdvalues["date"] == "undefined") {
+          result += "<div class='date'>" + (new Date()).toLocaleDateString() + "</div>";
+        } else {
+          result += "<div class='date'>" + this.cmdvalues["date"] + "</div>";
+        }
+
+        if (node.name == "maketitle" && this.cmdvalues["documentclass"] == "beamer") {
+          result = "<div class='envblock frame'>" + result + "</div>";
+        }
+
+        node.childs = [];
+        node.value = result;
+      },
+
+      cmdNewtheorem: function(node) {
+        // \newtheorem{envname}{thmname}[numberby]
+        // \newtheorem{envname}[counter]{thmname}
+        // \newtheorem*{envname}{thmname}
+        var csname = node.name, argarray = node.argarray;
+        var envname = argarray[0].childs[0].value;
+        if (csname == "newtheorem") {
+          this.thmnames[envname] = argarray[2].childs[0].value;
+        } else {
+          this.thmnames[envname] = argarray[1].childs[0].value;
+        }
+        this.latex.environment[envname] = "theorem";
+      },
+
+      cmdParagraph: function(node) {
+        var csname = node.name, argarray = node.argarray;
+        switch (csname) {
+          case "paragraph":
+          case "paragraph*":
+            node.value = "<b>" + node.value + "</b>&nbsp;&nbsp;";
+            break;
+          case "subparagraph":
+          case "subparagraph*":
+            node.value = "&nbsp;&nbsp;&nbsp;<b>" + node.value + "</b>&nbsp;&nbsp;";
+            break;
+        }
+      },
+
       cmdSection: function(node) {
         var csname = node.name, argarray = node.argarray;
         var counters = this.counters, headstr, numstr = "", sectintoc;
@@ -1042,69 +1107,12 @@ window.typejax = (function($){
         node.value = s;
       },
 
-      cmdMaketitle: function(node) {
-        if (typeof this.cmdvalues["title"] == "undefined") return;
-        var result = "<h1>" + this.cmdvalues["title"] + "</h1>";
-        
-        if (typeof this.cmdvalues["author"] == "undefined") {
-          this.cmdvalues["author"] = "";
-        }
-        result += "<div class='author'>" + this.cmdvalues["author"] + "</div>";
-        if (typeof this.cmdvalues["institute"] != "undefined") {
-          result += "<div class='institute'>" + this.cmdvalues["institute"] + "</div>";
-        }
-        if (typeof this.cmdvalues["date"] == "undefined") {
-          result += "<div class='date'>" + (new Date()).toLocaleDateString() + "</div>";
-        } else {
-          result += "<div class='date'>" + this.cmdvalues["date"] + "</div>";
-        }
-        
-        if (node.name == "maketitle" && this.cmdvalues["documentclass"] == "beamer") {
-          result = "<div class='envblock frame'>" + result + "</div>";
-        }
-        
-        node.childs = [];
-        node.value = result;
-      },
-      
-      cmdTitlepage: function(node) {
-        this.cmdMaketitle(node);
-      },
-
-      cmdNewtheorem : function(node) {
-        // \newtheorem{envname}{thmname}[numberby]
-        // \newtheorem{envname}[counter]{thmname}
-        // \newtheorem*{envname}{thmname}
-        var csname = node.name, argarray = node.argarray;
-        var envname = argarray[0].childs[0].value;
-        if (csname == "newtheorem") {
-          this.thmnames[envname] = argarray[2].childs[0].value; 
-        } else {
-          this.thmnames[envname] = argarray[1].childs[0].value;
-        }
-        this.latex.environment[envname] = "theorem";
-      },
-
-      cmdParagraph: function(node) {
-        var csname = node.name, argarray = node.argarray;
-        switch (csname) {
-          case "paragraph":
-          case "paragraph*":
-            node.value = "<b>" + node.value + "</b>&nbsp;&nbsp;";
-            break;
-          case "subparagraph":
-          case "subparagraph*":
-            node.value = "&nbsp;&nbsp;&nbsp;<b>" + node.value + "</b>&nbsp;&nbsp;";
-            break;
-        }
-      },
-
-      cmdTableofcontents : function(node) {
+      cmdTableofcontents: function(node) {
         node.childs = [];
         node.value = "<div id='tableofcontents'></div>";
       },
 
-      cmdTextbf : function(node) {
+      cmdTextbf: function(node) {
         if (node.argarray[0].childs[0]) {
           node.value = "<b>" + node.argarray[0].childs[0].value + "</b>";
           node.childs = [];
@@ -1134,16 +1142,8 @@ window.typejax = (function($){
         node.childs = [];
       },
 
-      cmdAuthor: function(node) {
-        this.cmdTitle(node);
-      },
-
-      cmdDate: function(node) {
-        this.cmdTitle(node);
-      },
-
-      cmdInstitute: function(node) {
-        this.cmdTitle(node);
+      cmdTitlepage: function(node) {
+        this.cmdMaketitle(node);
       },
 
       cmdUsetheme: function(node) {
@@ -1387,7 +1387,11 @@ window.typejax = (function($){
           */
         }
       },
-      
+
+      envEnumerate: function(node) {
+        this.envItemize(node);
+      },
+
       envFrame : function(node) {
         //  \begin{frame}<overlay specification>[<default overlay specification>][options]{title}{subtitle}
         //  environment contents
@@ -1414,10 +1418,6 @@ window.typejax = (function($){
         // itemize, enumerate
         if (node.childs.length == 0) return; //fix for empty content in lists
         if (node.childs[0].mode == "inline") node.childs.shift();
-      },
-
-      envEnumerate: function(node) {
-        this.envItemize(node);
       },
 
       envPreamble : function(node) {
