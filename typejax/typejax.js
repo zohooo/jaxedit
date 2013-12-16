@@ -745,8 +745,6 @@ window.typejax = (function($){
                 this.closeOldCmds(this.place - 1);
                 this.beginGroup("env", "preamble", this.place - 1, this.place + "documentclass".length);
                 break;
-              case "hline":
-                break;
               case "item":
                 this.beginGroup("env", "item", this.place - 1, this.place + 4);
                 break;
@@ -757,34 +755,10 @@ window.typejax = (function($){
                 this.beginGroup("cmd", csname, this.place - 1, this.place - 1);
                 this.endGroup("cmd", csname, this.place + csname.length, this.place + csname.length);
                 break;
-              case "newline":
-                this.addText("<br>", this.place - 1);
-                break;
-              case "qquad":
-                if (this.mathenv != "") {
-                  this.addText("\\" + this.value, this.place - 1);
-                } else {
-                  this.addText("<span class='qquad'></span>", this.place - 1);
-                }
-                break;
-              case "quad":
-                if (this.mathenv != "") {
-                  this.addText("\\" + this.value, this.place - 1);
-                } else {
-                  this.addText("<span class='quad'></span>", this.place -1);
-                }
-                break;
-              case "textbackslash":
-                this.addText("\\", this.place - 1);
-                break;
-              case "textbar":
-                this.addText("|", this.place -1);
-                break;
-              case "textgreater":
-                this.addText("&gt;", this.place - 1);
-                break;
-              case "textless":
-                this.addText("&lt;", this.place - 1);
+              case "tableofcontents":
+                this.closeOldMath(this.place - 1);
+                this.closeOldCmds(this.place - 1);
+                this.beginGroup("cmd", csname, this.place - 1, this.place + csname.length);
                 break;
               case "par":
                 this.closeOldMath(this.place - 1);
@@ -798,17 +772,13 @@ window.typejax = (function($){
                 this.beginGroup("env", "par", this.place - 1, this.place -1);
                 this.beginGroup("cmd", csname, this.place - 1, this.place + csname.length);
                 break;
-              case "pause":
-                //this.addText("<span class='pause'>|</span>");
-                break;
               default:
                 var argtype = this.getArgsType("cmd", csname);
                 if (argtype.length > 0) {
                   this.closeOldMath(this.place - 1);
-                  if (csname == "tableofcontents") this.closeOldCmds(this.place-1);
                   this.beginGroup("cmd", csname, this.place - 1, this.place + csname.length);
-                } else { //inside text or math
-                  this.addText("\\" + csname, this.place - 1);
+                } else {
+                  this.doSimple(csname);
                 }
             }
             break;
@@ -929,6 +899,15 @@ window.typejax = (function($){
         this.addText(this.value, this.place);
       },
 
+      doSimple: function(name) {
+        var work = this["cmd" + name.charAt(0).toUpperCase() + name.slice(1)];
+        if (work) {
+          work.call(this);
+        } else { //inside text or math
+          this.addText("\\" + name, this.place - 1);
+        }
+      },
+
       doCommand : function(node) {
         var name = node.name, same = this.getGroupSame(name);
         var work = this["cmd" + same.charAt(0).toUpperCase() + same.slice(1)];
@@ -987,6 +966,10 @@ window.typejax = (function($){
         this.cmdTitle(node);
       },
 
+      cmdHline: function() {
+        return;
+      },
+
       cmdInstitute: function(node) {
         this.cmdTitle(node);
       },
@@ -1016,6 +999,10 @@ window.typejax = (function($){
         node.value = result;
       },
 
+      cmdNewline: function() {
+        this.addText("<br>", this.place - 1);
+      },
+
       cmdNewtheorem: function(node) {
         // \newtheorem{envname}{thmname}[numberby]
         // \newtheorem{envname}[counter]{thmname}
@@ -1041,6 +1028,26 @@ window.typejax = (function($){
           case "subparagraph*":
             node.value = "&nbsp;&nbsp;&nbsp;<b>" + node.value + "</b>&nbsp;&nbsp;";
             break;
+        }
+      },
+
+      cmdPause: function() {
+        this.addText("<span class='pause'></span>", this.place - 1);
+      },
+
+      cmdQquad: function() {
+        if (this.mathenv != "") {
+          this.addText("\\" + this.value, this.place - 1);
+        } else {
+          this.addText("<span class='qquad'></span>", this.place - 1);
+        }
+      },
+
+      cmdQuad: function() {
+        if (this.mathenv != "") {
+          this.addText("\\" + this.value, this.place - 1);
+        } else {
+          this.addText("<span class='quad'></span>", this.place -1);
         }
       },
 
@@ -1112,11 +1119,27 @@ window.typejax = (function($){
         node.value = "<div id='tableofcontents'></div>";
       },
 
+      cmdTextbackslash: function() {
+        this.addText("\\", this.place - 1);
+      },
+
+      cmdTextbar: function() {
+        this.addText("|", this.place - 1);
+      },
+
       cmdTextbf: function(node) {
         if (node.argarray[0].childs[0]) {
           node.value = "<b>" + node.argarray[0].childs[0].value + "</b>";
           node.childs = [];
         }
+      },
+
+      cmdTextgreater: function() {
+        this.addText("&gt;", this.place - 1);
+      },
+
+      cmdTextless: function() {
+        this.addText("&lt;", this.place - 1);
       },
 
       cmdTitle: function(node) {
