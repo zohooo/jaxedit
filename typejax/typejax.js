@@ -145,7 +145,7 @@ window.typejax = (function($){
         divstart = 0; // for scrollIntoView after mathjax typeset
         divend = typejax.totaldata.length; // for updateHeight function
         this.initSections(0);
-        outdiv = typejax.parser(typejax.totaltext, 0, typejax.totalsize);
+        outdiv = typejax.parser.load(typejax.totaltext, 0, typejax.totalsize);
         console.log("innerdata:", typejax.innerdata);
         typejax.totaldata = typejax.innerdata;
         typejax.totalsect = typejax.innersect;
@@ -161,7 +161,7 @@ window.typejax = (function($){
         var divstart = modinfo[3], divend = modinfo[4];
         typejax.innerdata = [];
         this.initSections(divstart);
-        outdiv = typejax.parser(typejax.totaltext, modinfo[0], modinfo[1] + modinfo[2]);
+        outdiv = typejax.parser.load(typejax.totaltext, modinfo[0], modinfo[1] + modinfo[2]);
         that.updateData(divstart, divend);
 
         // now delete old and insert new dom elements
@@ -277,7 +277,7 @@ window.typejax = (function($){
     },
 
     initSections : function(divstart) {
-      var counters = typejax.latex.counters;
+      var counters = typejax.parser.latex.counters;
       counters.part = counters.chapter = counters.section = counters.subsection = counters.subsubsection = 0;
       for (var i = 0; i < typejax.totalsect.length; i++) {
         if (typejax.totalsect[i][0] >= divstart) {
@@ -308,7 +308,7 @@ window.typejax = (function($){
         sectdata = typejax.innersect[i];
         typejax.totalsect.splice(from + i, 0, [sectdata[0] + divstart, sectdata[1], sectdata[2]]);
       }
-      var counters = typejax.latex.counters, anchor;
+      var counters = typejax.parser.latex.counters, anchor;
       for (i = from + typejax.innersect.length; i < typejax.totalsect.length; i++) {
         var sectdiv = this.showarea.childNodes[typejax.totalsect[i][0]],
             numspan = sectdiv.getElementsByTagName("span")[0],
@@ -320,7 +320,7 @@ window.typejax = (function($){
     },
     
     updateTOC : function() {
-      var counters = typejax.latex.counters;
+      var counters = typejax.parser.latex.counters;
       counters.part = counters.chapter = counters.section = counters.subsection = counters.subsubsection = 0;
       var sectdata, numstr, tocstr, tocdiv, anchor;
       tocstr = "<div class='contentname'><b>Contents</b></div>";
@@ -431,8 +431,8 @@ window.typejax = (function($){
     return text;
   };
 
-  typejax.parser = function(input, modstart, modend){
-    var that = this;
+  typejax.parser = (function(that){
+    var input, modstart, modend, status = "start", outhtml;
 
     var lexer = {
       snippet : "", // content of the source input
@@ -441,7 +441,7 @@ window.typejax = (function($){
       modend : 0,   // current modend in the input
       ended : false,
 
-      initialize : function(input) {
+      initialize : function(input, modstart, modend) {
         this.snippet = input;
         this.length = input.length;
         this.index = modstart;
@@ -557,9 +557,9 @@ window.typejax = (function($){
       intabular : false,
       omitspace : false,
 
-      analysis : function(input) {
+      analysis : function(input, modstart, modend) {
         //console.log("initialize lexer");
-        lexer.initialize(input);
+        lexer.initialize(input, modstart, modend);
 
         this.initTree();
         this.mathenv = "";
@@ -567,7 +567,6 @@ window.typejax = (function($){
         typejax.innerdata = [];
         typejax.innersect = [];
 
-        var latex = this.latex = typejax.latex;
         this.cmdvalues = latex.cmdvalues;
         this.counters = latex.counters;
         this.thmnames = latex.thmnames;
@@ -970,10 +969,6 @@ window.typejax = (function($){
         return;
       },
 
-      cmdInstitute: function(node) {
-        this.cmdTitle(node);
-      },
-
       cmdMaketitle: function(node) {
         if (typeof this.cmdvalues["title"] == "undefined") return;
         var result = "<h1>" + this.cmdvalues["title"] + "</h1>";
@@ -1014,7 +1009,7 @@ window.typejax = (function($){
         } else {
           this.thmnames[envname] = argarray[1].childs[0].value;
         }
-        this.latex.environment[envname] = "theorem";
+        latex.environment[envname] = "theorem";
       },
 
       cmdParagraph: function(node) {
@@ -1165,18 +1160,6 @@ window.typejax = (function($){
         node.childs = [];
       },
 
-      cmdTitlepage: function(node) {
-        this.cmdMaketitle(node);
-      },
-
-      cmdUsetheme: function(node) {
-        if (node.argarray[0].childs[0]) {
-          var theme = node.argarray[0].childs[0].value;
-          var beamer = that.beamer;
-          beamer.newtheme = ($.inArray(theme, beamer.allthemes) > -1) ? theme : "default";
-        }
-      },
-
       cmdsBeginEnd : function(csname, envname, where) {
         var mathmode = "bmath", mathdelim = true;
         switch (envname) {
@@ -1284,7 +1267,7 @@ window.typejax = (function($){
             }
             break;
           default:
-            if (envname in this.latex.environment) {
+            if (envname in latex.environment) {
               this.closeOldMath(where);
               if (csname == "begin") {
                 this.beginGroup("env", envname, where, where + 8 + envname.length);
@@ -1359,28 +1342,6 @@ window.typejax = (function($){
         this.envItemize(node);
       },
 
-      envFrame : function(node) {
-        //  \begin{frame}<overlay specification>[<default overlay specification>][options]{title}{subtitle}
-        //  environment contents
-        //  \end{frame
-        var argarray = node.argarray, subnode;
-        if (argarray[0]) {
-          argarray[0].childs[0].value = "";
-        }
-        if (argarray[1]) {
-          argarray[1].childs[0].value = "";
-        }
-        if (argarray[2]) {
-          argarray[2].childs[0].value = "";
-        }
-        if (argarray[3]) {
-          argarray[3].name = "frametitle", argarray[3].mode = "block";
-          if (argarray[4]) {
-            argarray[4].name = "framesubtitle", argarray[4].mode = "block";
-          }
-        }
-      },
-
       envItemize: function(node) {
         // itemize, enumerate
         if (node.childs.length == 0) return; //fix for empty content in lists
@@ -1391,8 +1352,18 @@ window.typejax = (function($){
         var a = node.argarray[1].childs;
         if (a.length == 0) return; //fix for empty parameter
         var doccls = a[0].value;
-        var beamer = that.beamer;
-        this.cmdvalues["documentclass"] = doccls;
+        var oldcls = this.cmdvalues["documentclass"];
+        if (oldcls !== doccls) {
+          stop();
+          latex.cmdvalues["documentclass"] = doccls;
+          if (doccls === "article") {
+            reset();
+          } else {
+            $.loadScript("typejax/package/" + doccls + ".js", function(){
+              reset();
+            });
+          }
+        }
         if (doccls == "beamer") {
           if (window.jaxedit) jaxedit.childs.presbtn.style.display = "inline-block";
           if (!beamer.newtheme) beamer.newtheme = "default";
@@ -2024,7 +1995,6 @@ window.typejax = (function($){
       
       getArgsType : function(type, name) {
         var same = this.getGroupSame(name), group, args;
-        var latex = this.latex;
         if (type == "env") {
           group = latex.environment[same];
           args = (group && ("args" in group)) ? group.args : ["||"];
@@ -2036,37 +2006,139 @@ window.typejax = (function($){
       },
 
       getGroupOuts: function(same) {
-        var latex = this.latex;
         var group = latex.environment[same] || latex.command[same];
         if (group) return group.outs;
       },
 
       getGroupMode : function(name) {
         var same = this.getGroupSame(name);
-        var latex = this.latex;
         var group = latex.environment[same] || latex.command[same];
         var mode = group ? group.mode : "inline";
         return mode;
       },
 
       getGroupSame: function(name) {
-        var latex = this.latex;
         if (typeof latex.environment[name] == "string") return latex.environment[name];
         if (typeof latex.command[name] == "string") return latex.command[name];
         return name;
       }
     };
 
-    //console.log("start analysis");
-    syner.analysis(input);
-    syner.printTree(syner.innertree);
-    var i, outhtml = [], childs = syner.innertree.childs;
-    for (i = 0; i < childs.length; i++) {
-      outhtml.push([childs[i].name, this.builder(childs[i], false)]);
+    /* group.mode
+     * main group could include main and block groups
+     * block group cuuld include inline groups and bmath elements
+     * inline group could include inline commands and itext/imath elements
+     * bmath element should include display math directly
+     * imath element should include inline math directly
+     */
+    // group.outs: list of groups which could not include it
+    var latex = {
+      command: {
+        "address":                  {mode: "inline", args: ["{}"]},
+        "author":                   {mode: "inline", args: ["[]", "{}"]},
+        "chapter":                  "section",
+        "chapter*":                 "section",
+        "curraddr":                 {mode: "inline", args: ["{}"]},
+        "date":                     {mode: "inline", args: ["{}"]},
+        "dedicatory":               {mode: "inline", args: ["{}"]},
+        "email":                    {mode: "inline", args: ["{}"]},
+        "keywords":                 {mode: "inline", args: ["{}"]},
+        "maketitle":                {mode: "block", args: []},
+        "newtheorem":               {mode: "inline", args: ["{}", "[]", "{}", "[]"]},
+        "newtheorem*":              {mode: "inline", args: ["{}", "{}"]},
+        "paragraph":                {mode: "inline", args: ["[]", "{}"]},
+        "paragraph*":               "paragraph",
+        "part":                     "section",
+        "part*":                    "section",
+        "section":                  {mode: "block", args: ["[]", "{}"]},
+        "section*":                 "section",
+        "subjclass":                {mode: "inline", args: ["{}"]},
+        "subparagraph":             "paragraph",
+        "subparagraph*":            "paragraph",
+        "subsection":               "section",
+        "subsection*":              "section",
+        "subsubsection":            "section",
+        "subsubsection*":           "section",
+        "tableofcontents":          {mode: "block", args: ["[]"], outs: ["par"]},
+        "textbf":                   {mode: "inline", args: ["{}"]},
+        "thanks":                   {mode: "inline", args: ["{}"]},
+        "title":                    {mode: "inline", args: ["[]", "{}"]},
+        "translator":               {mode: "inline", args: ["{}"]}
+      },
+      environment: {
+        "bmath":                    {mode: "block"},
+        "center":                   {mode: "main", args: ["||"], outs: ["par", "center"]},
+        "enumerate":                {mode: "block", args: ["[]", "||"]},
+        "exercise":                 "theorem",
+        "group":                    {mode: "inline", args: ["{}"]},
+        "item":                     {mode: "main", args: ["<>", "||"]},
+        "itemize":                  {mode: "block", args: ["[]", "||"]},
+        "lemma":                    "theorem",
+        "lemma*":                   "theorem",
+        "par":                      {mode: "block", args: ["||"], outs: ["par", "section"]},
+        "preamble":                 {mode: "main", args: ["[]", "{}", "||"]},
+        "proposition":              "theorem",
+        "proposition*":             "theorem",
+        "tabular":                  {mode: "inline", args: ["{}", "||"]},
+        "theorem":                  {mode: "main", args: ["[]", "||"], outs: ["par", "theorem"]},
+        "remark":                   "theorem",
+        "solution":                 "theorem",
+        "verbatim":                 {mode: "block", args: ["||"], outs: ["par"]}
+      },
+      cmdvalues : {
+        documentclass: "article"
+      },
+      counters : {},
+      thmnames : {}
+    };
+
+    var beamer = {
+      allthemes : ["default", "epyt"],
+      newtheme : "",
+      oldtheme : ""
+    };
+
+    function load(input1, modstart1, modend1) {
+      input = input1; modstart = modstart1; modend = modend1;
+      for (var i = 0; i < 10; i ++) {
+        start();
+        if (status == "start") break;
+      }
+      return outhtml;
     }
-    console.log("outhtml:", outhtml);
-    return outhtml;
-  };
+
+    function start() {
+      console.log("---------------- start parser ----------------");
+      syner.analysis(input, modstart, modend);
+      syner.printTree(syner.innertree);
+      outhtml = [];
+      var i, childs = syner.innertree.childs;
+      for (i = 0; i < childs.length; i++) {
+        outhtml.push([childs[i].name, that.builder(childs[i], false)]);
+      }
+      console.log("outhtml:", outhtml);
+    }
+
+    function stop() {
+      console.log("---------------- stop parser ----------------");
+      status = "stop";
+      lexer.ended = true;
+    }
+
+    function reset() {
+      console.log("---------------- reset parser ----------------");
+      status = "start";
+      lexer.ended = true;
+    };
+
+    function extend(definitions, extensions) {
+      $.extend.call(latex.environment, definitions.environment);
+      $.extend.call(latex.command, definitions.command);
+      $.extend.call(syner, extensions);
+    }
+
+    return { latex: latex, load: load, extend: extend };
+  })(typejax);
 
   typejax.builder = function(tree, flag){
     var open, close, html = "";
@@ -2155,110 +2227,6 @@ window.typejax = (function($){
     },
 
     storage: {}
-  };
-
-  /* group.mode
-   * main group could include main and block groups
-   * block group cuuld include inline groups and bmath elements
-   * inline group could include inline commands and itext/imath elements
-   * bmath element should include display math directly
-   * imath element should include inline math directly
-   */
-  // group.outs: list of groups which could not include it
-  typejax.latex = {
-    command: {
-      "address":                  {mode: "inline", args: ["{}"]},
-      "author":                   {mode: "inline", args: ["[]", "{}"]},
-      "chapter":                  "section",
-      "chapter*":                 "section",
-      "curraddr":                 {mode: "inline", args: ["{}"]},
-      "date":                     {mode: "inline", args: ["{}"]},
-      "dedicatory":               {mode: "inline", args: ["{}"]},
-      "email":                    {mode: "inline", args: ["{}"]},
-      "framesubtitle":            {mode: "block", args: ["{}"]},
-      "frametitle":               {mode: "block", args: ["{}"]},
-      "institute":                {mode: "inline", args: ["{}"]},
-      "keywords":                 {mode: "inline", args: ["{}"]},
-      "maketitle":                {mode: "block", args: []},
-      "newtheorem":               {mode: "inline", args: ["{}", "[]", "{}", "[]"]},
-      "newtheorem*":              {mode: "inline", args: ["{}", "{}"]},
-      "paragraph":                {mode: "inline", args: ["[]", "{}"]},
-      "paragraph*":               "paragraph",
-      "part":                     "section",
-      "part*":                    "section",
-      "section":                  {mode: "block", args: ["[]", "{}"]},
-      "section*":                 "section",
-      "subjclass":                {mode: "inline", args: ["{}"]},
-      "subparagraph":             "paragraph",
-      "subparagraph*":            "paragraph",
-      "subsection":               "section",
-      "subsection*":              "section",
-      "subsubsection":            "section",
-      "subsubsection*":           "section",
-      "tableofcontents":          {mode: "block", args: ["[]"], outs: ["par"]},
-      "textbf":                   {mode: "inline", args: ["{}"]},
-      "thanks":                   {mode: "inline", args: ["{}"]},
-      "title":                    {mode: "inline", args: ["[]", "{}"]},
-      "titlepage":                {mode: "block", args: []},
-      "transblindshorizontal":    "transdissolve",
-      "transblindsvertical":      "transdissolve",
-      "transboxin":               "transdissolve",
-      "transboxout":              "transdissolve",
-      "transdissolve":            {mode: "inline", args: ["<>", "[]"]},
-      "transduration":            {mode: "inline", args: ["<>", "{}"]},
-      "transglitter":             "transdissolve",
-      "translator":               {mode: "inline", args: ["{}"]},
-      "transsplithorizontalin":   "transdissolve",
-      "transsplithorizontalout":  "transdissolve",
-      "transsplitverticalin":     "transdissolve",
-      "transsplitverticalout":    "transdissolve",
-      "transwipe":                "transdissolve",
-      "usetheme":                 {mode: "inline", args: ["{}"]}
-    },
-    environment: {
-      "bmath":                    {mode: "block"},
-      "center":                   {mode: "main", args: ["||"], outs: ["par", "center"]},
-      "corollary":                "theorem",
-      "corollary*":               "theorem",
-      "definition":               "theorem",
-      "definition*":              "theorem",
-      "definitions":              "theorem",
-      "definitions*":             "theorem",
-      "enumerate":                {mode: "block", args: ["[]", "||"]},
-      "example":                  "theorem",
-      "example*":                 "theorem",
-      "examples":                 "theorem",
-      "examples*":                "theorem",
-      "exercise":                 "theorem",
-      "fact":                     "theorem",
-      "fact*":                    "theorem",
-      "frame":                    {mode: "main", args: ["<>", "[]", "[]", "{]", "{]", "||"], outs: ["par", "frame", "center", "theorem"]},
-      "group":                    {mode: "inline", args: ["{}"]},
-      "item":                     {mode: "main", args: ["<>", "||"]},
-      "itemize":                  {mode: "block", args: ["[]", "||"]},
-      "lemma":                    "theorem",
-      "lemma*":                   "theorem",
-      "par":                      {mode: "block", args: ["||"], outs: ["par", "section"]},
-      "preamble":                 {mode: "main", args: ["[]", "{}", "||"]},
-      "proof":                    "theorem",
-      "proposition":              "theorem",
-      "proposition*":             "theorem",
-      "tabular":                  {mode: "inline", args: ["{}", "||"]},
-      "theorem":                  {mode: "main", args: ["[]", "||"], outs: ["par", "theorem"]},
-      "theorem*":                 "theorem",
-      "remark":                   "theorem",
-      "solution":                 "theorem",
-      "verbatim":                 {mode: "block", args: ["||"], outs: ["par"]}
-    },
-    cmdvalues : {},
-    counters : {},
-    thmnames : {}
-  };
-
-  typejax.beamer = {
-    allthemes : ["default", "epyt"],
-    newtheme : "",
-    oldtheme : ""
   };
 
   return typejax;
