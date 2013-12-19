@@ -138,32 +138,50 @@ window.typejax = (function($){
 
     typeFull : function(delstart, delend, deltext, instext, newsize, showarea) {
       var that = this;
-      var outdiv, output, data, divstart, divend, i;
+      var outdiv, output, data, divstart, divend, i, timer;
       if (typejax.totalsize == instext.length) {
         // generate all preview at first time
         // or clear all text content in textarea
         divstart = 0; // for scrollIntoView after mathjax typeset
         divend = typejax.totaldata.length; // for updateHeight function
         this.initSections(0);
-        outdiv = typejax.parser.load(typejax.totaltext, 0, typejax.totalsize);
+        timer = setInterval(function(){
+          outdiv = typejax.parser.load(typejax.totaltext, 0, typejax.totalsize);
+          if (outdiv) {
+            clearInterval(timer);
+            changeAll();
+            changeDone();
+          }
+        }, 20);
+      } else {
+        var modinfo = that.markData(delstart, delend, instext), output;
+        var divstart = modinfo[3], divend = modinfo[4];
+        typejax.innerdata = [];
+        this.initSections(divstart);
+        timer = setInterval(function(){
+          outdiv = typejax.parser.load(typejax.totaltext, modinfo[0], modinfo[1] + modinfo[2]);
+          if (outdiv) {
+            clearInterval(timer);
+            changeSome();
+            changeDone();
+          }
+        }, 20);
+      }
+
+      function changeAll() {
         console.log("innerdata:", typejax.innerdata);
         typejax.totaldata = typejax.innerdata;
         typejax.totalsect = typejax.innersect;
-
         output = "", data = "";
         while (outdiv.length > 0) {
           data = outdiv.shift();
           output += "<div class='envblock " + data[0] + "'>" + data[1] + "</div>";
         }
         showarea.innerHTML = output;
-      } else {
-        var modinfo = that.markData(delstart, delend, instext), output;
-        var divstart = modinfo[3], divend = modinfo[4];
-        typejax.innerdata = [];
-        this.initSections(divstart);
-        outdiv = typejax.parser.load(typejax.totaltext, modinfo[0], modinfo[1] + modinfo[2]);
-        that.updateData(divstart, divend);
+      }
 
+      function changeSome() {
+        that.updateData(divstart, divend);
         // now delete old and insert new dom elements
         for (i=divstart; i<divend; i++ ) {
           showarea.removeChild(showarea.childNodes[divstart]);
@@ -175,16 +193,19 @@ window.typejax = (function($){
           node.innerHTML = outdiv[i][1];
           showarea.insertBefore(node, showarea.childNodes[divstart+i] || null);
         }
-        this.updateSections(divstart, divend, typejax.innerdata.length);
+        that.updateSections(divstart, divend, typejax.innerdata.length);
       }
-      //console.log("totalsect:", typejax.totalsect);
-      this.updateTOC();
-      //console.log(showarea.innerHTML);
-      MathJax.Hub.Queue(["Process", MathJax.Hub, showarea]);
-      MathJax.Hub.Queue(["afterTypeset", typejax.updater, divstart, divend, showarea]);
-      if (window.jaxedit) {
-        MathJax.Hub.Queue(["disableFileElements", jaxedit, false]);
-        jaxedit.childs.rbot.innerHTML = "size: " + typejax.totalsize + "; change: " + delstart + " to " + delend;
+
+      function changeDone() {
+        //console.log("totalsect:", typejax.totalsect);
+        that.updateTOC();
+        //console.log(showarea.innerHTML);
+        MathJax.Hub.Queue(["Process", MathJax.Hub, showarea]);
+        MathJax.Hub.Queue(["afterTypeset", typejax.updater, divstart, divend, showarea]);
+        if (window.jaxedit) {
+          MathJax.Hub.Queue(["disableFileElements", jaxedit, false]);
+          jaxedit.childs.rbot.innerHTML = "size: " + typejax.totalsize + "; change: " + delstart + " to " + delend;
+        }
       }
     },
 
@@ -2100,11 +2121,17 @@ window.typejax = (function($){
 
     function load(input1, modstart1, modend1) {
       input = input1; modstart = modstart1; modend = modend1;
-      for (var i = 0; i < 10; i ++) {
-        start();
-        if (status == "start") break;
+      switch (status) {
+        case "start":
+          start();
+          if (status == "start") return outhtml;
+          break;
+        case "loading":
+          return;
+        case "loaded":
+          start();
+          return outhtml;
       }
-      return outhtml;
     }
 
     function start() {
@@ -2121,13 +2148,13 @@ window.typejax = (function($){
 
     function stop() {
       console.log("---------------- stop parser ----------------");
-      status = "stop";
+      status = "loading";
       lexer.ended = true;
     }
 
     function reset() {
       console.log("---------------- reset parser ----------------");
-      status = "start";
+      status = "loaded";
       lexer.ended = true;
     };
 
