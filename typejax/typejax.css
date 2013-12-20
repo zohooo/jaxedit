@@ -126,7 +126,7 @@ h6 {
   font-size: 1em;
 }
 
-div.author, div.institute, div.date {
+div.author, div.institute, div.date, div.dedicatory {
   text-align: center;
   margin: 0.8em 0;
 }

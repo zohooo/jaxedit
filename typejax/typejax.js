@@ -2055,15 +2055,10 @@ window.typejax = (function($){
     // group.outs: list of groups which could not include it
     var latex = {
       command: {
-        "address":                  {mode: "inline", args: ["{}"]},
         "author":                   {mode: "inline", args: ["[]", "{}"]},
         "chapter":                  "section",
         "chapter*":                 "section",
-        "curraddr":                 {mode: "inline", args: ["{}"]},
         "date":                     {mode: "inline", args: ["{}"]},
-        "dedicatory":               {mode: "inline", args: ["{}"]},
-        "email":                    {mode: "inline", args: ["{}"]},
-        "keywords":                 {mode: "inline", args: ["{}"]},
         "maketitle":                {mode: "block", args: []},
         "newtheorem":               {mode: "inline", args: ["{}", "[]", "{}", "[]"]},
         "newtheorem*":              {mode: "inline", args: ["{}", "{}"]},
@@ -2073,7 +2068,6 @@ window.typejax = (function($){
         "part*":                    "section",
         "section":                  {mode: "block", args: ["[]", "{}"]},
         "section*":                 "section",
-        "subjclass":                {mode: "inline", args: ["{}"]},
         "subparagraph":             "paragraph",
         "subparagraph*":            "paragraph",
         "subsection":               "section",
@@ -2083,8 +2077,7 @@ window.typejax = (function($){
         "tableofcontents":          {mode: "block", args: ["[]"], outs: ["par"]},
         "textbf":                   {mode: "inline", args: ["{}"]},
         "thanks":                   {mode: "inline", args: ["{}"]},
-        "title":                    {mode: "inline", args: ["[]", "{}"]},
-        "translator":               {mode: "inline", args: ["{}"]}
+        "title":                    {mode: "inline", args: ["[]", "{}"]}
       },
       environment: {
         "bmath":                    {mode: "block"},
