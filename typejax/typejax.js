@@ -1375,14 +1375,15 @@ window.typejax = (function($){
         var doccls = a[0].value;
         var oldcls = this.cmdvalues["documentclass"];
         if (oldcls !== doccls) {
-          stop();
           latex.cmdvalues["documentclass"] = doccls;
-          if (doccls === "article") {
-            reset();
-          } else {
-            $.loadScript("typejax/package/" + doccls + ".js", function(){
+          stop();
+          var pkg = packages[doccls];
+          if (pkg) {
+            $.loadScript("typejax/package/" + pkg + ".js", function(){
               reset();
             });
+          } else {
+            reset();
           }
         }
         if (doccls == "beamer") {
@@ -2043,6 +2044,12 @@ window.typejax = (function($){
         if (typeof latex.command[name] == "string") return latex.command[name];
         return name;
       }
+    };
+
+    var packages = {
+      amsart: "amscls",
+      amsbook: "amscls",
+      beamer: "beamer"
     };
 
     /* group.mode
