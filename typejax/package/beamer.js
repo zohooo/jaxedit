@@ -76,6 +76,10 @@
       this.cmdTitle(node);
     },
 
+    cmdPause: function() {
+      this.addText("<span class='pause'></span>", this.place - 1);
+    },
+
     cmdTitlepage: function(node) {
       this.cmdMaketitle(node);
     },

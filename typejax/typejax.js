@@ -1039,10 +1039,6 @@ window.typejax = (function($){
         }
       },
 
-      cmdPause: function() {
-        this.addText("<span class='pause'></span>", this.place - 1);
-      },
-
       cmdQquad: function() {
         if (this.mathenv != "") {
           this.addText("\\" + this.value, this.place - 1);
