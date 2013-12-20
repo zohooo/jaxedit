@@ -138,41 +138,33 @@ window.typejax = (function($){
 
     typeFull : function(delstart, delend, deltext, instext, newsize, showarea) {
       var that = this;
-      var outdiv, output, data, divstart, divend, i, timer;
+      var divstart, divend;
       if (typejax.totalsize == instext.length) {
         // generate all preview at first time
         // or clear all text content in textarea
         divstart = 0; // for scrollIntoView after mathjax typeset
         divend = typejax.totaldata.length; // for updateHeight function
         this.initSections(0);
-        timer = setInterval(function(){
-          outdiv = typejax.parser.load(typejax.totaltext, 0, typejax.totalsize);
-          if (outdiv) {
-            clearInterval(timer);
-            changeAll();
-            changeDone();
-          }
-        }, 20);
+        typejax.parser.load(typejax.totaltext, 0, typejax.totalsize, function(outdiv){
+          changeAll(outdiv);
+          changeDone();
+        });
       } else {
-        var modinfo = that.markData(delstart, delend, instext), output;
+        var modinfo = that.markData(delstart, delend, instext);
         var divstart = modinfo[3], divend = modinfo[4];
         typejax.innerdata = [];
         this.initSections(divstart);
-        timer = setInterval(function(){
-          outdiv = typejax.parser.load(typejax.totaltext, modinfo[0], modinfo[1] + modinfo[2]);
-          if (outdiv) {
-            clearInterval(timer);
-            changeSome();
-            changeDone();
-          }
-        }, 20);
+        typejax.parser.load(typejax.totaltext, modinfo[0], modinfo[1] + modinfo[2], function(outdiv){
+          changeSome(outdiv);
+          changeDone();
+        });
       }
 
-      function changeAll() {
+      function changeAll(outdiv) {
         console.log("innerdata:", typejax.innerdata);
         typejax.totaldata = typejax.innerdata;
         typejax.totalsect = typejax.innersect;
-        output = "", data = "";
+        var output = "", data = "";
         while (outdiv.length > 0) {
           data = outdiv.shift();
           output += "<div class='envblock " + data[0] + "'>" + data[1] + "</div>";
@@ -180,10 +172,10 @@ window.typejax = (function($){
         showarea.innerHTML = output;
       }
 
-      function changeSome() {
+      function changeSome(outdiv) {
         that.updateData(divstart, divend);
         // now delete old and insert new dom elements
-        for (i=divstart; i<divend; i++ ) {
+        for (var i = divstart; i < divend; i++) {
           showarea.removeChild(showarea.childNodes[divstart]);
         }
         var node;
@@ -211,7 +203,7 @@ window.typejax = (function($){
 
     markData : function(delstart, delend, instext) {
       // determine which top level dom elements to refresh
-      var divstart = -1, divend = -1, dividx = -1, modstart = 0, modend = 0, pdata = [];
+      var divstart = -1, divend = -1, dividx = -1, modstart = 0, modend = 0, pdata = [], i;
       for (i = 0; i < typejax.totaldata.length; i++) {
         pdata = typejax.totaldata[i];
         dividx += 1;
@@ -253,7 +245,7 @@ window.typejax = (function($){
 
     updateData : function(divstart, divend) {
       console.log("innerdata:", typejax.innerdata);
-      var n = 0;
+      var i, n = 0;
       for (i = divstart; i < typejax.totaldata.length; i++) {
         if (typejax.totaldata[i][1] <= typejax.innerdata[typejax.innerdata.length-1][1]) n += 1;
       }
@@ -453,7 +445,7 @@ window.typejax = (function($){
   };
 
   typejax.parser = (function(that){
-    var input, modstart, modend, status = "start", outhtml;
+    var input, modstart, modend, callback, pending = false;
 
     var lexer = {
       snippet : "", // content of the source input
@@ -1373,17 +1365,18 @@ window.typejax = (function($){
         var a = node.argarray[1].childs;
         if (a.length == 0) return; //fix for empty parameter
         var doccls = a[0].value;
+        var pkg = packages[doccls];
+        if (!pkg) doccls = "article";
         var oldcls = this.cmdvalues["documentclass"];
         if (oldcls !== doccls) {
           latex.cmdvalues["documentclass"] = doccls;
           stop();
-          var pkg = packages[doccls];
           if (pkg) {
             $.loadScript("typejax/package/" + pkg + ".js", function(){
-              reset();
+              reload();
             });
           } else {
-            reset();
+            reload();
           }
         }
         if (doccls == "beamer") {
@@ -2120,43 +2113,37 @@ window.typejax = (function($){
       oldtheme : ""
     };
 
-    function load(input1, modstart1, modend1) {
-      input = input1; modstart = modstart1; modend = modend1;
-      switch (status) {
-        case "start":
-          start();
-          if (status == "start") return outhtml;
-          break;
-        case "loading":
-          return;
-        case "loaded":
-          start();
-          return outhtml;
-      }
-    }
-
     function start() {
       console.log("---------------- start parser ----------------");
       syner.analysis(input, modstart, modend);
       syner.printTree(syner.innertree);
-      outhtml = [];
+      var outhtml = [];
       var i, childs = syner.innertree.childs;
       for (i = 0; i < childs.length; i++) {
         outhtml.push([childs[i].name, that.builder(childs[i], false)]);
       }
       console.log("outhtml:", outhtml);
+      return outhtml;
     }
 
     function stop() {
       console.log("---------------- stop parser ----------------");
-      status = "loading";
+      pending = true;
       lexer.ended = true;
     }
 
-    function reset() {
-      console.log("---------------- reset parser ----------------");
-      status = "loaded";
-      lexer.ended = true;
+    function load(input1, modstart1, modend1, callback1) {
+      input = input1; modstart = modstart1; modend = modend1; callback = callback1;
+      var outhtml = start();
+      if (!pending) {
+        callback.call(typejax.updater, outhtml);
+      }
+    }
+
+    function reload() {
+      pending = false;
+      var outhtml = start();
+      callback.call(typejax.updater, outhtml);
     };
 
     function extend(definitions, extensions) {
