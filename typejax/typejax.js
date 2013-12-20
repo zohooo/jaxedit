@@ -2049,7 +2049,8 @@ window.typejax = (function($){
     var packages = {
       amsart: "amscls",
       amsbook: "amscls",
-      beamer: "beamer"
+      beamer: "beamer",
+      hyperref: "hyperref"
     };
 
     /* group.mode
