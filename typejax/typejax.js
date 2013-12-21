@@ -445,7 +445,7 @@ window.typejax = (function($){
   };
 
   typejax.parser = (function(that){
-    var input, modstart, modend, callback, pending = false;
+    var input, modstart, modend, callback, pending = 0;
 
     var lexer = {
       snippet : "", // content of the source input
@@ -1360,21 +1360,39 @@ window.typejax = (function($){
       envPreamble : function(node) {
         var a = node.argarray[1].childs;
         if (a.length == 0) return; //fix for empty parameter
-        var doccls = a[0].value;
-        var pkg = packages[doccls];
-        if (!pkg) doccls = "article";
-        var oldcls = this.cmdvalues["documentclass"];
-        if (oldcls !== doccls) {
-          latex.cmdvalues["documentclass"] = doccls;
-          stop();
-          if (pkg) {
-            $.loadScript("typejax/package/" + pkg + ".js", function(){
-              reload();
-            });
+        var doccls = a[0].value, pkglist = [];
+        if (!packages[doccls]) doccls = "article";
+        latex.cmdvalues["documentclass"] = doccls;
+        pkglist.push([doccls, []]);
+
+        var i = 0, j, pkg, oldpkg, pkgname, pkgoptn, pkgfile, loadlist = [];
+        pkglist = pkglist.concat(getPackages(node));
+        while (pkg = pkglist[i]) {
+          pkgname = pkg[0], pkgoptn = pkg[1], pkgfile = packages[pkgname];
+          if (pkgfile) {
+            for (j = usepackages.length - 1; j >= 0; j--) {
+              oldpkg = usepackages[j];
+              if (oldpkg[0] == pkgname && oldpkg[1].join() == pkgoptn.join()) break;
+            }
+            if (j == -1) loadlist.push([pkgfile, pkgoptn]);
+            i++;
           } else {
-            reload();
+            pkglist.splice(i, 1);
           }
         }
+        pending = loadlist.length;
+        if (pending) stop();
+        for (i = 0; i < pending; i++) {
+          $.loadScript("typejax/package/" + loadlist[i][0] + ".js", function(){
+            pending--;
+            if (!pending) {
+              usepackages = pkglist;
+              console.log("usepackages", usepackages);
+              reload();
+            }
+          });
+        }
+
         if (doccls == "beamer") {
           if (window.jaxedit) jaxedit.childs.presbtn.style.display = "inline-block";
           if (!beamer.newtheme) beamer.newtheme = "default";
@@ -1387,6 +1405,28 @@ window.typejax = (function($){
           if (window.jaxedit) jaxedit.childs.presbtn.style.display = "none";
           $.removeStyles("typejax-theme");
           beamer.oldtheme = beamer.newtheme = "";
+        }
+
+        function getPackages(node) {
+          var packages = [], a = node.childs, b, c, d, i, j, optn, name;
+          for (i = 1; i < a.length; i++) {
+            b = a[i].childs;
+            for (j = 0; j < b.length; j++) {
+              c = b[j];
+              if (c.name == "usepackage") {
+                d = c.argarray; optn = [];
+                if (d[0]) {
+                  optn = d[0].childs[0].value;
+                  optn = optn ? optn.split(/ *, */) : [];
+                }
+                if (d[1] && d[1].childs[0]) {
+                  name = d[1].childs[0].value;
+                  if (name) packages.push([name, optn]);
+                }
+              }
+            }
+          }
+          return packages;
         }
       },
       
@@ -2042,6 +2082,8 @@ window.typejax = (function($){
       hyperref: "hyperref"
     };
 
+    var usepackages = [];
+
     /* group.mode
      * main group could include main and block groups
      * block group cuuld include inline groups and bmath elements
@@ -2075,7 +2117,8 @@ window.typejax = (function($){
         "tableofcontents":          {mode: "block", args: ["[]"], outs: ["par"]},
         "textbf":                   {mode: "inline", args: ["{}"]},
         "thanks":                   {mode: "inline", args: ["{}"]},
-        "title":                    {mode: "inline", args: ["[]", "{}"]}
+        "title":                    {mode: "inline", args: ["[]", "{}"]},
+        "usepackage":               {mode: "inline", args: ["[]", "{}"]}
       },
       environment: {
         "bmath":                    {mode: "block"},
@@ -2124,20 +2167,18 @@ window.typejax = (function($){
 
     function stop() {
       console.log("---------------- stop parser ----------------");
-      pending = true;
       lexer.ended = true;
     }
 
     function load(input1, modstart1, modend1, callback1) {
       input = input1; modstart = modstart1; modend = modend1; callback = callback1;
-      var outhtml = start();
       if (!pending) {
+        var outhtml = start();
         callback.call(typejax.updater, outhtml);
       }
     }
 
     function reload() {
-      pending = false;
       var outhtml = start();
       callback.call(typejax.updater, outhtml);
     };
