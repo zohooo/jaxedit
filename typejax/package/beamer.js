@@ -93,5 +93,5 @@
     }
   };
 
-  typejax.parser.extend(definitions, extensions);
+  typejax.parser.extend("beamer", definitions, extensions);
 })();

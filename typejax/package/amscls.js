@@ -43,5 +43,5 @@
     }
   };
 
-  typejax.parser.extend(definitions, extensions);
+  typejax.parser.extend("amscls", definitions, extensions);
 })();

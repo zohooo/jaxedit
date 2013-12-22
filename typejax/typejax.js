@@ -922,8 +922,11 @@ window.typejax = (function($){
 
       doCommand : function(node) {
         var name = node.name, same = this.getGroupSame(name);
-        var work = this["cmd" + same.charAt(0).toUpperCase() + same.slice(1)];
-        if (work) work.call(this, node);
+        var work = findRenderer("cmd", same);
+        if (work) {
+          this.work = work;
+          work.call(this, node);
+        }
       },
 
       cmdsSimple : function(csname, where) { // with single parameter
@@ -968,205 +971,6 @@ window.typejax = (function($){
           this.addText("\\" + csname, where);
           lexer.goBack(this.value.length);
         }
-      },
-
-      cmdAuthor: function(node) {
-        this.cmdTitle(node);
-      },
-
-      cmdDate: function(node) {
-        this.cmdTitle(node);
-      },
-
-      cmdHline: function() {
-        return;
-      },
-
-      cmdMaketitle: function(node) {
-        if (typeof this.cmdvalues["title"] == "undefined") return;
-        var result = "<h1>" + this.cmdvalues["title"] + "</h1>";
-
-        if (typeof this.cmdvalues["author"] == "undefined") {
-          this.cmdvalues["author"] = "";
-        }
-        result += "<div class='author'>" + this.cmdvalues["author"] + "</div>";
-        if (typeof this.cmdvalues["institute"] != "undefined") {
-          result += "<div class='institute'>" + this.cmdvalues["institute"] + "</div>";
-        }
-        if (typeof this.cmdvalues["date"] == "undefined") {
-          result += "<div class='date'>" + (new Date()).toLocaleDateString() + "</div>";
-        } else {
-          result += "<div class='date'>" + this.cmdvalues["date"] + "</div>";
-        }
-
-        if (node.name == "maketitle" && this.cmdvalues["documentclass"] == "beamer") {
-          result = "<div class='envblock frame'>" + result + "</div>";
-        }
-
-        node.childs = [];
-        node.value = result;
-      },
-
-      cmdNewline: function() {
-        this.addText("<br>", this.place - 1);
-      },
-
-      cmdNewtheorem: function(node) {
-        // \newtheorem{envname}{thmname}[numberby]
-        // \newtheorem{envname}[counter]{thmname}
-        // \newtheorem*{envname}{thmname}
-        var csname = node.name, argarray = node.argarray;
-        var envname = argarray[0].childs[0].value;
-        if (csname == "newtheorem") {
-          this.thmnames[envname] = argarray[2].childs[0].value;
-        } else {
-          this.thmnames[envname] = argarray[1].childs[0].value;
-        }
-        latex.environment[envname] = "theorem";
-      },
-
-      cmdParagraph: function(node) {
-        var csname = node.name, argarray = node.argarray;
-        switch (csname) {
-          case "paragraph":
-          case "paragraph*":
-            node.value = "<b>" + node.value + "</b>&nbsp;&nbsp;";
-            break;
-          case "subparagraph":
-          case "subparagraph*":
-            node.value = "&nbsp;&nbsp;&nbsp;<b>" + node.value + "</b>&nbsp;&nbsp;";
-            break;
-        }
-      },
-
-      cmdQquad: function() {
-        if (this.mathenv != "") {
-          this.addText("\\" + this.value, this.place - 1);
-        } else {
-          this.addText("<span class='qquad'></span>", this.place - 1);
-        }
-      },
-
-      cmdQuad: function() {
-        if (this.mathenv != "") {
-          this.addText("\\" + this.value, this.place - 1);
-        } else {
-          this.addText("<span class='quad'></span>", this.place -1);
-        }
-      },
-
-      cmdSection: function(node) {
-        var csname = node.name, argarray = node.argarray;
-        var counters = this.counters, headstr, numstr = "", sectintoc;
-        var value1 = typejax.builder(argarray[1], false),
-            value0 = argarray[0] ? typejax.builder(argarray[0], false) : "";
-        switch (csname) {
-          case "part":
-            counters.part += 1;
-            counters.section = counters.subsection = counters.subsubsection = 0;
-            numstr = "Part " + counters.part + "&nbsp;&nbsp;";
-            headstr = "h2";
-            break;
-          case "part*":
-            headstr = "h2";
-            break;
-          case "chapter":
-            counters.chapter += 1;
-            counters.section = counters.subsection = counters.subsubsection = 0;
-            numstr = "Chapter " + counters.chapter + "&nbsp;&nbsp;";
-            headstr = "h3";
-            break;
-          case "chapter*":
-            headstr = "h3";
-            break;
-          case "section":
-            counters.section += 1;
-            counters.subsection = counters.subsubsection = 0;
-            numstr = counters.section + "&nbsp;";
-            headstr = "h4";
-            break;
-          case "section*":
-            headstr = "h4";
-            break;
-          case "subsection":
-            counters.subsection += 1;
-            counters.subsubsection = 0;
-            numstr = counters.section + "." + counters.subsection + "&nbsp;";
-            headstr = "h5";
-            break;
-          case "subsection*":
-            headstr = "h5";
-            break;
-          case "subsubsection":
-            counters.subsubsection += 1;
-            numstr = counters.section + "." + counters.subsection + "." + counters.subsubsection + "&nbsp;";
-            headstr = "h6";
-            break;
-          case "subsubsection*":
-            headstr = "h6";
-            break;
-        }
-        var anchor = counters.part + "_" + counters.chapter + "_" + counters.section + "_" + counters.subsection + "_" + counters.subsubsection;
-        if (numstr) {
-          sectintoc = value0 ? value0 : value1;
-          typejax.innersect.push([typejax.innerdata.length, csname, sectintoc]);
-          var s = "<" + headstr + "><span><a name='#" + anchor + "'></a>" + numstr + "</span>" + value1 + "</" + headstr + ">";
-        } else {
-          var s = "<" + headstr + ">" + value1 + "</" + headstr + ">";
-        }
-        node.childs = [];
-        node.value = s;
-      },
-
-      cmdTableofcontents: function(node) {
-        node.childs = [];
-        node.value = "<div id='tableofcontents'></div>";
-      },
-
-      cmdTextbackslash: function() {
-        this.addText("\\", this.place - 1);
-      },
-
-      cmdTextbar: function() {
-        this.addText("|", this.place - 1);
-      },
-
-      cmdTextbf: function(node) {
-        if (node.argarray[0].childs[0]) {
-          node.value = "<b>" + node.argarray[0].childs[0].value + "</b>";
-          node.childs = [];
-        }
-      },
-
-      cmdTextgreater: function() {
-        this.addText("&gt;", this.place - 1);
-      },
-
-      cmdTextless: function() {
-        this.addText("&lt;", this.place - 1);
-      },
-
-      cmdTitle: function(node) {
-        var csname = node.name, argarray = node.argarray;
-        var argnode, child, i, value = "";
-        switch (csname) {
-          case "title":
-          case "author":
-            argnode = argarray[1];
-            break;
-          default:
-            argnode = argarray[0];
-        }
-        for (i = 0; i < argnode.childs.length; i++) {
-          child = argnode.childs[i];
-          if (child.name == "imath") {
-            value += typejax.builder(child, true);
-          } else {
-            value += child.value;
-          }
-        }
-        this.cmdvalues[csname] = value;
-        node.childs = [];
       },
 
       cmdsBeginEnd : function(csname, envname, where) {
@@ -1276,7 +1080,7 @@ window.typejax = (function($){
             }
             break;
           default:
-            if (envname in latex.environment) {
+            if (findDefinition("environment", envname)) {
               this.closeOldMath(where);
               if (csname == "begin") {
                 this.beginGroup("env", envname, where, where + 8 + envname.length);
@@ -1291,8 +1095,9 @@ window.typejax = (function($){
       
       doEnvironment : function(node) {
         var name = node.name, same = this.getGroupSame(name);
-        var work = this["env" + same.charAt(0).toUpperCase() + same.slice(1)];
+        var work = findRenderer("env", same);
         if (work) {
+          this.work = work;
           work.call(this, node);
         } else {
           if (this.thmnames[name]) {
@@ -1347,135 +1152,6 @@ window.typejax = (function($){
         }
       },
 
-      envEnumerate: function(node) {
-        this.envItemize(node);
-      },
-
-      envItemize: function(node) {
-        // itemize, enumerate
-        if (node.childs.length == 0) return; //fix for empty content in lists
-        if (node.childs[0].mode == "inline") node.childs.shift();
-      },
-
-      envPreamble : function(node) {
-        var a = node.argarray[1].childs;
-        if (a.length == 0) return; //fix for empty parameter
-        var doccls = a[0].value, pkglist = [];
-        if (!packages[doccls]) doccls = "article";
-        latex.cmdvalues["documentclass"] = doccls;
-        pkglist.push([doccls, []]);
-
-        var i = 0, j, pkg, oldpkg, pkgname, pkgoptn, pkgfile, loadlist = [];
-        pkglist = pkglist.concat(getPackages(node));
-        while (pkg = pkglist[i]) {
-          pkgname = pkg[0], pkgoptn = pkg[1], pkgfile = packages[pkgname];
-          if (pkgfile) {
-            for (j = usepackages.length - 1; j >= 0; j--) {
-              oldpkg = usepackages[j];
-              if (oldpkg[0] == pkgname && oldpkg[1].join() == pkgoptn.join()) break;
-            }
-            if (j == -1) loadlist.push([pkgfile, pkgoptn]);
-            i++;
-          } else {
-            pkglist.splice(i, 1);
-          }
-        }
-        pending = loadlist.length;
-        if (pending) stop();
-        for (i = 0; i < pending; i++) {
-          $.loadScript("typejax/package/" + loadlist[i][0] + ".js", function(){
-            pending--;
-            if (!pending) {
-              usepackages = pkglist;
-              console.log("usepackages", usepackages);
-              reload();
-            }
-          });
-        }
-
-        if (doccls == "beamer") {
-          if (window.jaxedit) jaxedit.childs.presbtn.style.display = "inline-block";
-          if (!beamer.newtheme) beamer.newtheme = "default";
-          if (beamer.newtheme != beamer.oldtheme) {
-            $.loadStyles("typejax/theme/" + beamer.newtheme + ".css", "typejax-theme");
-            beamer.oldtheme = beamer.newtheme;
-            beamer.newtheme = "";
-          }
-        } else {
-          if (window.jaxedit) jaxedit.childs.presbtn.style.display = "none";
-          $.removeStyles("typejax-theme");
-          beamer.oldtheme = beamer.newtheme = "";
-        }
-
-        function getPackages(node) {
-          var packages = [], a = node.childs, b, c, d, i, j, optn, name;
-          for (i = 1; i < a.length; i++) {
-            b = a[i].childs;
-            for (j = 0; j < b.length; j++) {
-              c = b[j];
-              if (c.name == "usepackage") {
-                d = c.argarray; optn = [];
-                if (d[0]) {
-                  optn = d[0].childs[0].value;
-                  optn = optn ? optn.split(/ *, */) : [];
-                }
-                if (d[1] && d[1].childs[0]) {
-                  name = d[1].childs[0].value;
-                  if (name) packages.push([name, optn]);
-                }
-              }
-            }
-          }
-          return packages;
-        }
-      },
-      
-      envTabular : function(node) {
-        var o = "", i, child;
-        node.childs.shift();
-        for (i = 0; i < node.childs.length; i++) {
-          child = node.childs[i];
-          if (child.name == "imath") {
-            o += typejax.builder(child, true);
-          } else {
-            o += child.value;
-          }
-        }
-        node.childs = [];
-        while (o.charAt(o.length-1) == ' ') {            
-          o = o.substring(0, o.length-1);
-        }
-        if (o.substring(o.length-8, o.length) == "<tr><td>") {
-          o = "<table border='1'><tbody><tr><td>" + o.substring(0, o.length-8) + "</tbody></table>";
-        } else {
-          o = "<table border='1'><tbody><tr><td>" + o + "</td></tr></tbody></table>";
-        }
-        node.value = "<span class='" + node.name + "' style='display:inline-block;'>" + o + "</span>";
-        this.intabular = false;
-      },
-      
-      envTheorem: function(node) {
-        if (node.childs.length == 0) return; //fix for empty content in theorems
-        var envname = node.name, thmname = this.thmnames[envname];
-        var cname = (envname.slice(-1) == '*') ? envname.slice(0, -1) : envname;
-        if (!thmname) {
-          thmname = cname.charAt(0).toUpperCase() + cname.slice(1);
-        }
-        if (node.argarray[0]) {
-          node.childs.splice(0, 1);
-        }
-        var textnode = {
-          type: "env",
-          name: "thmname",
-          mode: "inline",
-          from: node.childs[0].from,
-          value: "<b>" + thmname + " </b>",
-          parent: node.childs[0],
-          childs: []
-        };
-        node.childs[0].childs.splice(0, 0, textnode);
-      },
-      
       getVerbatim : function(envname) {
         //console.log("verbatim");       
         var t1 = lexer.nextToken();
@@ -2047,30 +1723,30 @@ window.typejax = (function($){
       getArgsType : function(type, name) {
         var same = this.getGroupSame(name), group, args;
         if (type == "env") {
-          group = latex.environment[same];
+          group = findDefinition("environment", same);
           args = (group && ("args" in group)) ? group.args : ["||"];
         } else {
-          group = latex.command[same];
+          group = findDefinition("command", same);
           args = (group && ("args" in group)) ? group.args : [];
         }
         return args;
       },
 
       getGroupOuts: function(same) {
-        var group = latex.environment[same] || latex.command[same];
+        var group = findDefinition("environment", same) || findDefinition("command", same);
         if (group) return group.outs;
       },
 
       getGroupMode : function(name) {
         var same = this.getGroupSame(name);
-        var group = latex.environment[same] || latex.command[same];
+        var group = findDefinition("environment", same) || findDefinition("command", same);
         var mode = group ? group.mode : "inline";
         return mode;
       },
 
       getGroupSame: function(name) {
-        if (typeof latex.environment[name] == "string") return latex.environment[name];
-        if (typeof latex.command[name] == "string") return latex.command[name];
+        var same = findDefinition("environment", name) || findDefinition("command", name);
+        if (typeof same == "string") return same;
         return name;
       }
     };
@@ -2084,6 +1760,35 @@ window.typejax = (function($){
 
     var usepackages = [];
 
+    var findDefinition = function(type, name) {
+      for (var i = usepackages.length - 1; i >=0; i--) {
+        var pkgname = usepackages[i][0], result = latex[pkgname]["definitions"][type][name];
+        if (result) {
+          return result;
+        }
+      }
+      return latex["article"]["definitions"][type][name];
+    };
+
+    var findRenderer = function(type, name) {
+      var func = type + name.charAt(0).toUpperCase() + name.slice(1);
+      for (var i = usepackages.length - 1; i >=0; i--) {
+        var pkgname = usepackages[i][0], result = latex[pkgname]["extensions"][func];
+        if (result) {
+          return result;
+        }
+      }
+      return latex["article"]["extensions"][func];
+    };
+
+    var latex = {
+      cmdvalues : {
+        documentclass: "article"
+      },
+      counters : {},
+      thmnames : {}
+    };
+
     /* group.mode
      * main group could include main and block groups
      * block group cuuld include inline groups and bmath elements
@@ -2092,58 +1797,385 @@ window.typejax = (function($){
      * imath element should include inline math directly
      */
     // group.outs: list of groups which could not include it
-    var latex = {
-      command: {
-        "author":                   {mode: "inline", args: ["[]", "{}"]},
-        "chapter":                  "section",
-        "chapter*":                 "section",
-        "date":                     {mode: "inline", args: ["{}"]},
-        "group":                    {mode: "inline", args: ["{}"]},
-        "maketitle":                {mode: "block", args: []},
-        "newtheorem":               {mode: "inline", args: ["{}", "[]", "{}", "[]"]},
-        "newtheorem*":              {mode: "inline", args: ["{}", "{}"]},
-        "paragraph":                {mode: "inline", args: ["[]", "{}"]},
-        "paragraph*":               "paragraph",
-        "part":                     "section",
-        "part*":                    "section",
-        "section":                  {mode: "block", args: ["[]", "{}"]},
-        "section*":                 "section",
-        "subparagraph":             "paragraph",
-        "subparagraph*":            "paragraph",
-        "subsection":               "section",
-        "subsection*":              "section",
-        "subsubsection":            "section",
-        "subsubsection*":           "section",
-        "tableofcontents":          {mode: "block", args: ["[]"], outs: ["par"]},
-        "textbf":                   {mode: "inline", args: ["{}"]},
-        "thanks":                   {mode: "inline", args: ["{}"]},
-        "title":                    {mode: "inline", args: ["[]", "{}"]},
-        "usepackage":               {mode: "inline", args: ["[]", "{}"]}
+
+    latex["article"] = {
+      definitions: {
+        command: {
+          "author":                   {mode: "inline", args: ["[]", "{}"]},
+          "chapter":                  "section",
+          "chapter*":                 "section",
+          "date":                     {mode: "inline", args: ["{}"]},
+          "group":                    {mode: "inline", args: ["{}"]},
+          "maketitle":                {mode: "block", args: []},
+          "newtheorem":               {mode: "inline", args: ["{}", "[]", "{}", "[]"]},
+          "newtheorem*":              {mode: "inline", args: ["{}", "{}"]},
+          "paragraph":                {mode: "inline", args: ["[]", "{}"]},
+          "paragraph*":               "paragraph",
+          "part":                     "section",
+          "part*":                    "section",
+          "section":                  {mode: "block", args: ["[]", "{}"]},
+          "section*":                 "section",
+          "subparagraph":             "paragraph",
+          "subparagraph*":            "paragraph",
+          "subsection":               "section",
+          "subsection*":              "section",
+          "subsubsection":            "section",
+          "subsubsection*":           "section",
+          "tableofcontents":          {mode: "block", args: ["[]"], outs: ["par"]},
+          "textbf":                   {mode: "inline", args: ["{}"]},
+          "thanks":                   {mode: "inline", args: ["{}"]},
+          "title":                    {mode: "inline", args: ["[]", "{}"]},
+          "usepackage":               {mode: "inline", args: ["[]", "{}"]}
+        },
+        environment: {
+          "bmath":                    {mode: "block"},
+          "center":                   {mode: "main", args: ["||"], outs: ["par", "center"]},
+          "enumerate":                {mode: "block", args: ["[]", "||"]},
+          "exercise":                 "theorem",
+          "item":                     {mode: "main", args: ["<>", "||"]},
+          "itemize":                  {mode: "block", args: ["[]", "||"]},
+          "lemma":                    "theorem",
+          "lemma*":                   "theorem",
+          "par":                      {mode: "block", args: ["||"], outs: ["par", "section"]},
+          "preamble":                 {mode: "main", args: ["[]", "{}", "||"]},
+          "proposition":              "theorem",
+          "proposition*":             "theorem",
+          "tabular":                  {mode: "inline", args: ["{}", "||"]},
+          "theorem":                  {mode: "main", args: ["[]", "||"], outs: ["par", "theorem"]},
+          "remark":                   "theorem",
+          "solution":                 "theorem",
+          "verbatim":                 {mode: "block", args: ["||"], outs: ["par"]}
+        }
       },
-      environment: {
-        "bmath":                    {mode: "block"},
-        "center":                   {mode: "main", args: ["||"], outs: ["par", "center"]},
-        "enumerate":                {mode: "block", args: ["[]", "||"]},
-        "exercise":                 "theorem",
-        "item":                     {mode: "main", args: ["<>", "||"]},
-        "itemize":                  {mode: "block", args: ["[]", "||"]},
-        "lemma":                    "theorem",
-        "lemma*":                   "theorem",
-        "par":                      {mode: "block", args: ["||"], outs: ["par", "section"]},
-        "preamble":                 {mode: "main", args: ["[]", "{}", "||"]},
-        "proposition":              "theorem",
-        "proposition*":             "theorem",
-        "tabular":                  {mode: "inline", args: ["{}", "||"]},
-        "theorem":                  {mode: "main", args: ["[]", "||"], outs: ["par", "theorem"]},
-        "remark":                   "theorem",
-        "solution":                 "theorem",
-        "verbatim":                 {mode: "block", args: ["||"], outs: ["par"]}
-      },
-      cmdvalues : {
-        documentclass: "article"
-      },
-      counters : {},
-      thmnames : {}
+      extensions: {
+        cmdAuthor: function(node) {
+          this.cmdTitle(node);
+        },
+
+        cmdDate: function(node) {
+          this.cmdTitle(node);
+        },
+
+        cmdHline: function() {
+          return;
+        },
+
+        cmdMaketitle: function(node) {
+          if (typeof this.cmdvalues["title"] == "undefined") return;
+          var result = "<h1>" + this.cmdvalues["title"] + "</h1>";
+
+          if (typeof this.cmdvalues["author"] == "undefined") {
+            this.cmdvalues["author"] = "";
+          }
+          result += "<div class='author'>" + this.cmdvalues["author"] + "</div>";
+          if (typeof this.cmdvalues["institute"] != "undefined") {
+            result += "<div class='institute'>" + this.cmdvalues["institute"] + "</div>";
+          }
+          if (typeof this.cmdvalues["date"] == "undefined") {
+            result += "<div class='date'>" + (new Date()).toLocaleDateString() + "</div>";
+          } else {
+            result += "<div class='date'>" + this.cmdvalues["date"] + "</div>";
+          }
+
+          if (node.name == "maketitle" && this.cmdvalues["documentclass"] == "beamer") {
+            result = "<div class='envblock frame'>" + result + "</div>";
+          }
+
+          node.childs = [];
+          node.value = result;
+        },
+
+        cmdNewline: function() {
+          this.addText("<br>", this.place - 1);
+        },
+
+        cmdNewtheorem: function(node) {
+          // \newtheorem{envname}{thmname}[numberby]
+          // \newtheorem{envname}[counter]{thmname}
+          // \newtheorem*{envname}{thmname}
+          var csname = node.name, argarray = node.argarray;
+          var envname = argarray[0].childs[0].value;
+          if (csname == "newtheorem") {
+            this.thmnames[envname] = argarray[2].childs[0].value;
+          } else {
+            this.thmnames[envname] = argarray[1].childs[0].value;
+          }
+          latex["article"]["definitions"]["environment"][envname] = "theorem";
+        },
+
+        cmdParagraph: function(node) {
+          var csname = node.name, argarray = node.argarray;
+          switch (csname) {
+            case "paragraph":
+            case "paragraph*":
+              node.value = "<b>" + node.value + "</b>&nbsp;&nbsp;";
+              break;
+            case "subparagraph":
+            case "subparagraph*":
+              node.value = "&nbsp;&nbsp;&nbsp;<b>" + node.value + "</b>&nbsp;&nbsp;";
+              break;
+          }
+        },
+
+        cmdQquad: function() {
+          if (this.mathenv != "") {
+            this.addText("\\" + this.value, this.place - 1);
+          } else {
+            this.addText("<span class='qquad'></span>", this.place - 1);
+          }
+        },
+
+        cmdQuad: function() {
+          if (this.mathenv != "") {
+            this.addText("\\" + this.value, this.place - 1);
+          } else {
+            this.addText("<span class='quad'></span>", this.place -1);
+          }
+        },
+
+        cmdSection: function(node) {
+          var csname = node.name, argarray = node.argarray;
+          var counters = this.counters, headstr, numstr = "", sectintoc;
+          var value1 = typejax.builder(argarray[1], false),
+              value0 = argarray[0] ? typejax.builder(argarray[0], false) : "";
+          switch (csname) {
+            case "part":
+              counters.part += 1;
+              counters.section = counters.subsection = counters.subsubsection = 0;
+              numstr = "Part " + counters.part + "&nbsp;&nbsp;";
+              headstr = "h2";
+              break;
+            case "part*":
+              headstr = "h2";
+              break;
+            case "chapter":
+              counters.chapter += 1;
+              counters.section = counters.subsection = counters.subsubsection = 0;
+              numstr = "Chapter " + counters.chapter + "&nbsp;&nbsp;";
+              headstr = "h3";
+              break;
+            case "chapter*":
+              headstr = "h3";
+              break;
+            case "section":
+              counters.section += 1;
+              counters.subsection = counters.subsubsection = 0;
+              numstr = counters.section + "&nbsp;";
+              headstr = "h4";
+              break;
+            case "section*":
+              headstr = "h4";
+              break;
+            case "subsection":
+              counters.subsection += 1;
+              counters.subsubsection = 0;
+              numstr = counters.section + "." + counters.subsection + "&nbsp;";
+              headstr = "h5";
+              break;
+            case "subsection*":
+              headstr = "h5";
+              break;
+            case "subsubsection":
+              counters.subsubsection += 1;
+              numstr = counters.section + "." + counters.subsection + "." + counters.subsubsection + "&nbsp;";
+              headstr = "h6";
+              break;
+            case "subsubsection*":
+              headstr = "h6";
+              break;
+          }
+          var anchor = counters.part + "_" + counters.chapter + "_" + counters.section + "_" + counters.subsection + "_" + counters.subsubsection;
+          if (numstr) {
+            sectintoc = value0 ? value0 : value1;
+            typejax.innersect.push([typejax.innerdata.length, csname, sectintoc]);
+            var s = "<" + headstr + "><span><a name='#" + anchor + "'></a>" + numstr + "</span>" + value1 + "</" + headstr + ">";
+          } else {
+            var s = "<" + headstr + ">" + value1 + "</" + headstr + ">";
+          }
+          node.childs = [];
+          node.value = s;
+        },
+
+        cmdTableofcontents: function(node) {
+          node.childs = [];
+          node.value = "<div id='tableofcontents'></div>";
+        },
+
+        cmdTextbackslash: function() {
+          this.addText("\\", this.place - 1);
+        },
+
+        cmdTextbar: function() {
+          this.addText("|", this.place - 1);
+        },
+
+        cmdTextbf: function(node) {
+          if (node.argarray[0].childs[0]) {
+            node.value = "<b>" + node.argarray[0].childs[0].value + "</b>";
+            node.childs = [];
+          }
+        },
+
+        cmdTextgreater: function() {
+          this.addText("&gt;", this.place - 1);
+        },
+
+        cmdTextless: function() {
+          this.addText("&lt;", this.place - 1);
+        },
+
+        cmdTitle: function(node) {
+          var csname = node.name, argarray = node.argarray;
+          var argnode, child, i, value = "";
+          switch (csname) {
+            case "title":
+            case "author":
+              argnode = argarray[1];
+              break;
+            default:
+              argnode = argarray[0];
+          }
+          for (i = 0; i < argnode.childs.length; i++) {
+            child = argnode.childs[i];
+            if (child.name == "imath") {
+              value += typejax.builder(child, true);
+            } else {
+              value += child.value;
+            }
+          }
+          this.cmdvalues[csname] = value;
+          node.childs = [];
+        },
+
+        envEnumerate: function(node) {
+          this.envItemize(node);
+        },
+
+        envItemize: function(node) {
+          // itemize, enumerate
+          if (node.childs.length == 0) return; //fix for empty content in lists
+          if (node.childs[0].mode == "inline") node.childs.shift();
+        },
+
+        envPreamble: function(node) {
+          var a = node.argarray[1].childs;
+          if (a.length == 0) return; //fix for empty parameter
+          var doccls = a[0].value, pkglist = [];
+          if (!packages[doccls]) doccls = "article";
+          latex.cmdvalues["documentclass"] = doccls;
+          pkglist.push([doccls, []]);
+
+          var i = 0, j, pkg, oldpkg, pkgname, pkgoptn, pkgfile, loadlist = [];
+          pkglist = pkglist.concat(getPackages(node));
+          while (pkg = pkglist[i]) {
+            pkgname = pkg[0], pkgoptn = pkg[1], pkgfile = packages[pkgname];
+            if (pkgfile) {
+              for (j = usepackages.length - 1; j >= 0; j--) {
+                oldpkg = usepackages[j];
+                if (oldpkg[0] == pkgname && oldpkg[1].join() == pkgoptn.join()) break;
+              }
+              if (j == -1) loadlist.push([pkgfile, pkgoptn]);
+              i++;
+            } else {
+              pkglist.splice(i, 1);
+            }
+          }
+          pending = loadlist.length;
+          if (pending) stop();
+          for (i = 0; i < pending; i++) {
+            $.loadScript("typejax/package/" + loadlist[i][0] + ".js", function(){
+              pending--;
+              if (!pending) {
+                usepackages = pkglist;
+                console.log("usepackages", usepackages);
+                reload();
+              }
+            });
+          }
+
+          if (doccls == "beamer") {
+            if (window.jaxedit) jaxedit.childs.presbtn.style.display = "inline-block";
+            if (!beamer.newtheme) beamer.newtheme = "default";
+            if (beamer.newtheme != beamer.oldtheme) {
+              $.loadStyles("typejax/theme/" + beamer.newtheme + ".css", "typejax-theme");
+              beamer.oldtheme = beamer.newtheme;
+              beamer.newtheme = "";
+            }
+          } else {
+            if (window.jaxedit) jaxedit.childs.presbtn.style.display = "none";
+            $.removeStyles("typejax-theme");
+            beamer.oldtheme = beamer.newtheme = "";
+          }
+
+          function getPackages(node) {
+            var packages = [], a = node.childs, b, c, d, i, j, optn, name;
+            for (i = 1; i < a.length; i++) {
+              b = a[i].childs;
+              for (j = 0; j < b.length; j++) {
+                c = b[j];
+                if (c.name == "usepackage") {
+                  d = c.argarray; optn = [];
+                  if (d[0]) {
+                    optn = d[0].childs[0].value;
+                    optn = optn ? optn.split(/ *, */) : [];
+                  }
+                  if (d[1] && d[1].childs[0]) {
+                    name = d[1].childs[0].value;
+                    if (name) packages.push([name, optn]);
+                  }
+                }
+              }
+            }
+            return packages;
+          }
+        },
+
+        envTabular: function(node) {
+          var o = "", i, child;
+          node.childs.shift();
+          for (i = 0; i < node.childs.length; i++) {
+            child = node.childs[i];
+            if (child.name == "imath") {
+              o += typejax.builder(child, true);
+            } else {
+              o += child.value;
+            }
+          }
+          node.childs = [];
+          while (o.charAt(o.length-1) == ' ') {
+            o = o.substring(0, o.length-1);
+          }
+          if (o.substring(o.length-8, o.length) == "<tr><td>") {
+            o = "<table border='1'><tbody><tr><td>" + o.substring(0, o.length-8) + "</tbody></table>";
+          } else {
+            o = "<table border='1'><tbody><tr><td>" + o + "</td></tr></tbody></table>";
+          }
+          node.value = "<span class='" + node.name + "' style='display:inline-block;'>" + o + "</span>";
+          this.intabular = false;
+        },
+
+        envTheorem: function(node) {
+          if (node.childs.length == 0) return; //fix for empty content in theorems
+          var envname = node.name, thmname = this.thmnames[envname];
+          var cname = (envname.slice(-1) == '*') ? envname.slice(0, -1) : envname;
+          if (!thmname) {
+            thmname = cname.charAt(0).toUpperCase() + cname.slice(1);
+          }
+          if (node.argarray[0]) {
+            node.childs.splice(0, 1);
+          }
+          var textnode = {
+            type: "env",
+            name: "thmname",
+            mode: "inline",
+            from: node.childs[0].from,
+            value: "<b>" + thmname + " </b>",
+            parent: node.childs[0],
+            childs: []
+          };
+          node.childs[0].childs.splice(0, 0, textnode);
+        }
+      }
     };
 
     var beamer = {
@@ -2183,10 +2215,11 @@ window.typejax = (function($){
       callback.call(typejax.updater, outhtml);
     };
 
-    function extend(definitions, extensions) {
-      $.extend.call(latex.environment, definitions.environment);
-      $.extend.call(latex.command, definitions.command);
-      $.extend.call(syner, extensions);
+    function extend(pkgfile, definitions, extensions) {
+      latex[pkgfile] = {
+        definitions: definitions,
+        extensions: extensions
+      }
     }
 
     return { latex: latex, load: load, extend: extend };
