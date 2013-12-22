@@ -2058,27 +2058,29 @@ window.typejax = (function($){
         },
 
         envPreamble: function(node) {
-          var a = node.argarray[1].childs;
+          var arg = node.argarray, a = arg[1].childs, b = arg[0];
           if (a.length == 0) return; //fix for empty parameter
-          var doccls = a[0].value, pkglist = [];
-          if (!packages[doccls]) doccls = "article";
+          if (b) {
+            var docoptn = b.childs[0].value;
+            docoptn = docoptn ? docoptn.split(/ *, */) : [];
+          }
+          var doccls = a[0].value, docfile = packages[doccls], pkglist = [];
+          if (docfile) {
+            pkglist.push([docfile, docoptn]);
+          } else {
+            doccls = "article";
+          }
           latex.cmdvalues["documentclass"] = doccls;
-          pkglist.push([doccls, []]);
 
-          var i = 0, j, pkg, oldpkg, pkgname, pkgoptn, pkgfile, loadlist = [];
+          var i = 0, j, pkg, pkgoptn, pkgfile, loadlist = [];
           pkglist = pkglist.concat(getPackages(node));
           while (pkg = pkglist[i]) {
-            pkgname = pkg[0], pkgoptn = pkg[1], pkgfile = packages[pkgname];
-            if (pkgfile) {
-              for (j = usepackages.length - 1; j >= 0; j--) {
-                oldpkg = usepackages[j];
-                if (oldpkg[0] == pkgname && oldpkg[1].join() == pkgoptn.join()) break;
-              }
-              if (j == -1) loadlist.push([pkgfile, pkgoptn]);
-              i++;
-            } else {
-              pkglist.splice(i, 1);
+            pkgfile = pkg[0], pkgoptn = pkg[1];
+            for (j = usepackages.length - 1; j >= 0; j--) {
+              if (usepackages[j][0] == pkgfile) break;
             }
+            if (j == -1) loadlist.push([pkgfile, pkgoptn]);
+            i++;
           }
           pending = loadlist.length;
           if (pending) stop();
@@ -2108,7 +2110,7 @@ window.typejax = (function($){
           }
 
           function getPackages(node) {
-            var packages = [], a = node.childs, b, c, d, i, j, optn, name;
+            var list = [], a = node.childs, b, c, d, i, j, optn, name, file;
             for (i = 1; i < a.length; i++) {
               b = a[i].childs;
               for (j = 0; j < b.length; j++) {
@@ -2121,12 +2123,12 @@ window.typejax = (function($){
                   }
                   if (d[1] && d[1].childs[0]) {
                     name = d[1].childs[0].value;
-                    if (name) packages.push([name, optn]);
+                    if (name && (file = packages[name])) list.push([file, optn]);
                   }
                 }
               }
             }
-            return packages;
+            return list;
           }
         },
 
