@@ -73,7 +73,7 @@
     },
 
     cmdInstitute: function(node) {
-      this.cmdTitle(node);
+      this.renderers.find("cmd", "title").call(this, node);
     },
 
     cmdPause: function() {
@@ -81,7 +81,7 @@
     },
 
     cmdTitlepage: function(node) {
-      this.cmdMaketitle(node);
+      this.renderers.find("cmd", "maketitle").call(this, node);
     },
 
     cmdUsetheme: function(node) {

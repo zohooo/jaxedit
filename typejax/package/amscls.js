@@ -26,7 +26,7 @@
 
   var extensions = {
     cmdDedicatory: function(node) {
-      this.cmdTitle(node);
+      this.renderers.find("cmd", "title").call(this, node);
     },
 
     cmdMaketitle: function(node) {
