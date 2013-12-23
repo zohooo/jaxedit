@@ -2215,8 +2215,8 @@ window.typejax = (function($){
 
     function load(input1, modstart1, modend1, callback1) {
       input = input1; modstart = modstart1; modend = modend1; callback = callback1;
+      var outhtml = start();
       if (!pending) {
-        var outhtml = start();
         callback.call(typejax.updater, outhtml);
       }
     }
