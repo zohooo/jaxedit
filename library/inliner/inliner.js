@@ -129,19 +129,20 @@ if (!window.console) console = {log : function() {}};
       if (link) head.removeChild(link);
     },
 
-    loadScript: function(url, callback) {
+    loadScript: function(url, callback, scope) {
       var script = document.createElement("script");
+      var that = scope || window;
       script.type = "text/javascript";
       script.src = url;
       if (script.readyState) {
         script.onreadystatechange = function() {
           if (script.readyState == "loaded" || script.readyState == "complete") {
             script.onreadystatechange = null;
-            callback();
+            callback.call(that);
           }
         };
       } else {
-        script.onload = function() { callback(); };
+        script.onload = function() { callback.call(that); };
       }
       document.body.appendChild(script);
     },
