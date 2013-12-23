@@ -2142,6 +2142,16 @@ window.typejax = (function($){
                 }
               }
             }
+            i = 0;
+            while (d = list[i]) {
+              for (j = i + 1; j < list.length; j++) {
+                if (d[0] == list[j][0]) {
+                  list.shift();
+                  break;
+                }
+              }
+              if (j == list.length) i++;
+            }
             return list;
           }
 
