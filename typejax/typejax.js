@@ -2080,28 +2080,33 @@ window.typejax = (function($){
           }
           latex.cmdvalues["documentclass"] = doccls;
 
-          var i = 0, j, pkg, pkgoptn, pkgfile, loadlist = [];
+          var i = 0, j, pkg, pkgoptn, pkgfile, loadlist = [], haslist = [];
           pkglist = pkglist.concat(getPackages(node));
           while (pkg = pkglist[i]) {
             pkgfile = pkg[0], pkgoptn = pkg[1];
             for (j = usepackages.length - 1; j >= 0; j--) {
-              if (usepackages[j][0] == pkgfile) break;
+              if (usepackages[j][0] == pkgfile) {
+                haslist.push(j);
+                break;
+              }
             }
             if (j == -1) loadlist.push([pkgfile, pkgoptn]);
             i++;
           }
           pending = loadlist.length;
-          if (pending) stop();
-          for (i = 0; i < pending; i++) {
-            $.loadScript("typejax/package/" + loadlist[i][0] + ".js", function(){
-              pending--;
-              if (!pending) {
-                usepackages = pkglist;
-                console.log("usepackages", usepackages);
-                this.definitions.clear(); this.renderers.clear();
-                reload();
-              }
-            }, this);
+          if (pending) {
+            stop();
+            for (i = 0; i < pending; i++) {
+              $.loadScript("typejax/package/" + loadlist[i][0] + ".js", function(){
+                pending--;
+                if (!pending) {
+                  updatePackages(this);
+                  reload();
+                }
+              }, this);
+            }
+          } else if (haslist.length < usepackages.length) {
+            setTimeout(updatePackages, 0, this);
           }
 
           if (doccls == "beamer") {
@@ -2138,6 +2143,15 @@ window.typejax = (function($){
               }
             }
             return list;
+          }
+
+          function updatePackages(that) {
+            for (var j = 0; j < usepackages.length; j++) {
+              if ($.inArray(j, haslist) == -1) delete latex[usepackages[j][0]];
+            }
+            usepackages = pkglist;
+            console.log("usepackages", usepackages);
+            that.definitions.clear(); that.renderers.clear();
           }
         },
 
