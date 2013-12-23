@@ -922,9 +922,8 @@ window.typejax = (function($){
 
       doCommand : function(node) {
         var name = node.name, same = this.getGroupSame(name);
-        var work = findRenderer("cmd", same);
+        var work = renderers.find("cmd", same);
         if (work) {
-          this.work = work;
           work.call(this, node);
         }
       },
@@ -1080,7 +1079,7 @@ window.typejax = (function($){
             }
             break;
           default:
-            if (findDefinition("environment", envname)) {
+            if (definitions.find("environment", envname)) {
               this.closeOldMath(where);
               if (csname == "begin") {
                 this.beginGroup("env", envname, where, where + 8 + envname.length);
@@ -1095,9 +1094,8 @@ window.typejax = (function($){
       
       doEnvironment : function(node) {
         var name = node.name, same = this.getGroupSame(name);
-        var work = findRenderer("env", same);
+        var work = renderers.find("env", same);
         if (work) {
-          this.work = work;
           work.call(this, node);
         } else {
           if (this.thmnames[name]) {
@@ -1723,29 +1721,29 @@ window.typejax = (function($){
       getArgsType : function(type, name) {
         var same = this.getGroupSame(name), group, args;
         if (type == "env") {
-          group = findDefinition("environment", same);
+          group = definitions.find("environment", same);
           args = (group && ("args" in group)) ? group.args : ["||"];
         } else {
-          group = findDefinition("command", same);
+          group = definitions.find("command", same);
           args = (group && ("args" in group)) ? group.args : [];
         }
         return args;
       },
 
       getGroupOuts: function(same) {
-        var group = findDefinition("environment", same) || findDefinition("command", same);
+        var group = definitions.find("environment", same) || definitions.find("command", same);
         if (group) return group.outs;
       },
 
       getGroupMode : function(name) {
         var same = this.getGroupSame(name);
-        var group = findDefinition("environment", same) || findDefinition("command", same);
+        var group = definitions.find("environment", same) || definitions.find("command", same);
         var mode = group ? group.mode : "inline";
         return mode;
       },
 
       getGroupSame: function(name) {
-        var same = findDefinition("environment", name) || findDefinition("command", name);
+        var same = definitions.find("environment", name) || definitions.find("command", name);
         if (typeof same == "string") return same;
         return name;
       }
@@ -1760,25 +1758,35 @@ window.typejax = (function($){
 
     var usepackages = [];
 
-    var findDefinition = function(type, name) {
-      for (var i = usepackages.length - 1; i >=0; i--) {
-        var pkgname = usepackages[i][0], result = latex[pkgname]["definitions"][type][name];
-        if (result) {
-          return result;
+    var definitions = {
+      cache: {environment: {}, command: {}},
+      clear: function() { this.cache = {environment: {}, command: {}}; },
+      find: function(type, name) {
+        var result = this.cache[type][name];
+        if (result) return result;
+        for (var i = usepackages.length - 1; i >= 0; i--) {
+          var pkgname = usepackages[i][0];
+          if (result = latex[pkgname]["definitions"][type][name]) break;
         }
+        this.cache[type][name] = result = result || latex["article"]["definitions"][type][name];
+        return result;
       }
-      return latex["article"]["definitions"][type][name];
     };
 
-    var findRenderer = function(type, name) {
-      var func = type + name.charAt(0).toUpperCase() + name.slice(1);
-      for (var i = usepackages.length - 1; i >=0; i--) {
-        var pkgname = usepackages[i][0], result = latex[pkgname]["extensions"][func];
-        if (result) {
-          return result;
+    var renderers = {
+      cache: {env: {}, cmd: {}},
+      clear: function() { this.cache = {env: {}, cmd: {}}; },
+      find: function(type, name) {
+        var result = this.cache[type][name];
+        if (result) return result;
+        var func = type + name.charAt(0).toUpperCase() + name.slice(1);
+        for (var i = usepackages.length - 1; i >=0; i--) {
+          var pkgname = usepackages[i][0];
+          if (result = latex[pkgname]["extensions"][func]) break;
         }
+        this.cache[type][name] = result = result || latex["article"]["extensions"][func];
+        return result;
       }
-      return latex["article"]["extensions"][func];
     };
 
     var latex = {
@@ -2090,6 +2098,7 @@ window.typejax = (function($){
               if (!pending) {
                 usepackages = pkglist;
                 console.log("usepackages", usepackages);
+                definitions.clear(); renderers.clear();
                 reload();
               }
             });
