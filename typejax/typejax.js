@@ -1755,7 +1755,7 @@ window.typejax = (function($){
           var result = this.cache[type][name];
           if (result) return result;
           for (var i = usepackages.length - 1; i >= 0; i--) {
-            var pkgname = usepackages[i][0];
+            var pkgname = usepackages[i][0].split("/").pop();
             if (result = latex[pkgname]["definitions"][type][name]) break;
           }
           this.cache[type][name] = result = result || latex["article"]["definitions"][type][name];
@@ -1771,7 +1771,7 @@ window.typejax = (function($){
           if (result) return result;
           var func = type + name.charAt(0).toUpperCase() + name.slice(1);
           for (var i = usepackages.length - 1; i >=0; i--) {
-            var pkgname = usepackages[i][0];
+            var pkgname = usepackages[i][0].split("/").pop();
             if (result = latex[pkgname]["extensions"][func]) break;
           }
           this.cache[type][name] = result = result || latex["article"]["extensions"][func];
@@ -1781,10 +1781,10 @@ window.typejax = (function($){
     };
 
     var packages = {
-      amsart: "amscls",
-      amsbook: "amscls",
-      beamer: "beamer",
-      hyperref: "hyperref"
+      amsart: "amscls/amscls",
+      amsbook: "amscls/amscls",
+      beamer: "beamer/beamer",
+      hyperref: "hyperref/hyperref"
     };
 
     var usepackages = [];
@@ -1848,10 +1848,10 @@ window.typejax = (function($){
           "preamble":                 {mode: "main", args: ["[]", "{}", "||"]},
           "proposition":              "theorem",
           "proposition*":             "theorem",
-          "tabular":                  {mode: "inline", args: ["{}", "||"]},
-          "theorem":                  {mode: "main", args: ["[]", "||"], outs: ["par", "theorem"]},
           "remark":                   "theorem",
           "solution":                 "theorem",
+          "tabular":                  {mode: "inline", args: ["{}", "||"]},
+          "theorem":                  {mode: "main", args: ["[]", "||"], outs: ["par", "theorem"]},
           "verbatim":                 {mode: "block", args: ["||"], outs: ["par"]}
         }
       },
