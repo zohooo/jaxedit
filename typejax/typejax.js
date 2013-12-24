@@ -1755,7 +1755,7 @@ window.typejax = (function($){
           var result = this.cache[type][name];
           if (result) return result;
           for (var i = usepackages.length - 1; i >= 0; i--) {
-            var pkgname = usepackages[i][0].split("/").pop();
+            var pkgname = usepackages[i][0];
             if (result = latex[pkgname]["definitions"][type][name]) break;
           }
           this.cache[type][name] = result = result || latex["article"]["definitions"][type][name];
@@ -1771,7 +1771,7 @@ window.typejax = (function($){
           if (result) return result;
           var func = type + name.charAt(0).toUpperCase() + name.slice(1);
           for (var i = usepackages.length - 1; i >=0; i--) {
-            var pkgname = usepackages[i][0].split("/").pop();
+            var pkgname = usepackages[i][0];
             if (result = latex[pkgname]["extensions"][func]) break;
           }
           this.cache[type][name] = result = result || latex["article"]["extensions"][func];
@@ -2157,7 +2157,11 @@ window.typejax = (function($){
 
           function updatePackages(that) {
             for (var j = 0; j < usepackages.length; j++) {
-              if ($.inArray(j, haslist) == -1) delete latex[usepackages[j][0]];
+              if ($.inArray(j, haslist) == -1) {
+                var p = usepackages[j][0];
+                delete latex[p];
+                $.removeStyles("typejax-package-" + p.replace(/\//g, "-"));
+              }
             }
             usepackages = pkglist;
             console.log("usepackages", usepackages);
@@ -2250,10 +2254,13 @@ window.typejax = (function($){
       callback.call(typejax.updater, outhtml);
     };
 
-    function extend(pkgfile, definitions, extensions) {
+    function extend(pkgfile, definitions, extensions, nostyles) {
       latex[pkgfile] = {
         definitions: definitions,
         extensions: extensions
+      }
+      if (!nostyles) {
+        $.loadStyles("typejax/package/" + pkgfile + ".css", "typejax-package-" + pkgfile.replace(/\//g, "-"));
       }
     }
 

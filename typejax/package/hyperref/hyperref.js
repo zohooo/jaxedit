@@ -36,5 +36,5 @@
     }
   };
 
-  typejax.parser.extend("hyperref", definitions, extensions);
+  typejax.parser.extend("hyperref/hyperref", definitions, extensions);
 })();

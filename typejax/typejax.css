@@ -16,21 +16,6 @@ div.envblock  {
 div.par {
   margin: 0.75em 0.06em;
 }
- 
-div.frame {
-  border: 1px solid #000000;
-  padding: 0.4em;
-}
-
-div.frametitle {
-  font-size: 1.1em;
-  margin: 0.06em 0.06em 0.31em 0.06em;
-}
-
-div.framesubtitle {
-  font-size: 1em;
-  margin: -0.31em 0.06em 0.31em 0.06em;
-}
 
 div.center {
   border: 1px dashed #C1C1C1;
@@ -42,7 +27,7 @@ div.verbatim {
   margin: 1px;
 }
 
-div.definition, div.definitions, div.example, div.examples, div.fact, div.lemma, div.theorem, div.proposition, div.corollary, div.proof, div.exercise, div.remark, div.solution {
+div.exercise, div.lemma, div.proposition, div.remark, div.solution, div.theorem {
   border: 1px dashed #C1C1C1;
   margin: 1px;
   /*font-family: Tahoma, KaiTi;*/
@@ -126,7 +111,7 @@ h6 {
   font-size: 1em;
 }
 
-div.author, div.institute, div.date, div.dedicatory {
+div.author, div.date {
   text-align: center;
   margin: 0.8em 0;
 }
@@ -158,8 +143,4 @@ span.thinspace {
 
 span.negthinspace {
   margin-left: -0.1667em; /* -3/18 */
-}
-
-span.pause {
-  color: blue;
 }
