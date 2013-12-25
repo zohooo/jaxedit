@@ -106,6 +106,22 @@ if (!window.console) console = {log : function() {}};
       return { browser: "unknown", engine: "unknown", version: 0};
     })(),
 
+    addStyles: function(css, id) {
+      if (id) {
+        var style = document.getElementById(id);
+        if (style) {
+          style.innerHTML = css;
+          return;
+        }
+      }
+      var style = document.createElement("style");
+      style.type = "text/css";
+      if (id) style.id = id;
+      style.innerHTML = css;
+      var head = document.getElementsByTagName("head")[0];
+      head.appendChild(style);
+    },
+
     loadStyles: function(url, id) {
       if (id) {
         var link = document.getElementById(id);
