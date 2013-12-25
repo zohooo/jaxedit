@@ -36,5 +36,15 @@
     }
   };
 
-  typejax.parser.extend("hyperref/hyperref", definitions, extensions);
+  var styles = {
+    "span.href": {
+      "border": ".1em solid #007F7F"
+    },
+
+    "span.url": {
+      "border": ".1em solid #00FFFF"
+    }
+  };
+
+  typejax.parser.extend("hyperref/hyperref", definitions, extensions, styles);
 })();

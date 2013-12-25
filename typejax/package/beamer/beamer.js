@@ -93,5 +93,36 @@
     }
   };
 
-  typejax.parser.extend("beamer/beamer", definitions, extensions);
+  var styles = {
+    "div.frame": {
+      "border": "1px solid #000000",
+      "padding": "0.4em"
+    },
+
+    "div.frametitle": {
+      "font-size": "1.1em",
+      "margin": "0.06em 0.06em 0.31em 0.06em"
+    },
+
+    "div.framesubtitle": {
+      "font-size": "1em",
+      "margin": "-0.31em 0.06em 0.31em 0.06em"
+    },
+
+    "div.corollary, div.definition, div.definitions, div.example, div.examples, div.fact, div.proof": {
+      "border": "1px dashed #C1C1C1",
+      "margin": "1px"
+    },
+
+    "div.institute": {
+      "text-align": "center",
+      "margin": "0.8em 0"
+    },
+
+    "span.pause": {
+      "color": "blue"
+    }
+  };
+
+  typejax.parser.extend("beamer/beamer", definitions, extensions, styles);
 })();

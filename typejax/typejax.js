@@ -2254,13 +2254,21 @@ window.typejax = (function($){
       callback.call(typejax.updater, outhtml);
     };
 
-    function extend(pkgfile, definitions, extensions, nostyles) {
+    function extend(pkgfile, definitions, extensions, styles) {
       latex[pkgfile] = {
         definitions: definitions,
         extensions: extensions
       }
-      if (!nostyles) {
-        $.loadStyles("typejax/package/" + pkgfile + ".css", "typejax-package-" + pkgfile.replace(/\//g, "-"));
+      if (styles) {
+        var content = "";
+        $.each(styles, function(selector, style) {
+          content += selector + " {\n";
+            $.each(style, function(property, value) {
+              content += "  " + property + ": " + value + ";\n"
+            });
+          content += "}\n";
+        });
+        $.addStyles(content, "typejax-package-" + pkgfile.replace(/\//g, "-"));
       }
     }
 

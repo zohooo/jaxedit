@@ -43,5 +43,17 @@
     }
   };
 
-  typejax.parser.extend("amscls/amscls", definitions, extensions);
+  var styles = {
+    "div.proof": {
+      "border": "1px dashed #C1C1C1",
+      "margin": "1px"
+    },
+
+    "div.dedicatory": {
+      "text-align": "center",
+      "margin": "0.8em 0"
+    }
+  };
+
+  typejax.parser.extend("amscls/amscls", definitions, extensions, styles);
 })();
