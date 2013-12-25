@@ -2113,7 +2113,7 @@ window.typejax = (function($){
             if (window.jaxedit) jaxedit.childs.presbtn.style.display = "inline-block";
             if (!beamer.newtheme) beamer.newtheme = "default";
             if (beamer.newtheme != beamer.oldtheme) {
-              $.loadStyles("typejax/theme/" + beamer.newtheme + ".css", "typejax-theme");
+              $.loadStyles("typejax/package/beamer/theme/" + beamer.newtheme + ".css", "typejax-theme");
               beamer.oldtheme = beamer.newtheme;
               beamer.newtheme = "";
             }
