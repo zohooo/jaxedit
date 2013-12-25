@@ -2074,23 +2074,22 @@ window.typejax = (function($){
           }
           var doccls = a[0].value, docfile = packages[doccls], pkglist = [];
           if (docfile) {
-            pkglist.push([docfile, docoptn]);
+            pkglist.push([docfile, doccls].concat(docoptn));
           } else {
             doccls = "article";
           }
           latex.cmdvalues["documentclass"] = doccls;
 
-          var i = 0, j, pkg, pkgoptn, pkgfile, loadlist = [], haslist = [];
+          var i = 0, j, pkg, loadlist = [], haslist = [];
           pkglist = pkglist.concat(getPackages(node));
           while (pkg = pkglist[i]) {
-            pkgfile = pkg[0], pkgoptn = pkg[1];
             for (j = usepackages.length - 1; j >= 0; j--) {
-              if (usepackages[j][0] == pkgfile) {
+              if (usepackages[j][0] == pkg[0]) {
                 haslist.push(j);
                 break;
               }
             }
-            if (j == -1) loadlist.push([pkgfile, pkgoptn]);
+            if (j == -1) loadlist.push(pkg);
             i++;
           }
           pending = loadlist.length;
@@ -2137,7 +2136,7 @@ window.typejax = (function($){
                   }
                   if (d[1] && d[1].childs[0]) {
                     name = d[1].childs[0].value;
-                    if (name && (file = packages[name])) list.push([file, optn]);
+                    if (name && (file = packages[name])) list.push([file, name].concat(optn));
                   }
                 }
               }
