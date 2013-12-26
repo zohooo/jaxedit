@@ -1764,11 +1764,25 @@ window.typejax = (function($){
       },
 
       addPackage: function(pkg) {
-        var list = packages.list, used = list.used,
+        var info = packages.info, list = packages.list, used = list.used,
             current = list.current, missing = list.missing, existing = list.existing;
         for (var j = 0; j < current.length; j++) {
           if (pkg[0] == current[j][0]) return;
         }
+
+        var getfiles = function(that, pkgs) {
+          var i, p, f;
+          for (i = 0; i < pkgs.length; i++) {
+            p = pkgs[i];
+            if (typeof p == "string") p = [p];
+            f = info[p[0]].file;
+            if (f) that.addPackage([f].concat(p))
+          }
+        }
+
+        var name = pkg[1], pre = info[name].pre;
+        if (pre) pre = getfiles(this, pre);
+
         current.push(pkg);
         for (j = 0; j < used.length; j++) {
           if (pkg[0] == used[j][0]) break;
@@ -1778,6 +1792,9 @@ window.typejax = (function($){
         } else {
           missing.push(pkg);
         }
+
+        var post = info[name].post;
+        if (post) post = getfiles(this, post);
       },
 
       definitions: {
@@ -1904,18 +1921,9 @@ window.typejax = (function($){
           }
           latex.cmdvalues["documentclass"] = docname;
 
-          if (docname == "beamer") {
-            if (window.jaxedit) jaxedit.childs.presbtn.style.display = "inline-block";
-            if (!beamer.newtheme) beamer.newtheme = "default";
-            if (beamer.newtheme != beamer.oldtheme) {
-              $.loadStyles("typejax/package/beamer/theme/" + beamer.newtheme + ".css", "typejax-theme");
-              beamer.oldtheme = beamer.newtheme;
-              beamer.newtheme = "";
-            }
-          } else {
-            if (window.jaxedit) jaxedit.childs.presbtn.style.display = "none";
-            $.removeStyles("typejax-theme");
-            beamer.oldtheme = beamer.newtheme = "";
+          if (window.jaxedit) {
+            var display = (docname == "beamer") ? "inline-block" : "none";
+            jaxedit.childs.presbtn.style.display = display;
           }
         },
 
@@ -2211,17 +2219,19 @@ window.typejax = (function($){
       }
     };
 
-    var beamer = {
-      allthemes : ["default", "epyt"],
-      newtheme : "",
-      oldtheme : ""
-    };
-
     var packages = {
       info: {
         amsart: {file: "amscls/amscls"},
         amsbook: {file: "amscls/amscls"},
-        beamer: {file: "beamer/beamer"},
+        beamer: {file: "beamer/beamer", pre: ["hyperref"], post: ["beamerthemedefault"]},
+        beamercolorthemedefault: {file: "beamer/color/default"},
+        beamerfontthemedefault: {file: "beamer/font/default"},
+        beamerinnerthemedefault: {file: "beamer/inner/default"},
+        beamerthemedefault: {
+          file: "beamer/theme/default",
+          post: ["beamerinnerthemedefault", "beamercolorthemedefault", "beamerfontthemedefault"]
+        },
+        beamerthemeepyt: {file: "beamer/theme/epyt"},
         hyperref: {file: "hyperref/hyperref"}
       },
       list: {used: [], current: [], missing: [], existing: []}
