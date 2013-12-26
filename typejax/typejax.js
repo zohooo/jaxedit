@@ -580,6 +580,7 @@ window.typejax = (function($){
         typejax.innerdata = [];
         typejax.innersect = [];
 
+        this.packages = packages;
         this.cmdvalues = latex.cmdvalues;
         this.counters = latex.counters;
         this.thmnames = latex.thmnames;

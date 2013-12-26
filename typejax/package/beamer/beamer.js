@@ -45,7 +45,7 @@
       "transsplitverticalin":     "transdissolve",
       "transsplitverticalout":    "transdissolve",
       "transwipe":                "transdissolve",
-      "usetheme":                 {mode: "inline", args: ["{}"]}
+      "usetheme":                 {mode: "inline", args: ["[]", "{}"]}
     }
   };
 
@@ -85,10 +85,11 @@
     },
 
     cmdUsetheme: function(node) {
-      if (node.argarray[0].childs[0]) {
-        var theme = node.argarray[0].childs[0].value;
-        var beamer = that.beamer;
-        beamer.newtheme = ($.inArray(theme, beamer.allthemes) > -1) ? theme : "default";
+      var parameters = this.readParameters(node),
+          pkgoptn = parameters[0] ? parameters[0].split(/ *, */) : [],
+          pkgname = parameters[1], pkginfo;
+      if (pkgname && (pkginfo = this.packages.info["beamertheme" + pkgname])) {
+        this.addPackage([pkginfo.file, "beamertheme" + pkgname].concat(pkgoptn));
       }
     }
   };
