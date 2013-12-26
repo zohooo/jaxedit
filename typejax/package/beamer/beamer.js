@@ -45,9 +45,23 @@
       "transsplitverticalin":     "transdissolve",
       "transsplitverticalout":    "transdissolve",
       "transwipe":                "transdissolve",
+      "usecolortheme":            {mode: "inline", args: ["[]", "{}"]},
+      "usefonttheme":             {mode: "inline", args: ["[]", "{}"]},
+      "useinnertheme":            {mode: "inline", args: ["[]", "{}"]},
+      "useoutertheme":            {mode: "inline", args: ["[]", "{}"]},
       "usetheme":                 {mode: "inline", args: ["[]", "{}"]}
     }
   };
+
+  function useTheme(node, that, type) {
+    var parameters = that.readParameters(node),
+        pkgoptn = parameters[0] ? parameters[0].split(/ *, */) : [],
+        pkgname = parameters[1], pkginfo,
+        prefix = "beamer" + (type || "") + "theme";
+    if (pkgname && (pkginfo = that.packages.info[prefix + pkgname])) {
+      that.addPackage([pkginfo.file, prefix + pkgname].concat(pkgoptn));
+    }
+  }
 
   var extensions = {
     envFrame : function(node) {
@@ -84,13 +98,24 @@
       this.renderers.find("cmd", "maketitle").call(this, node);
     },
 
+    cmdUsecolortheme: function(node) {
+      useTheme(node, this, "color");
+    },
+
+    cmdUsefonttheme: function(node) {
+      useTheme(node, this, "font");
+    },
+
+    cmdUseinnertheme: function(node) {
+      useTheme(node, this, "inner");
+    },
+
+    cmdUseoutertheme: function(node) {
+      useTheme(node, this, "outer");
+    },
+
     cmdUsetheme: function(node) {
-      var parameters = this.readParameters(node),
-          pkgoptn = parameters[0] ? parameters[0].split(/ *, */) : [],
-          pkgname = parameters[1], pkginfo;
-      if (pkgname && (pkginfo = this.packages.info["beamertheme" + pkgname])) {
-        this.addPackage([pkginfo.file, "beamertheme" + pkgname].concat(pkgoptn));
-      }
+      useTheme(node, this);
     }
   };
 
