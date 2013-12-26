@@ -1764,17 +1764,19 @@ window.typejax = (function($){
       },
 
       addPackage: function(pkg) {
-        for (var j = 0; j < pkglist.length; j++) {
-          if (pkg[0] == pkglist[j][0]) return;
+        var list = packages.list, used = list.used,
+            current = list.current, missing = list.missing, existing = list.existing;
+        for (var j = 0; j < current.length; j++) {
+          if (pkg[0] == current[j][0]) return;
         }
-        pkglist.push(pkg);
-        for (j = 0; j < usepackages.length; j++) {
-          if (usepackages[j][0] == pkg[0]) break;
+        current.push(pkg);
+        for (j = 0; j < used.length; j++) {
+          if (pkg[0] == used[j][0]) break;
         }
-        if (j < usepackages.length) {
-          haslist.push(j);
+        if (j < used.length) {
+          existing.push(j);
         } else {
-          loadlist.push(pkg);
+          missing.push(pkg);
         }
       },
 
@@ -1784,8 +1786,9 @@ window.typejax = (function($){
         find: function(type, name) {
           var result = this.cache[type][name];
           if (result) return result;
-          for (var i = usepackages.length - 1; i >= 0; i--) {
-            var pkgname = usepackages[i][0];
+          var used = packages.list.used;
+          for (var i = used.length - 1; i >= 0; i--) {
+            var pkgname = used[i][0];
             if (result = latex[pkgname]["definitions"][type][name]) break;
           }
           this.cache[type][name] = result = result || latex["article"]["definitions"][type][name];
@@ -1799,9 +1802,10 @@ window.typejax = (function($){
         find: function(type, name) {
           var result = this.cache[type][name];
           if (result) return result;
+          var used = packages.list.used;
           var func = type + name.charAt(0).toUpperCase() + name.slice(1);
-          for (var i = usepackages.length - 1; i >=0; i--) {
-            var pkgname = usepackages[i][0];
+          for (var i = used.length - 1; i >=0; i--) {
+            var pkgname = used[i][0];
             if (result = latex[pkgname]["extensions"][func]) break;
           }
           this.cache[type][name] = result = result || latex["article"]["extensions"][func];
@@ -1809,15 +1813,6 @@ window.typejax = (function($){
         }
       }
     };
-
-    var packages = {
-      amsart: "amscls/amscls",
-      amsbook: "amscls/amscls",
-      beamer: "beamer/beamer",
-      hyperref: "hyperref/hyperref"
-    };
-
-    var usepackages = [], pkglist = [], loadlist = [], haslist = [];
 
     var latex = {
       cmdvalues : {
@@ -1897,10 +1892,11 @@ window.typejax = (function($){
 
         cmdDocumentclass: function(node) {
           var parameters = this.readParameters(node),
+              info = packages.info, list = packages.list,
               docoptn = parameters[0] ? parameters[0].split(/ *, */) : [];
               docname = parameters[1] || "",
-              docfile = packages[docname];
-          pkglist = [], loadlist = [], haslist = [];
+              docfile = info[docname].file;
+          list.current = [], list.missing = [], list.existing = [];
           if (docfile) {
             this.addPackage([docfile, docname].concat(docoptn));
           } else {
@@ -2118,7 +2114,7 @@ window.typejax = (function($){
           var parameters = this.readParameters(node),
               pkgoptn = parameters[0] ? parameters[0].split(/ *, */) : [];
               pkgname = parameters[1] || "",
-              pkgfile = packages[pkgname];
+              pkgfile = packages.info[pkgname].file;
           if (pkgfile) {
             this.addPackage([pkgfile, pkgname].concat(pkgoptn));
           }
@@ -2135,11 +2131,13 @@ window.typejax = (function($){
         },
 
         envPreamble: function(node) {
-          pending = loadlist.length;
+          var list = packages.list, used = list.used,
+              current = list.current, missing = list.missing, existing = list.existing;
+          pending = missing.length;
           if (pending) {
             stop();
             for (i = 0; i < pending; i++) {
-              $.loadScript("typejax/package/" + loadlist[i][0] + ".js", function(){
+              $.loadScript("typejax/package/" + missing[i][0] + ".js", function(){
                 pending--;
                 if (!pending) {
                   updatePackages(this);
@@ -2147,20 +2145,20 @@ window.typejax = (function($){
                 }
               }, this);
             }
-          } else if (haslist.length < usepackages.length) {
+          } else if (existing.length < used.length) {
             setTimeout(updatePackages, 0, this);
           }
 
           function updatePackages(that) {
-            for (var j = 0; j < usepackages.length; j++) {
-              if ($.inArray(j, haslist) == -1) {
-                var p = usepackages[j][0];
+            for (var j = 0; j < used.length; j++) {
+              if ($.inArray(j, existing) == -1) {
+                var p = used[j][0];
                 delete latex[p];
                 $.removeStyles("typejax-package-" + p.replace(/\//g, "-"));
               }
             }
-            usepackages = pkglist;
-            console.log("usepackages", usepackages);
+            list.used = current;
+            console.log("usepackages", list.used);
             that.definitions.clear(); that.renderers.clear();
           }
         },
@@ -2217,6 +2215,16 @@ window.typejax = (function($){
       allthemes : ["default", "epyt"],
       newtheme : "",
       oldtheme : ""
+    };
+
+    var packages = {
+      info: {
+        amsart: {file: "amscls/amscls"},
+        amsbook: {file: "amscls/amscls"},
+        beamer: {file: "beamer/beamer"},
+        hyperref: {file: "hyperref/hyperref"}
+      },
+      list: {used: [], current: [], missing: [], existing: []}
     };
 
     function start() {
