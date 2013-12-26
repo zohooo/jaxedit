@@ -1910,12 +1910,11 @@ window.typejax = (function($){
         cmdDocumentclass: function(node) {
           var parameters = this.readParameters(node),
               info = packages.info, list = packages.list,
-              docoptn = parameters[0] ? parameters[0].split(/ *, */) : [];
-              docname = parameters[1] || "",
-              docfile = info[docname].file;
+              docoptn = parameters[0] ? parameters[0].split(/ *, */) : [],
+              docname = parameters[1], docinfo;
           list.current = [], list.missing = [], list.existing = [];
-          if (docfile) {
-            this.addPackage([docfile, docname].concat(docoptn));
+          if (docname && (docinfo = info[docname])) {
+            this.addPackage([docinfo.file, docname].concat(docoptn));
           } else {
             docname = "article";
           }
@@ -2120,11 +2119,10 @@ window.typejax = (function($){
 
         cmdUsepackage: function(node) {
           var parameters = this.readParameters(node),
-              pkgoptn = parameters[0] ? parameters[0].split(/ *, */) : [];
-              pkgname = parameters[1] || "",
-              pkgfile = packages.info[pkgname].file;
-          if (pkgfile) {
-            this.addPackage([pkgfile, pkgname].concat(pkgoptn));
+              pkgoptn = parameters[0] ? parameters[0].split(/ *, */) : [],
+              pkgname = parameters[1], pkginfo;
+          if (pkgname && (pkginfo = packages.info[pkgname])) {
+            this.addPackage([pkginfo.file, pkgname].concat(pkgoptn));
           }
         },
 
