@@ -755,7 +755,8 @@ window.typejax = (function($){
               case "documentclass":
                 this.closeOldMath(this.place - 1);
                 this.closeOldCmds(this.place - 1);
-                this.beginGroup("env", "preamble", this.place - 1, this.place + "documentclass".length);
+                this.beginGroup("env", "preamble", this.place - 1, this.place - 1);
+                this.beginGroup("cmd", "documentclass", this.place - 1, this.place + csname.length);
                 break;
               case "item":
                 this.beginGroup("env", "item", this.place - 1, this.place + 4);
@@ -1748,6 +1749,35 @@ window.typejax = (function($){
         return name;
       },
 
+      readParameters: function(node) {
+        var arg = node.argarray, result = [], a, v;
+        for (var i = 0; i < arg.length; i++) {
+          a = arg[i];
+          if (a && a.childs.length) {
+            v = a.childs[0].value;
+          } else {
+            v = null;
+          }
+          result.push(v);
+        }
+        return result;
+      },
+
+      addPackage: function(pkg) {
+        for (var j = 0; j < pkglist.length; j++) {
+          if (pkg[0] == pkglist[j][0]) return;
+        }
+        pkglist.push(pkg);
+        for (j = 0; j < usepackages.length; j++) {
+          if (usepackages[j][0] == pkg[0]) break;
+        }
+        if (j < usepackages.length) {
+          haslist.push(j);
+        } else {
+          loadlist.push(pkg);
+        }
+      },
+
       definitions: {
         cache: {environment: {}, command: {}},
         clear: function() { this.cache = {environment: {}, command: {}}; },
@@ -1787,7 +1817,7 @@ window.typejax = (function($){
       hyperref: "hyperref/hyperref"
     };
 
-    var usepackages = [];
+    var usepackages = [], pkglist = [], loadlist = [], haslist = [];
 
     var latex = {
       cmdvalues : {
@@ -1813,6 +1843,7 @@ window.typejax = (function($){
           "chapter":                  "section",
           "chapter*":                 "section",
           "date":                     {mode: "inline", args: ["{}"]},
+          "documentclass":            {mode: "inline", args: ["[]", "{}"]},
           "group":                    {mode: "inline", args: ["{}"]},
           "maketitle":                {mode: "block", args: []},
           "newtheorem":               {mode: "inline", args: ["{}", "[]", "{}", "[]"]},
@@ -1845,7 +1876,7 @@ window.typejax = (function($){
           "lemma":                    "theorem",
           "lemma*":                   "theorem",
           "par":                      {mode: "block", args: ["||"], outs: ["par", "section"]},
-          "preamble":                 {mode: "main", args: ["[]", "{}", "||"]},
+          "preamble":                 {mode: "main", args: ["||"]},
           "proposition":              "theorem",
           "proposition*":             "theorem",
           "remark":                   "theorem",
@@ -1862,6 +1893,34 @@ window.typejax = (function($){
 
         cmdDate: function(node) {
           this.renderers.find("cmd", "title").call(this, node);
+        },
+
+        cmdDocumentclass: function(node) {
+          var parameters = this.readParameters(node),
+              docoptn = parameters[0] ? parameters[0].split(/ *, */) : [];
+              docname = parameters[1] || "",
+              docfile = packages[docname];
+          pkglist = [], loadlist = [], haslist = [];
+          if (docfile) {
+            this.addPackage([docfile, docname].concat(docoptn));
+          } else {
+            docname = "article";
+          }
+          latex.cmdvalues["documentclass"] = docname;
+
+          if (docname == "beamer") {
+            if (window.jaxedit) jaxedit.childs.presbtn.style.display = "inline-block";
+            if (!beamer.newtheme) beamer.newtheme = "default";
+            if (beamer.newtheme != beamer.oldtheme) {
+              $.loadStyles("typejax/package/beamer/theme/" + beamer.newtheme + ".css", "typejax-theme");
+              beamer.oldtheme = beamer.newtheme;
+              beamer.newtheme = "";
+            }
+          } else {
+            if (window.jaxedit) jaxedit.childs.presbtn.style.display = "none";
+            $.removeStyles("typejax-theme");
+            beamer.oldtheme = beamer.newtheme = "";
+          }
         },
 
         cmdHline: function() {
@@ -2055,6 +2114,16 @@ window.typejax = (function($){
           node.childs = [];
         },
 
+        cmdUsepackage: function(node) {
+          var parameters = this.readParameters(node),
+              pkgoptn = parameters[0] ? parameters[0].split(/ *, */) : [];
+              pkgname = parameters[1] || "",
+              pkgfile = packages[pkgname];
+          if (pkgfile) {
+            this.addPackage([pkgfile, pkgname].concat(pkgoptn));
+          }
+        },
+
         envEnumerate: function(node) {
           this.renderers.find("env", "itemize").call(this, node);
         },
@@ -2066,32 +2135,6 @@ window.typejax = (function($){
         },
 
         envPreamble: function(node) {
-          var arg = node.argarray, a = arg[1].childs, b = arg[0];
-          if (a.length == 0) return; //fix for empty parameter
-          if (b) {
-            var docoptn = b.childs[0].value;
-            docoptn = docoptn ? docoptn.split(/ *, */) : [];
-          }
-          var doccls = a[0].value, docfile = packages[doccls], pkglist = [];
-          if (docfile) {
-            pkglist.push([docfile, doccls].concat(docoptn));
-          } else {
-            doccls = "article";
-          }
-          latex.cmdvalues["documentclass"] = doccls;
-
-          var i = 0, j, pkg, loadlist = [], haslist = [];
-          pkglist = pkglist.concat(getPackages(node));
-          while (pkg = pkglist[i]) {
-            for (j = usepackages.length - 1; j >= 0; j--) {
-              if (usepackages[j][0] == pkg[0]) {
-                haslist.push(j);
-                break;
-              }
-            }
-            if (j == -1) loadlist.push(pkg);
-            i++;
-          }
           pending = loadlist.length;
           if (pending) {
             stop();
@@ -2106,52 +2149,6 @@ window.typejax = (function($){
             }
           } else if (haslist.length < usepackages.length) {
             setTimeout(updatePackages, 0, this);
-          }
-
-          if (doccls == "beamer") {
-            if (window.jaxedit) jaxedit.childs.presbtn.style.display = "inline-block";
-            if (!beamer.newtheme) beamer.newtheme = "default";
-            if (beamer.newtheme != beamer.oldtheme) {
-              $.loadStyles("typejax/package/beamer/theme/" + beamer.newtheme + ".css", "typejax-theme");
-              beamer.oldtheme = beamer.newtheme;
-              beamer.newtheme = "";
-            }
-          } else {
-            if (window.jaxedit) jaxedit.childs.presbtn.style.display = "none";
-            $.removeStyles("typejax-theme");
-            beamer.oldtheme = beamer.newtheme = "";
-          }
-
-          function getPackages(node) {
-            var list = [], a = node.childs, b, c, d, i, j, optn, name, file;
-            for (i = 1; i < a.length; i++) {
-              b = a[i].childs;
-              for (j = 0; j < b.length; j++) {
-                c = b[j];
-                if (c.name == "usepackage") {
-                  d = c.argarray; optn = [];
-                  if (d[0]) {
-                    optn = d[0].childs[0].value;
-                    optn = optn ? optn.split(/ *, */) : [];
-                  }
-                  if (d[1] && d[1].childs[0]) {
-                    name = d[1].childs[0].value;
-                    if (name && (file = packages[name])) list.push([file, name].concat(optn));
-                  }
-                }
-              }
-            }
-            i = 0;
-            while (d = list[i]) {
-              for (j = i + 1; j < list.length; j++) {
-                if (d[0] == list[j][0]) {
-                  list.shift();
-                  break;
-                }
-              }
-              if (j == list.length) i++;
-            }
-            return list;
           }
 
           function updatePackages(that) {
