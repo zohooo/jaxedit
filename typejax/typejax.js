@@ -2225,7 +2225,10 @@ window.typejax = (function($){
         beamer: {file: "beamer/beamer", pre: ["hyperref"], post: ["beamerthemedefault"]},
         beamercolorthemedefault: {file: "beamer/color/default"},
         beamerfontthemedefault: {file: "beamer/font/default"},
-        beamerinnerthemedefault: {file: "beamer/inner/default"},
+        beamerinnerthemecircles:    {file: "beamer/inner/circles"},
+        beamerinnerthemedefault:    {file: "beamer/inner/default"},
+        beamerinnerthemerectangles: {file: "beamer/inner/rectangles"},
+        beamerinnerthemerounded:    {file: "beamer/inner/rounded"},
         beamerthemedefault: {
           file: "beamer/theme/default",
           post: ["beamerinnerthemedefault", "beamercolorthemedefault", "beamerfontthemedefault"]
