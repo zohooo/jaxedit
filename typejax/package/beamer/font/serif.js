@@ -14,17 +14,9 @@
 
   var styles = {
     "div.frame": {
-      "font-family": "Arial, Helvetica, sans-serif"
-    },
-
-    "div.frametitle": {
-      "font-size": "1.1em"
-    },
-
-    "div.framesubtitle": {
-      "font-size": "1em"
+      "font-family": "Georgia, 'Times New Roman', Times, serif"
     }
   };
 
-  typejax.parser.extend("beamer/font/default", definitions, extensions, styles);
+  typejax.parser.extend("beamer/font/serif", definitions, extensions, styles);
 })();

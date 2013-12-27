@@ -13,18 +13,11 @@
   var extensions = {};
 
   var styles = {
-    "div.frame": {
-      "font-family": "Arial, Helvetica, sans-serif"
-    },
-
-    "div.frametitle": {
-      "font-size": "1.1em"
-    },
-
-    "div.framesubtitle": {
-      "font-size": "1em"
+    "h1, div.frametitle, div.framesubtitle, span.thmname": {
+      "font-family": "Georgia, 'Times New Roman', Times, serif",
+      "font-style": "italic"
     }
   };
 
-  typejax.parser.extend("beamer/font/default", definitions, extensions, styles);
+  typejax.parser.extend("beamer/font/structureitalicserif", definitions, extensions, styles);
 })();
