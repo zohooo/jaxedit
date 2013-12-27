@@ -2238,11 +2238,37 @@ window.typejax = (function($){
         beamerinnerthemedefault:    {file: "beamer/inner/default"},
         beamerinnerthemerectangles: {file: "beamer/inner/rectangles"},
         beamerinnerthemerounded:    {file: "beamer/inner/rounded"},
+        beamerthemeboxes: {
+          file: "beamer/theme/boxes"
+        },
         beamerthemedefault: {
           file: "beamer/theme/default",
-          post: ["beamerinnerthemedefault", "beamercolorthemedefault", "beamerfontthemedefault"]
+          pre: ["beamerinnerthemedefault", "beamercolorthemedefault", "beamerfontthemedefault"]
         },
         beamerthemeepyt: {file: "beamer/theme/epyt"},
+        beamerthemeAnnArbor: {
+          file: "beamer/theme/AnnArbor",
+          pre: ["beamerinnerthemerounded", "beamercolorthemewolverine"]
+        },
+        beamerthemeBoadilla: {
+          file: "beamer/theme/Boadilla",
+          pre: ["beamerinnerthemerounded", "beamercolorthemerose"]
+        },
+        beamerthemeCambridgeUS: {
+          file: "beamer/theme/CambridgeUS",
+          pre: ["beamerinnerthemerounded", "beamercolorthemebeaver"]
+        },
+        beamerthemeMadrid: {
+          file: "beamer/theme/Madrid",
+          pre: ["beamerinnerthemerounded", "beamercolorthemeorchid"]
+        },
+        beamerthemePittsburgh: {
+          file: "beamer/theme/Pittsburgh"
+        },
+        beamerthemeRochester: {
+          file: "beamer/theme/Rochester",
+          pre: ["beamerinnerthemerectangles", "beamercolorthemeorchid"]
+        },
         hyperref: {file: "hyperref/hyperref"}
       },
       list: {used: [], current: [], missing: [], existing: []}
