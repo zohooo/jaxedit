@@ -86,6 +86,29 @@
       }
     },
 
+    envTheorem: function(node) {
+      var envname = node.name, thmname = this.thmnames[envname];
+      var cname = (envname.slice(-1) == '*') ? envname.slice(0, -1) : envname;
+      if (!thmname) {
+        thmname = cname.charAt(0).toUpperCase() + cname.slice(1);
+      }
+      if (node.argarray[0]) {
+        thmname += " (" + node.argarray[0].childs[0].value + ")";
+        node.childs.splice(0, 1);
+      }
+      var thmnode = {
+        type: "env",
+        name: "thmname",
+        mode: "block",
+        from: node.from,
+        value: thmname,
+        parent: node,
+        childs: []
+      };
+      node.childs.splice(0, 0, thmnode);
+      node.name = "theorem";
+    },
+
     cmdInstitute: function(node) {
       this.renderers.find("cmd", "title").call(this, node);
     },

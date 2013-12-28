@@ -1798,6 +1798,30 @@ window.typejax = (function($){
         if (post) post = getfiles(this, post);
       },
 
+      makeTheorem: function(node) {
+        if (node.childs.length == 0) return; //fix for empty content in theorems
+        var envname = node.name, thmname = this.thmnames[envname];
+        var cname = (envname.slice(-1) == '*') ? envname.slice(0, -1) : envname;
+        if (!thmname) {
+          thmname = cname.charAt(0).toUpperCase() + cname.slice(1);
+        }
+        if (node.argarray[0]) {
+          thmname += " (" + node.argarray[0].childs[0].value + ")";
+          node.childs.splice(0, 1);
+        }
+        var textnode = {
+          type: "env",
+          name: "thmname",
+          mode: "inline",
+          from: node.childs[0].from,
+          value: "<b>" + thmname + " </b>",
+          parent: node.childs[0],
+          childs: []
+        };
+        node.childs[0].childs.splice(0, 0, textnode);
+        node.name = "theorem";
+      },
+
       definitions: {
         cache: {environment: {}, command: {}},
         clear: function() { this.cache = {environment: {}, command: {}}; },
@@ -2195,25 +2219,7 @@ window.typejax = (function($){
         },
 
         envTheorem: function(node) {
-          if (node.childs.length == 0) return; //fix for empty content in theorems
-          var envname = node.name, thmname = this.thmnames[envname];
-          var cname = (envname.slice(-1) == '*') ? envname.slice(0, -1) : envname;
-          if (!thmname) {
-            thmname = cname.charAt(0).toUpperCase() + cname.slice(1);
-          }
-          if (node.argarray[0]) {
-            node.childs.splice(0, 1);
-          }
-          var textnode = {
-            type: "env",
-            name: "thmname",
-            mode: "inline",
-            from: node.childs[0].from,
-            value: "<b>" + thmname + " </b>",
-            parent: node.childs[0],
-            childs: []
-          };
-          node.childs[0].childs.splice(0, 0, textnode);
+          this.makeTheorem(node);
         }
       }
     };

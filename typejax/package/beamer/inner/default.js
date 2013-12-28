@@ -26,9 +26,14 @@
       "margin": "-0.31em 0.06em 0.31em 0.06em"
     },
 
-    "div.corollary, div.definition, div.definitions, div.example, div.examples, div.fact, div.proof": {
-      "border": "1px dashed #C1C1C1",
-      "margin": "1px"
+    "div.proof, div.theorem": {
+      "border": "0",
+      "margin": "0 1.5em",
+      "padding-bottom": ".1em"
+    },
+
+    "div.proof > div, div.theorem > div": {
+      "padding": "0 .5em"
     },
 
     "div.institute": {
@@ -44,8 +49,10 @@
       "border": "1px dashed #C1C1C1"
     },
 
-    "span.thmname": {
-      "padding-right": "0.5em"
+    "div.thmname": {
+      "font-weight": "bold",
+      "height": "2em",
+      "line-height": "2em"
     },
 
     "div.tableofcontents": {

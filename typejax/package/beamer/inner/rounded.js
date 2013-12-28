@@ -13,6 +13,15 @@
   var extensions = {};
 
   var styles = {
+    "div.frame div.theorem": {
+      "border-radius": ".5em",
+      "box-shadow": ".3em .3em .1em #aaa"
+    },
+
+    "div.frame div.thmname": {
+      "border-radius": ".5em .5em 0 0"
+    },
+
     "div.frame ol": {
       "list-style-type": "decimal"
     },

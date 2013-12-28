@@ -31,7 +31,7 @@
       "color": "black"
     },
 
-    "span.thmname": {
+    "div.thmname": {
       "background": "#262685",
       "color": "white"
     },

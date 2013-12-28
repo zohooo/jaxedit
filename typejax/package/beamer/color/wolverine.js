@@ -28,7 +28,7 @@
       "color": "#00007A"
     },
 
-    "span.thmname": {
+    "div.thmname": {
       "color": "blue"
     },
 

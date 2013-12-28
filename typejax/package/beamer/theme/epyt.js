@@ -10,7 +10,12 @@
 
 (function(){
   var definitions = {environment: {}, command: {}};
-  var extensions = {};
+
+  var extensions = {
+    envTheorem: function(node) {
+      this.makeTheorem(node);
+    }
+  };
 
   var styles = {
     "div.frame, div.maketitle": {
@@ -24,10 +29,12 @@
     },
 
     "div.frametitle": {
+      "background": "transparent",
       "color": "#E2D560"
     },
 
     "div.framesubtitle": {
+      "background": "transparent",
       "color": "#E2D560"
     },
 
@@ -39,7 +46,11 @@
       "border-width": "0"
     },
 
-    "div.definition, div.definitions, div.example, div.examples, div.fact, div.lemma, div.theorem, div.proposition, div.corollary, div.proof, div.exercise, div.remark, div.solution": {
+    "div.frame div.proof, div.frame div.theorem": {
+      "background": "transparent",
+      "color": "white",
+      "box-shadow": "none",
+      "margin": "0",
       "border-width": "0"
     },
 
@@ -53,6 +64,7 @@
     },
 
     "h1": {
+      "background": "transparent",
       "color": "#F6E72A"
     },
 
