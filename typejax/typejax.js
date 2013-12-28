@@ -2234,6 +2234,7 @@ window.typejax = (function($){
         beamercolorthemelily:      {file: "beamer/color/lily"},
         beamercolorthemeorchid:    {file: "beamer/color/orchid"},
         beamercolorthemerose:      {file: "beamer/color/rose"},
+        beamercolorthemewhale:     {file: "beamer/color/whale"},
         beamercolorthemewolverine: {file: "beamer/color/wolverine"},
         beamerfontthemedefault:                 {file: "beamer/font/default"},
         beamerfontthemeserif:                   {file: "beamer/font/serif"},
@@ -2268,14 +2269,14 @@ window.typejax = (function($){
         },
         beamerthemeMadrid: {
           file: "beamer/theme/Madrid",
-          pre: ["beamerinnerthemerounded", "beamercolorthemeorchid", "beamerouterthemeinfolines"]
+          pre: ["beamerinnerthemerounded", "beamercolorthemeorchid", "beamercolorthemewhale", "beamerouterthemeinfolines"]
         },
         beamerthemePittsburgh: {
           file: "beamer/theme/Pittsburgh"
         },
         beamerthemeRochester: {
           file: "beamer/theme/Rochester",
-          pre: ["beamerinnerthemerectangles", "beamercolorthemeorchid"]
+          pre: ["beamerinnerthemerectangles", "beamercolorthemeorchid", "beamercolorthemewhale"]
         },
         hyperref: {file: "hyperref/hyperref"}
       },
