@@ -15,15 +15,16 @@
   var styles = {
     "div.frame": {
       "border": "1px solid #000000",
-      "padding": "0.4em"
     },
 
-    "div.frametitle": {
-      "margin": "0.06em 0.06em 0.31em 0.06em"
+    "div.frame div.frametitle": {
+      "margin": "0",
+      "padding": ".5em .1em .3em .5em"
     },
 
-    "div.framesubtitle": {
-      "margin": "-0.31em 0.06em 0.31em 0.06em"
+    "div.frame div.framesubtitle": {
+      "margin": "-.6em 0 0 0",
+      "padding": "0 .1em .3em .5em"
     },
 
     "div.proof, div.theorem": {

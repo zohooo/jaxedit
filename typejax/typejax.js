@@ -2244,29 +2244,31 @@ window.typejax = (function($){
         beamerinnerthemedefault:    {file: "beamer/inner/default"},
         beamerinnerthemerectangles: {file: "beamer/inner/rectangles"},
         beamerinnerthemerounded:    {file: "beamer/inner/rounded"},
+        beamerouterthemedefault:   {file: "beamer/outer/default"},
+        beamerouterthemeinfolines: {file: "beamer/outer/infolines"},
         beamerthemeboxes: {
           file: "beamer/theme/boxes"
         },
         beamerthemedefault: {
           file: "beamer/theme/default",
-          pre: ["beamerinnerthemedefault", "beamercolorthemedefault", "beamerfontthemedefault"]
+          pre: ["beamerinnerthemedefault", "beamercolorthemedefault", "beamerfontthemedefault", "beamerouterthemedefault"]
         },
         beamerthemeepyt: {file: "beamer/theme/epyt"},
         beamerthemeAnnArbor: {
           file: "beamer/theme/AnnArbor",
-          pre: ["beamerinnerthemerounded", "beamercolorthemewolverine"]
+          pre: ["beamerinnerthemerounded", "beamercolorthemewolverine", "beamerouterthemeinfolines"]
         },
         beamerthemeBoadilla: {
           file: "beamer/theme/Boadilla",
-          pre: ["beamerinnerthemerounded", "beamercolorthemerose"]
+          pre: ["beamerinnerthemerounded", "beamercolorthemerose", "beamerouterthemeinfolines"]
         },
         beamerthemeCambridgeUS: {
           file: "beamer/theme/CambridgeUS",
-          pre: ["beamerinnerthemerounded", "beamercolorthemebeaver"]
+          pre: ["beamerinnerthemerounded", "beamercolorthemebeaver", "beamerouterthemeinfolines"]
         },
         beamerthemeMadrid: {
           file: "beamer/theme/Madrid",
-          pre: ["beamerinnerthemerounded", "beamercolorthemeorchid"]
+          pre: ["beamerinnerthemerounded", "beamercolorthemeorchid", "beamerouterthemeinfolines"]
         },
         beamerthemePittsburgh: {
           file: "beamer/theme/Pittsburgh"
