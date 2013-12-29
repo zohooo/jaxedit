@@ -58,8 +58,12 @@
         pkgoptn = parameters[0] ? parameters[0].split(/ *, */) : [],
         pkgname = parameters[1], pkginfo,
         prefix = "beamer" + (type || "") + "theme";
-    if (pkgname && (pkginfo = that.packages.info[prefix + pkgname])) {
-      that.addPackage([pkginfo.file, prefix + pkgname].concat(pkgoptn));
+    if (pkgname) {
+      pkgname = pkgname.split(/ *, */);
+      for (var i = 0; i < pkgname.length; i++) {
+        if (pkginfo = that.packages.info[prefix + pkgname[i]])
+          that.addPackage([pkginfo.file, prefix + pkgname[i]].concat(pkgoptn));
+      }
     }
   }
 

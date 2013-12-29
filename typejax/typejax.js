@@ -2146,8 +2146,12 @@ window.typejax = (function($){
           var parameters = this.readParameters(node),
               pkgoptn = parameters[0] ? parameters[0].split(/ *, */) : [],
               pkgname = parameters[1], pkginfo;
-          if (pkgname && (pkginfo = packages.info[pkgname])) {
-            this.addPackage([pkginfo.file, pkgname].concat(pkgoptn));
+          if (pkgname) {
+            pkgname = pkgname.split(/ *, */);
+            for (var i = 0; i < pkgname.length; i++) {
+              if (pkginfo = packages.info[pkgname[i]])
+                this.addPackage([pkginfo.file, pkgname[i]].concat(pkgoptn));
+            }
           }
         },
 
