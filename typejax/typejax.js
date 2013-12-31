@@ -255,37 +255,6 @@ window.typejax = (function($){
       }
       //console.log("totaldata:",typejax.totaldata);
     },
-
-    incSectionCounters : function(counters, sectname) {
-      var numstr;
-      switch (sectname) {
-        case "part":
-          counters.part += 1;
-          counters.section = counters.subsection = counters.subsubsection = 0;
-          numstr = "Part " + counters.part + "&nbsp;&nbsp;";
-          break;
-        case "chapter":
-          counters.chapter += 1;
-          counters.section = counters.subsection = counters.subsubsection = 0;
-          numstr = "Chapter " + counters.chapter + "&nbsp;&nbsp;";
-          break;
-        case "section":
-          counters.section += 1;
-          counters.subsection = counters.subsubsection = 0;
-          numstr = counters.section + "&nbsp;";
-          break;
-        case "subsection":
-          counters.subsection += 1;
-          counters.subsubsection = 0;
-          numstr = counters.section + "." + counters.subsection + "&nbsp;";
-          break;
-        case "subsubsection":
-          counters.subsubsection += 1;
-          numstr = counters.section + "." + counters.subsection + "." + counters.subsubsection + "&nbsp;";
-          break;
-      }
-      return numstr;
-    },
     
     updateSections : function(divstart, divend, datalength) {
       var sectdata, from = 0, to = 0, i = 0;
@@ -310,14 +279,12 @@ window.typejax = (function($){
     },
     
     updateTOC : function() {
-      var counters = {};
-      counters.part = counters.chapter = counters.section = counters.subsection = counters.subsubsection = 0;
       var sectdata, numstr, tocstr, tocdiv, anchor;
       tocstr = "<div class='contentname'><b>Contents</b></div>";
       for (i = 0; i < typejax.totalsect.length; i++) {
         sectdata = typejax.totalsect[i];
         sectname = sectdata[1];
-        numstr = this.incSectionCounters(counters, sectname);
+        numstr = "<span class='numbering'></span>";
         anchor = sectdata[3];
         tocstr += "<div class='toc-" + sectname + "'><a href='#" + anchor + "'>" + numstr + sectdata[2] + "</a></div>";
       }
