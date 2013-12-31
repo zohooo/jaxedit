@@ -83,32 +83,80 @@ a {
   text-decoration: none;
 }
 
-h1, h2, h3, h4 {
-  text-align: center;
-}
-
 h1 {
+  text-align: center;
   font-size: 2em;
 }
 
-h2 {
+div.part, div.part-s {
+  text-align: center;
+  font-weight: bold;
   font-size: 1.8em;
 }
 
-h3 {
+div.part {
+  counter-increment: part;
+}
+
+div.part span.numbering:before {
+  content: "Part " counter(part, upper-roman) "\0000a0\0000a0";
+}
+
+div.chapter, div.chapter-s {
+  text-align: center;
+  font-weight: bold;
   font-size: 1.6em;
 }
 
-h4 {
+div.chapter {
+  counter-increment: chapter;
+  counter-reset: section;
+}
+
+div.chapter span.numbering:before {
+  content: "Chapter " counter(chapter) "\0000a0\0000a0";
+}
+
+div.section, div.section-s {
+  text-align: center;
+  font-weight: bold;
   font-size: 1.4em;
 }
 
-h5 {
+div.section {
+  counter-increment: section;
+  counter-reset: subsection;
+}
+
+div.section span.numbering:before {
+  content: counter(section) "\0000a0";
+}
+
+div.subsection, div.subsection-s {
+  font-weight: bold;
   font-size: 1.2em;
 }
 
-h6 {
+div.subsection {
+  counter-increment: subsection;
+  counter-reset: subsubsection;
+}
+
+div.subsection span.numbering:before {
+  content: counter(section) "." counter(subsection) "\0000a0";
+}
+
+div.subsubsection, div.subsubsection-s {
+  font-weight: bold;
   font-size: 1em;
+}
+
+div.subsubsection {
+  counter-increment: subsubsection;
+}
+
+div.subsubsection span.numbering:before {
+  content: counter(section) "." counter(subsection) "." counter(subsubsection) "\0000a0";
 }
 
 div.author, div.date {

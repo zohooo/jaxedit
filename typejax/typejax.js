@@ -144,7 +144,6 @@ window.typejax = (function($){
         // or clear all text content in textarea
         divstart = 0; // for scrollIntoView after mathjax typeset
         divend = typejax.totaldata.length; // for updateHeight function
-        this.initSections(0);
         typejax.parser.load(typejax.totaltext, 0, typejax.totalsize, function(outdiv){
           changeAll(outdiv);
           changeDone();
@@ -153,7 +152,6 @@ window.typejax = (function($){
         var modinfo = that.markData(delstart, delend, instext);
         var divstart = modinfo[3], divend = modinfo[4];
         typejax.innerdata = [];
-        this.initSections(divstart);
         typejax.parser.load(typejax.totaltext, modinfo[0], modinfo[1] + modinfo[2], function(outdiv){
           changeSome(outdiv);
           changeDone();
@@ -288,18 +286,6 @@ window.typejax = (function($){
       }
       return numstr;
     },
-
-    initSections : function(divstart) {
-      var counters = typejax.parser.latex.counters;
-      counters.part = counters.chapter = counters.section = counters.subsection = counters.subsubsection = 0;
-      for (var i = 0; i < typejax.totalsect.length; i++) {
-        if (typejax.totalsect[i][0] >= divstart) {
-          break;
-        } else {
-          this.incSectionCounters(counters, typejax.totalsect[i][1])
-        }
-      }
-    },
     
     updateSections : function(divstart, divend, datalength) {
       var sectdata, from = 0, to = 0, i = 0;
@@ -319,21 +305,12 @@ window.typejax = (function($){
       typejax.totalsect.splice(from, to - from);
       for (i = 0; i < typejax.innersect.length; i++) {
         sectdata = typejax.innersect[i];
-        typejax.totalsect.splice(from + i, 0, [sectdata[0] + divstart, sectdata[1], sectdata[2]]);
-      }
-      var counters = typejax.parser.latex.counters, anchor;
-      for (i = from + typejax.innersect.length; i < typejax.totalsect.length; i++) {
-        var sectdiv = this.showarea.childNodes[typejax.totalsect[i][0]],
-            numspan = sectdiv.getElementsByTagName("span")[0],
-            sectname = sectdiv.className.split(" ").pop();
-        numstr = this.incSectionCounters(counters, sectname);
-        anchor = counters.part + "_" + counters.chapter + "_" + counters.section + "_" + counters.subsection + "_" + counters.subsubsection;
-        if (numspan) numspan.innerHTML = "<a name='#" + anchor + "'></a>" + numstr;
+        typejax.totalsect.splice(from + i, 0, [sectdata[0] + divstart, sectdata[1], sectdata[2], sectdata[3]]);
       }
     },
     
     updateTOC : function() {
-      var counters = typejax.parser.latex.counters;
+      var counters = {};
       counters.part = counters.chapter = counters.section = counters.subsection = counters.subsubsection = 0;
       var sectdata, numstr, tocstr, tocdiv, anchor;
       tocstr = "<div class='contentname'><b>Contents</b></div>";
@@ -341,8 +318,8 @@ window.typejax = (function($){
         sectdata = typejax.totalsect[i];
         sectname = sectdata[1];
         numstr = this.incSectionCounters(counters, sectname);
-        anchor = counters.part + "_" + counters.chapter + "_" + counters.section + "_" + counters.subsection + "_" + counters.subsubsection;
-        tocstr += "<div class='toc-" + sectname + "'><a href='##" + anchor + "'>" + numstr + sectdata[2] + "</a></div>";
+        anchor = sectdata[3];
+        tocstr += "<div class='toc-" + sectname + "'><a href='#" + anchor + "'>" + numstr + sectdata[2] + "</a></div>";
       }
       tocdiv = document.getElementById("tableofcontents");
       if (tocdiv) tocdiv.innerHTML = tocstr;
@@ -1861,6 +1838,7 @@ window.typejax = (function($){
         documentclass: "article"
       },
       counters : {},
+      identifier: 0,
       thmnames : {}
     };
 
@@ -2030,65 +2008,19 @@ window.typejax = (function($){
 
         cmdSection: function(node) {
           var csname = node.name, argarray = node.argarray;
-          var counters = this.counters, headstr, numstr = "", sectintoc;
+          var sectintoc, anchor;
           var value1 = typejax.builder(argarray[1], false),
               value0 = argarray[0] ? typejax.builder(argarray[0], false) : "";
-          switch (csname) {
-            case "part":
-              counters.part += 1;
-              counters.section = counters.subsection = counters.subsubsection = 0;
-              numstr = "Part " + counters.part + "&nbsp;&nbsp;";
-              headstr = "h2";
-              break;
-            case "part*":
-              headstr = "h2";
-              break;
-            case "chapter":
-              counters.chapter += 1;
-              counters.section = counters.subsection = counters.subsubsection = 0;
-              numstr = "Chapter " + counters.chapter + "&nbsp;&nbsp;";
-              headstr = "h3";
-              break;
-            case "chapter*":
-              headstr = "h3";
-              break;
-            case "section":
-              counters.section += 1;
-              counters.subsection = counters.subsubsection = 0;
-              numstr = counters.section + "&nbsp;";
-              headstr = "h4";
-              break;
-            case "section*":
-              headstr = "h4";
-              break;
-            case "subsection":
-              counters.subsection += 1;
-              counters.subsubsection = 0;
-              numstr = counters.section + "." + counters.subsection + "&nbsp;";
-              headstr = "h5";
-              break;
-            case "subsection*":
-              headstr = "h5";
-              break;
-            case "subsubsection":
-              counters.subsubsection += 1;
-              numstr = counters.section + "." + counters.subsection + "." + counters.subsubsection + "&nbsp;";
-              headstr = "h6";
-              break;
-            case "subsubsection*":
-              headstr = "h6";
-              break;
-          }
-          var anchor = counters.part + "_" + counters.chapter + "_" + counters.section + "_" + counters.subsection + "_" + counters.subsubsection;
-          if (numstr) {
-            sectintoc = value0 ? value0 : value1;
-            typejax.innersect.push([typejax.innerdata.length, csname, sectintoc]);
-            var s = "<" + headstr + "><span><a name='#" + anchor + "'></a>" + numstr + "</span>" + value1 + "</" + headstr + ">";
+          if (csname.slice(-1) == "*") {
+            node.name = csname.slice(0, -1) + "-s";
+            node.value = "<span>" + value1 + "</span>";
           } else {
-            var s = "<" + headstr + ">" + value1 + "</" + headstr + ">";
+            sectintoc = value0 ? value0 : value1;
+            anchor = "typejax-identifier-" + (++latex.identifier);
+            typejax.innersect.push([typejax.innerdata.length, csname, sectintoc, anchor]);
+            node.value = "<span class='numbering' id='" + anchor + "'></span><span>" + value1 + "</span>";
           }
           node.childs = [];
-          node.value = s;
         },
 
         cmdTableofcontents: function(node) {
