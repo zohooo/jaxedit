@@ -2181,6 +2181,10 @@ window.typejax = (function($){
           file: "beamer/theme/Rochester",
           pre: ["beamerinnerthemerectangles", "beamercolorthemeorchid", "beamercolorthemewhale"]
         },
+        ctex: {file: "ctex/ctex"},
+        ctexart: {file: "ctex/ctex"},
+        ctexbook: {file: "ctex/ctex"},
+        ctexcap: {file: "ctex/ctex"},
         hyperref: {file: "hyperref/hyperref"}
       },
       list: {used: [], current: [], missing: [], existing: []}
