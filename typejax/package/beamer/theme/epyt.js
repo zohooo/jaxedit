@@ -54,7 +54,7 @@
       "border-width": "0"
     },
 
-    "span.thmname": {
+    ".thmhead": {
       "color": "#D7CB70",
       "padding-right": "0.5em"
     },

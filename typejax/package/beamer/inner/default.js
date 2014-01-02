@@ -50,7 +50,7 @@
       "border": "1px dashed #C1C1C1"
     },
 
-    "div.thmname": {
+    ".thmhead": {
       "font-weight": "bold",
       "height": "2em",
       "line-height": "2em"

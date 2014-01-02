@@ -31,7 +31,7 @@
       "color": "black"
     },
 
-    "div.thmname": {
+    ".thmhead": {
       "background": "#D6D6EF",
       "color": "#3333B2"
     },

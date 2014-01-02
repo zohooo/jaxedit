@@ -531,7 +531,7 @@ window.typejax = (function($){
         this.packages = packages;
         this.cmdvalues = latex.cmdvalues;
         this.counters = latex.counters;
-        this.thmnames = latex.thmnames;
+        this.theorems = latex.theorems;
 
         this.openNewGroup("env", "par", modstart);
 
@@ -1048,7 +1048,7 @@ window.typejax = (function($){
         if (work) {
           work.call(this, node);
         } else {
-          if (this.thmnames[name]) {
+          if (this.theorems[name]) {
             this.envTheorem(node);
           }
         }
@@ -1763,23 +1763,33 @@ window.typejax = (function($){
         $.addStyles(reset + incre, "typejax-counter");
       },
 
+      newCounter: function(name, parent) {
+        var value = {parent: parent, content: "'\\0000a0' counter(" + name + ") '\\0000a0'"};
+        latex.counters[name] = value;
+        this.buildCounters(name, value);
+      },
+
       makeTheorem: function(node) {
         if (node.childs.length == 0) return; //fix for empty content in theorems
-        var envname = node.name, thmname = this.thmnames[envname];
-        var cname = (envname.slice(-1) == '*') ? envname.slice(0, -1) : envname;
-        if (!thmname) {
-          thmname = cname.charAt(0).toUpperCase() + cname.slice(1);
+        var envname = node.name, theorem = this.theorems[envname]; if (!theorem) return;
+        var cname = (envname.slice(-1) == '*') ? envname.slice(0, -1) : envname,
+            thmhead = thmname = theorem.thmname,
+            counter = theorem.counter, star = theorem.star;
+        if (counter) {
+          thmhead += "<span class='the" + counter + "'></span>";
+        } else if (!star) {
+          thmhead += "<span class='the" + cname + "'></span>";
         }
         if (node.argarray[0]) {
-          thmname += " (" + node.argarray[0].childs[0].value + ")";
+          thmhead += " (" + node.argarray[0].childs[0].value + ")";
           node.childs.splice(0, 1);
         }
         var textnode = {
           type: "env",
-          name: "thmname",
+          name: "thmhead",
           mode: "inline",
           from: node.childs[0].from,
-          value: "<b>" + thmname + " </b>",
+          value: "<span>" + thmhead + " </span>",
           parent: node.childs[0],
           childs: []
         };
@@ -1826,10 +1836,14 @@ window.typejax = (function($){
       cmdvalues : {
         documentclass: "article"
       },
-      counters : {},
+      counters : {
+        theorem: {content: "'\\0000a0' counter(theorem) '\\0000a0'"}
+      },
       subcounters: {},
-      identifier: 0,
-      thmnames : {}
+      theorems : {
+        theorem: {thmname: "Theorem", counter: "theorem"}
+      },
+      identifier: 0
     };
 
     var extend = function(pkgfile, definitions, extensions, styles, counters) {
@@ -1875,6 +1889,7 @@ window.typejax = (function($){
           "documentclass":            {mode: "inline", args: ["[]", "{}"]},
           "group":                    {mode: "inline", args: ["{}"]},
           "maketitle":                {mode: "block", args: []},
+          "newcounter":               {mode: "inline", args: ["{}", "[]"]},
           "newtheorem":               {mode: "inline", args: ["{}", "[]", "{}", "[]"]},
           "newtheorem*":              {mode: "inline", args: ["{}", "{}"]},
           "paragraph":                {mode: "inline", args: ["[]", "{}"]},
@@ -1899,17 +1914,10 @@ window.typejax = (function($){
           "bmath":                    {mode: "block"},
           "center":                   {mode: "main", args: ["||"], outs: ["par", "center"]},
           "enumerate":                {mode: "block", args: ["[]", "||"]},
-          "exercise":                 "theorem",
           "item":                     {mode: "main", args: ["<>", "||"]},
           "itemize":                  {mode: "block", args: ["[]", "||"]},
-          "lemma":                    "theorem",
-          "lemma*":                   "theorem",
           "par":                      {mode: "block", args: ["||"], outs: ["par", "section"]},
           "preamble":                 {mode: "main", args: ["||"]},
-          "proposition":              "theorem",
-          "proposition*":             "theorem",
-          "remark":                   "theorem",
-          "solution":                 "theorem",
           "tabular":                  {mode: "inline", args: ["{}", "||"]},
           "theorem":                  {mode: "main", args: ["[]", "||"], outs: ["par", "theorem"]},
           "verbatim":                 {mode: "block", args: ["||"], outs: ["par"]}
@@ -1973,6 +1981,14 @@ window.typejax = (function($){
           node.value = result;
         },
 
+        cmdNewcounter: function(node) {
+          var parameters = this.readParameters(node),
+              name = parameters[0], parent = parameters[1] || null;
+          if (name) {
+            this.newCounters(name, parent);
+          }
+        },
+
         cmdNewline: function() {
           this.addText("<br>", this.place - 1);
         },
@@ -1981,14 +1997,34 @@ window.typejax = (function($){
           // \newtheorem{envname}{thmname}[numberby]
           // \newtheorem{envname}[counter]{thmname}
           // \newtheorem*{envname}{thmname}
-          var csname = node.name, argarray = node.argarray;
-          var envname = argarray[0].childs[0].value;
+          var csname = node.name, parameters = this.readParameters(node);
+          var envname = parameters[0]; if (!envname) return;
+          var thmname, numberby, counter;
           if (csname == "newtheorem") {
-            this.thmnames[envname] = argarray[2].childs[0].value;
-          } else {
-            this.thmnames[envname] = argarray[1].childs[0].value;
+            counter = parameters[1]; thmname = parameters[2]; numberby = parameters[3];
+            if (thmname) {
+              this.theorems[envname] = {thmname: thmname};
+              if (envname != "theorem") {
+                latex["article"]["definitions"]["environment"][envname] = "theorem";
+              }
+              if (numberby) {
+                this.newCounter(envname, numberby);
+              } else if (counter) {
+                this.theorems[envname].counter = counter;
+              } else {
+                this.newCounter(envname, null);
+              }
+            }
+            this.theorems[envname];
+          } else { // newtheorem*
+            thmname = parameters[1];
+            if (thmname) {
+              this.theorems[envname] = {thmname: thmname, star: true};
+              if (envname != "theorem") {
+                latex["article"]["definitions"]["environment"][envname] = "theorem";
+              }
+            }
           }
-          latex["article"]["definitions"]["environment"][envname] = "theorem";
         },
 
         cmdParagraph: function(node) {

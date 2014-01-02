@@ -13,7 +13,7 @@
   var extensions = {};
 
   var styles = {
-    "h1, div.frametitle, div.framesubtitle, span.thmname": {
+    "h1, div.frametitle, div.framesubtitle, .thmhead": {
       "font-weight": "bold"
     }
   };

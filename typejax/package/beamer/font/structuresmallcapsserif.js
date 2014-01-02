@@ -13,7 +13,7 @@
   var extensions = {};
 
   var styles = {
-    "h1, div.frametitle, div.framesubtitle, span.thmname": {
+    "h1, div.frametitle, div.framesubtitle, .thmhead": {
       "font-family": "Georgia, 'Times New Roman', Times, serif",
       "font-variant": "small-caps"
     }

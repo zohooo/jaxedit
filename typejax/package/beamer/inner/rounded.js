@@ -18,7 +18,7 @@
       "box-shadow": ".3em .3em .1em #aaa"
     },
 
-    "div.frame div.thmname": {
+    "div.frame .thmhead": {
       "border-radius": ".5em .5em 0 0"
     },
 

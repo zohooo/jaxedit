@@ -28,7 +28,7 @@
       "color": "#C00"
     },
 
-    "div.thmname": {
+    "thmhead": {
       "color": "blue"
     },
 

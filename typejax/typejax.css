@@ -121,6 +121,10 @@ div.author, div.date {
   margin: 0.8em 0;
 }
 
+.thmhead {
+  font-weight: bold;
+}
+
 span.qquad {
   display: inline-block;
   width: 2em;

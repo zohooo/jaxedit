@@ -91,21 +91,26 @@
     },
 
     envTheorem: function(node) {
-      var envname = node.name, thmname = this.thmnames[envname];
-      var cname = (envname.slice(-1) == '*') ? envname.slice(0, -1) : envname;
-      if (!thmname) {
-        thmname = cname.charAt(0).toUpperCase() + cname.slice(1);
+      if (node.childs.length == 0) return;
+      var envname = node.name, theorem = this.theorems[envname]; if (!theorem) return;
+      var cname = (envname.slice(-1) == '*') ? envname.slice(0, -1) : envname,
+          thmhead = thmname = theorem.thmname,
+          counter = theorem.counter, star = theorem.star;
+      if (counter) {
+        thmhead += "<span class='the" + counter + "'></span>";
+      } else if (!star) {
+        thmhead += "<span class='the" + cname + "'></span>";
       }
       if (node.argarray[0]) {
-        thmname += " (" + node.argarray[0].childs[0].value + ")";
+        thmhead += " (" + node.argarray[0].childs[0].value + ")";
         node.childs.splice(0, 1);
       }
       var thmnode = {
         type: "env",
-        name: "thmname",
+        name: "thmhead",
         mode: "block",
         from: node.from,
-        value: thmname,
+        value: "<span>" + thmhead + " </span>",
         parent: node,
         childs: []
       };
