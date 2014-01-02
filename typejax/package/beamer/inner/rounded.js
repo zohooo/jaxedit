@@ -10,7 +10,7 @@
 
 (function(){
   var definitions = {environment: {}, command: {}};
-  var extensions = {};
+  var renderers = {};
 
   var styles = {
     "div.frame div.theorem": {
@@ -31,5 +31,5 @@
     }
   };
 
-  typejax.parser.extend("beamer/inner/rounded", definitions, extensions, styles);
+  typejax.parser.extend("beamer/inner/rounded", definitions, renderers, styles);
 })();

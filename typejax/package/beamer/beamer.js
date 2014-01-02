@@ -67,7 +67,7 @@
     }
   }
 
-  var extensions = {
+  var renderers = {
     envFrame : function(node) {
       //  \begin{frame}<overlay specification>[<default overlay specification>][options]{title}{subtitle}
       //  environment contents
@@ -151,5 +151,5 @@
     }
   };
 
-  typejax.parser.extend("beamer/beamer", definitions, extensions);
+  typejax.parser.extend("beamer/beamer", definitions, renderers);
 })();

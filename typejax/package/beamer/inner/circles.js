@@ -10,7 +10,7 @@
 
 (function(){
   var definitions = {environment: {}, command: {}};
-  var extensions = {};
+  var renderers = {};
 
   var styles = {
     "div.frame ol": {
@@ -22,5 +22,5 @@
     }
   };
 
-  typejax.parser.extend("beamer/inner/circles", definitions, extensions, styles);
+  typejax.parser.extend("beamer/inner/circles", definitions, renderers, styles);
 })();

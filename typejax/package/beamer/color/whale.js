@@ -10,7 +10,7 @@
 
 (function(){
   var definitions = {environment: {}, command: {}};
-  var extensions = {};
+  var renderers = {};
 
   var styles = {
     "div.frametitle": {
@@ -29,5 +29,5 @@
     }
   };
 
-  typejax.parser.extend("beamer/color/whale", definitions, extensions, styles);
+  typejax.parser.extend("beamer/color/whale", definitions, renderers, styles);
 })();

@@ -18,7 +18,7 @@
     }
   };
 
-  var extensions = {
+  var renderers = {
     cmdHref: function(node) {
       // \href[options]{URL}{text}
       var argarray = node.argarray;
@@ -46,5 +46,5 @@
     }
   };
 
-  typejax.parser.extend("hyperref/hyperref", definitions, extensions, styles);
+  typejax.parser.extend("hyperref/hyperref", definitions, renderers, styles);
 })();

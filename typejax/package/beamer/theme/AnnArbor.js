@@ -10,6 +10,6 @@
 
 (function(){
   var definitions = {environment: {}, command: {}};
-  var extensions = {};
-  typejax.parser.extend("beamer/theme/AnnArbor", definitions, extensions);
+  var renderers = {};
+  typejax.parser.extend("beamer/theme/AnnArbor", definitions, renderers);
 })();

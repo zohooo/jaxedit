@@ -10,7 +10,7 @@
 
 (function(){
   var definitions = {environment: {}, command: {}};
-  var extensions = {};
+  var renderers = {};
 
   var counters = {
     "part":         {content: "'\\007B2C\\0000A0' counter(part, upper-roman) '\\0000A0\\0090E8\\005206\\0000A0\\0000A0'"},
@@ -21,5 +21,5 @@
     "-toc-section": {parent: "-toc-chapter", content: "'\\007B2C\\0000A0' counter(-toc-section) '\\0000A0\\008282\\0000A0\\0000A0'"}
   };
 
-  typejax.parser.extend("ctex/ctex", definitions, extensions, null, counters);
+  typejax.parser.extend("ctex/ctex", definitions, renderers, null, counters);
 })();

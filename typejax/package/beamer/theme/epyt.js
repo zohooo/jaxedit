@@ -11,7 +11,7 @@
 (function(){
   var definitions = {environment: {}, command: {}};
 
-  var extensions = {
+  var renderers = {
     envTheorem: function(node) {
       this.makeTheorem(node);
     }
@@ -73,5 +73,5 @@
     }
   };
 
-  typejax.parser.extend("beamer/theme/epyt", definitions, extensions, styles);
+  typejax.parser.extend("beamer/theme/epyt", definitions, renderers, styles);
 })();

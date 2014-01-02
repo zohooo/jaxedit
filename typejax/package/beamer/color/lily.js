@@ -10,7 +10,7 @@
 
 (function(){
   var definitions = {environment: {}, command: {}};
-  var extensions = {};
+  var renderers = {};
 
   var styles = {
     "div.frame, div.maketitle": {
@@ -39,5 +39,5 @@
     }
   };
 
-  typejax.parser.extend("beamer/color/lily", definitions, extensions, styles);
+  typejax.parser.extend("beamer/color/lily", definitions, renderers, styles);
 })();

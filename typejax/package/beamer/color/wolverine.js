@@ -10,7 +10,7 @@
 
 (function(){
   var definitions = {environment: {}, command: {}};
-  var extensions = {};
+  var renderers = {};
 
   var styles = {
     "div.frame, div.maketitle": {
@@ -42,5 +42,5 @@
     }
   };
 
-  typejax.parser.extend("beamer/color/wolverine", definitions, extensions, styles);
+  typejax.parser.extend("beamer/color/wolverine", definitions, renderers, styles);
 })();

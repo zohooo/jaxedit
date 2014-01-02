@@ -1824,9 +1824,9 @@ window.typejax = (function($){
           var func = type + name.charAt(0).toUpperCase() + name.slice(1);
           for (var i = used.length - 1; i >=0; i--) {
             var pkgname = used[i][0];
-            if (result = latex[pkgname]["extensions"][func]) break;
+            if (result = latex[pkgname]["renderers"][func]) break;
           }
-          this.cache[type][name] = result = result || latex["article"]["extensions"][func];
+          this.cache[type][name] = result = result || latex["article"]["renderers"][func];
           return result;
         }
       }
@@ -1846,10 +1846,10 @@ window.typejax = (function($){
       identifier: 0
     };
 
-    var extend = function(pkgfile, definitions, extensions, styles, counters) {
+    var extend = function(pkgfile, definitions, renderers, styles, counters) {
       latex[pkgfile] = {
         definitions: definitions,
-        extensions: extensions
+        renderers: renderers
       }
       if (styles) {
         var content = "";
@@ -1924,7 +1924,7 @@ window.typejax = (function($){
         }
       };
 
-      var extensions = {
+      var renderers = {
         cmdAuthor: function(node) {
           this.renderers.find("cmd", "title").call(this, node);
         },
@@ -2224,7 +2224,7 @@ window.typejax = (function($){
         "-toc-subsubsection": {parent: "-toc-subsection", content: "counter(-toc-section) '.' counter(-toc-subsection) '.' counter(-toc-subsubsection) '\\0000a0'"}
       };
 
-      extend("article", definitions, extensions, null, counters);
+      extend("article", definitions, renderers, null, counters);
     })();
 
     var packages = {

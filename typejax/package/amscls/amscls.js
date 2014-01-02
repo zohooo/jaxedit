@@ -24,7 +24,7 @@
     }
   };
 
-  var extensions = {
+  var renderers = {
     cmdDedicatory: function(node) {
       this.renderers.find("cmd", "title").call(this, node);
     },
@@ -55,5 +55,5 @@
     }
   };
 
-  typejax.parser.extend("amscls/amscls", definitions, extensions, styles);
+  typejax.parser.extend("amscls/amscls", definitions, renderers, styles);
 })();

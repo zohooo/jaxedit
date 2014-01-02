@@ -10,7 +10,7 @@
 
 (function(){
   var definitions = {environment: {}, command: {}};
-  var extensions = {};
+  var renderers = {};
 
   var styles = {
     "div.frame > div": {
@@ -18,5 +18,5 @@
     },
   };
 
-  typejax.parser.extend("beamer/outer/infolines", definitions, extensions, styles);
+  typejax.parser.extend("beamer/outer/infolines", definitions, renderers, styles);
 })();

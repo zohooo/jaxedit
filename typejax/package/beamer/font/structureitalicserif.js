@@ -10,7 +10,7 @@
 
 (function(){
   var definitions = {environment: {}, command: {}};
-  var extensions = {};
+  var renderers = {};
 
   var styles = {
     "h1, div.frametitle, div.framesubtitle, .thmhead": {
@@ -19,5 +19,5 @@
     }
   };
 
-  typejax.parser.extend("beamer/font/structureitalicserif", definitions, extensions, styles);
+  typejax.parser.extend("beamer/font/structureitalicserif", definitions, renderers, styles);
 })();

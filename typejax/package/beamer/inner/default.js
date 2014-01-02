@@ -10,7 +10,7 @@
 
 (function(){
   var definitions = {environment: {}, command: {}};
-  var extensions = {};
+  var renderers = {};
 
   var styles = {
     "div.frame": {
@@ -65,5 +65,5 @@
     }
   };
 
-  typejax.parser.extend("beamer/inner/default", definitions, extensions, styles);
+  typejax.parser.extend("beamer/inner/default", definitions, renderers, styles);
 })();

@@ -10,7 +10,7 @@
 
 (function(){
   var definitions = {environment: {}, command: {}};
-  var extensions = {};
+  var renderers = {};
 
   var styles = {
     "div.frametitle, div.framesubtitle": {
@@ -18,5 +18,5 @@
     }
   };
 
-  typejax.parser.extend("beamer/theme/Pittsburgh", definitions, extensions, styles);
+  typejax.parser.extend("beamer/theme/Pittsburgh", definitions, renderers, styles);
 })();

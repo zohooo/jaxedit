@@ -10,7 +10,7 @@
 
 (function(){
   var definitions = {environment: {}, command: {}};
-  var extensions = {};
+  var renderers = {};
 
   var styles = {
     "div.frame": {
@@ -18,5 +18,5 @@
     }
   };
 
-  typejax.parser.extend("beamer/font/serif", definitions, extensions, styles);
+  typejax.parser.extend("beamer/font/serif", definitions, renderers, styles);
 })();
