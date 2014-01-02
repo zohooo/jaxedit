@@ -162,10 +162,11 @@ window.typejax = (function($){
         console.log("innerdata:", typejax.innerdata);
         typejax.totaldata = typejax.innerdata;
         typejax.totalsect = typejax.innersect;
-        var output = "", data = "";
+        var output = "", data = "", style;
         while (outdiv.length > 0) {
           data = outdiv.shift();
-          output += "<div class='envblock " + data[0] + "'>" + data[1] + "</div>";
+          style = data[2] ? " style='counter-reset:" + data[2] + ";'" : "";
+          output += "<div class='envblock " + data[0] + "'" + style + ">" + data[1] + "</div>";
         }
         showarea.innerHTML = output;
       }
@@ -180,6 +181,7 @@ window.typejax = (function($){
         for (i=0; i<outdiv.length; i++) {
           node = document.createElement("div");
           node.className = "envblock " + outdiv[i][0];
+          if (outdiv[i][2]) node.style.cssText = "counter-reset:" + outdiv[i][2] + ";";
           node.innerHTML = outdiv[i][1];
           showarea.insertBefore(node, showarea.childNodes[divstart+i] || null);
         }
@@ -280,13 +282,15 @@ window.typejax = (function($){
     
     updateTOC : function() {
       var sectdata, numstr, tocstr, tocdiv, anchor;
+      var subcounters = typejax.parser.latex.subcounters, style = "";
       tocstr = "<div class='contentname'><b>Contents</b></div>";
       for (i = 0; i < typejax.totalsect.length; i++) {
         sectdata = typejax.totalsect[i];
         sectname = sectdata[1];
-        numstr = "<span class='numbering'></span>";
+        numstr = "<span class='the-toc-" + sectname + "'></span>";
         anchor = sectdata[3];
-        tocstr += "<div class='toc-" + sectname + "'><a href='#" + anchor + "'>" + numstr + sectdata[2] + "</a></div>";
+        if (subcounters["-toc-" + sectname]) style = " style='counter-reset:" + subcounters["-toc-" + sectname] + ";'";
+        tocstr += "<div class='toc-" + sectname + "'" + style + "><a href='#" + anchor + "'>" + numstr + sectdata[2] + "</a></div>";
       }
       tocdiv = document.getElementById("tableofcontents");
       if (tocdiv) tocdiv.innerHTML = tocstr;
@@ -1742,6 +1746,23 @@ window.typejax = (function($){
         if (post) post = getfiles(this, post);
       },
 
+      buildCounters: function() {
+        var subcounters = latex.subcounters = {}, parent, reset = "", incre = "";
+        $.each(latex.counters, function(name, value){
+          if (parent = value.parent) {
+            subcounters[parent] = subcounters[parent] || "";
+            subcounters[parent] += (" " + name);
+          }
+        });
+        $.each(latex.counters, function(name, value){
+          reset += " " + name;
+          incre += ".the" + name + " {counter-increment: " + name + ";}\n";
+          incre += ".the" + name + ":before {content: " + value.content + ";}\n";
+        });
+        reset = "\nbody {counter-reset:" + reset + ";}\n"
+        $.addStyles(reset + incre, "typejax-counter");
+      },
+
       makeTheorem: function(node) {
         if (node.childs.length == 0) return; //fix for empty content in theorems
         var envname = node.name, thmname = this.thmnames[envname];
@@ -1805,8 +1826,33 @@ window.typejax = (function($){
         documentclass: "article"
       },
       counters : {},
+      subcounters: {},
       identifier: 0,
       thmnames : {}
+    };
+
+    var extend = function(pkgfile, definitions, extensions, styles, counters) {
+      latex[pkgfile] = {
+        definitions: definitions,
+        extensions: extensions
+      }
+      if (styles) {
+        var content = "";
+        $.each(styles, function(selector, style) {
+          content += selector + " {\n";
+            $.each(style, function(property, value) {
+              content += "  " + property + ": " + value + ";\n"
+            });
+          content += "}\n";
+        });
+        $.addStyles(content, "typejax-package-" + pkgfile.replace(/\//g, "-"));
+      }
+      if (counters) {
+        $.each(counters, function(key, value){
+          latex.counters[key] = value;
+        });
+        syner.buildCounters();
+      }
     };
 
     /* group.mode
@@ -1818,8 +1864,8 @@ window.typejax = (function($){
      */
     // group.outs: list of groups which could not include it
 
-    latex["article"] = {
-      definitions: {
+    (function() {
+      var definitions = {
         command: {
           "author":                   {mode: "inline", args: ["[]", "{}"]},
           "chapter":                  "section",
@@ -1867,8 +1913,9 @@ window.typejax = (function($){
           "theorem":                  {mode: "main", args: ["[]", "||"], outs: ["par", "theorem"]},
           "verbatim":                 {mode: "block", args: ["||"], outs: ["par"]}
         }
-      },
-      extensions: {
+      };
+
+      var extensions = {
         cmdAuthor: function(node) {
           this.renderers.find("cmd", "title").call(this, node);
         },
@@ -1985,7 +2032,8 @@ window.typejax = (function($){
             sectintoc = value0 ? value0 : value1;
             anchor = "typejax-identifier-" + (++latex.identifier);
             typejax.innersect.push([typejax.innerdata.length, csname, sectintoc, anchor]);
-            node.value = "<span class='numbering' id='" + anchor + "'></span><span>" + value1 + "</span>";
+            node.value = "<span class='the" + csname + "' id='" + anchor + "'></span><span>" + value1 + "</span>";
+            node.reset = latex.subcounters[csname] || undefined;
           }
           node.childs = [];
         },
@@ -2124,8 +2172,23 @@ window.typejax = (function($){
         envTheorem: function(node) {
           this.makeTheorem(node);
         }
-      }
-    };
+      };
+
+      var counters = {
+        "part":               {content: "'Part ' counter(part, upper-roman) '\\0000a0\\0000a0'"},
+        "chapter":            {content: "'Chapter ' counter(chapter) '\\0000a0\\0000a0'"},
+        "section":            {parent: "chapter", content: "counter(section) '\\0000a0'"},
+        "subsection":         {parent: "section", content: "counter(section) '.' counter(subsection) '\\0000a0'"},
+        "subsubsection":      {parent: "subsection", content: "counter(section) '.' counter(subsection) '.' counter(subsubsection) '\\0000a0'"},
+        "-toc-part":          {content: "'Part ' counter(-toc-part, upper-roman) '\\0000a0\\0000a0'"},
+        "-toc-chapter":       {content: "'Chapter ' counter(-toc-chapter) '\\0000a0\\0000a0'"},
+        "-toc-section":       {parent: "-toc-chapter", content: "counter(-toc-section) '\\0000a0'"},
+        "-toc-subsection":    {parent: "-toc-section", content: "counter(-toc-section) '.' counter(-toc-subsection) '\\0000a0'"},
+        "-toc-subsubsection": {parent: "-toc-subsection", content: "counter(-toc-section) '.' counter(-toc-subsection) '.' counter(-toc-subsubsection) '\\0000a0'"}
+      };
+
+      extend("article", definitions, extensions, null, counters);
+    })();
 
     var packages = {
       info: {
@@ -2194,10 +2257,12 @@ window.typejax = (function($){
       console.log("---------------- start parser ----------------");
       syner.analysis(input, modstart, modend);
       syner.printTree(syner.innertree);
-      var outhtml = [];
+      var outhtml = [], html;
       var i, childs = syner.innertree.childs;
       for (i = 0; i < childs.length; i++) {
-        outhtml.push([childs[i].name, that.builder(childs[i], false)]);
+        that.builder.reset = "";
+        html = that.builder(childs[i], false);
+        outhtml.push([childs[i].name, html, that.builder.reset]);
       }
       console.log("outhtml:", outhtml);
       return outhtml;
@@ -2221,29 +2286,12 @@ window.typejax = (function($){
       callback.call(typejax.updater, outhtml);
     };
 
-    function extend(pkgfile, definitions, extensions, styles) {
-      latex[pkgfile] = {
-        definitions: definitions,
-        extensions: extensions
-      }
-      if (styles) {
-        var content = "";
-        $.each(styles, function(selector, style) {
-          content += selector + " {\n";
-            $.each(style, function(property, value) {
-              content += "  " + property + ": " + value + ";\n"
-            });
-          content += "}\n";
-        });
-        $.addStyles(content, "typejax-package-" + pkgfile.replace(/\//g, "-"));
-      }
-    }
-
     return { latex: latex, load: load, extend: extend };
   })(typejax);
 
   typejax.builder = function(tree, flag){
     var open, close, html = "";
+    if (tree.reset) this.builder.reset += tree.reset;
     if (flag) {
       if (tree.mode == "inline") {
         open = "<span class='" + tree.name + "'>", close = "</span>";

@@ -94,27 +94,10 @@ div.part, div.part-s {
   font-size: 1.8em;
 }
 
-div.part, div.toc-part {
-  counter-increment: part;
-}
-
-div.part span.numbering:before, div.toc-part span.numbering:before  {
-  content: "Part " counter(part, upper-roman) "\0000a0\0000a0";
-}
-
 div.chapter, div.chapter-s {
   text-align: center;
   font-weight: bold;
   font-size: 1.6em;
-}
-
-div.chapter, div.toc-chapter {
-  counter-increment: chapter;
-  counter-reset: section;
-}
-
-div.chapter span.numbering:before, div.toc-chapter span.numbering:before {
-  content: "Chapter " counter(chapter) "\0000a0\0000a0";
 }
 
 div.section, div.section-s {
@@ -123,40 +106,14 @@ div.section, div.section-s {
   font-size: 1.4em;
 }
 
-div.section, div.toc-section {
-  counter-increment: section;
-  counter-reset: subsection;
-}
-
-div.section span.numbering:before, div.toc-section span.numbering:before {
-  content: counter(section) "\0000a0";
-}
-
 div.subsection, div.subsection-s {
   font-weight: bold;
   font-size: 1.2em;
 }
 
-div.subsection, div.toc-subsection {
-  counter-increment: subsection;
-  counter-reset: subsubsection;
-}
-
-div.subsection span.numbering:before, div.toc-subsection span.numbering:before {
-  content: counter(section) "." counter(subsection) "\0000a0";
-}
-
 div.subsubsection, div.subsubsection-s {
   font-weight: bold;
   font-size: 1em;
-}
-
-div.subsubsection, div.toc-subsubsection {
-  counter-increment: subsubsection;
-}
-
-div.subsubsection span.numbering:before, div.toc-subsubsection span.numbering:before {
-  content: counter(section) "." counter(subsection) "." counter(subsubsection) "\0000a0";
 }
 
 div.author, div.date {

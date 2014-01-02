@@ -12,19 +12,14 @@
   var definitions = {environment: {}, command: {}};
   var extensions = {};
 
-  var styles = {
-    "div.part span.numbering:before, div.toc-part span.numbering:before": {
-      "content": "'\\007B2C\\0000A0' counter(part, upper-roman) '\\0000A0\\0090E8\\005206\\0000A0\\0000A0'"
-    },
-
-    "div.chapter span.numbering:before, div.toc-chapter span.numbering:before": {
-      "content": "'\\007B2C\\0000A0' counter(chapter) '\\0000A0\\007AE0\\0000A0\\0000A0'"
-    },
-
-    "div.section span.numbering:before, div.toc-section span.numbering:before": {
-      "content": "'\\007B2C\\0000A0' counter(section) '\\0000A0\\008282\\0000A0\\0000A0'"
-    }
+  var counters = {
+    "part":         {content: "'\\007B2C\\0000A0' counter(part, upper-roman) '\\0000A0\\0090E8\\005206\\0000A0\\0000A0'"},
+    "chapter":      {content: "'\\007B2C\\0000A0' counter(chapter) '\\0000A0\\007AE0\\0000A0\\0000A0'"},
+    "section":      {parent: "chapter", content: "'\\007B2C\\0000A0' counter(section) '\\0000A0\\008282\\0000A0\\0000A0'"},
+    "-toc-part":    {content: "'\\007B2C\\0000A0' counter(-toc-part, upper-roman) '\\0000A0\\0090E8\\005206\\0000A0\\0000A0'"},
+    "-toc-chapter": {content: "'\\007B2C\\0000A0' counter(-toc-chapter) '\\0000A0\\007AE0\\0000A0\\0000A0'"},
+    "-toc-section": {parent: "-toc-chapter", content: "'\\007B2C\\0000A0' counter(-toc-section) '\\0000A0\\008282\\0000A0\\0000A0'"}
   };
 
-  typejax.parser.extend("ctex/ctex", definitions, extensions, styles);
+  typejax.parser.extend("ctex/ctex", definitions, extensions, null, counters);
 })();
