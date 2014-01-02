@@ -1807,6 +1807,7 @@ window.typejax = (function($){
         cache: {env: {}, cmd: {}},
         clear: function() { this.cache = {env: {}, cmd: {}}; },
         find: function(type, name) {
+          if (name.slice(-1) == "*") name = name.slice(0, -1);
           var result = this.cache[type][name];
           if (result) return result;
           var used = packages.list.used;
