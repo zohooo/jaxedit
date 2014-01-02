@@ -393,7 +393,7 @@ window.typejax = (function($){
   };
 
   typejax.parser = (function(that){
-    var input, modstart, modend, callback, pending = 0;
+    var input, modstart, modend, callback, pending = 0, base = $.findScript("typejax.js");
 
     var lexer = {
       snippet : "", // content of the source input
@@ -2156,7 +2156,7 @@ window.typejax = (function($){
           if (pending) {
             stop();
             for (i = 0; i < pending; i++) {
-              $.loadScript("typejax/package/" + missing[i][0] + ".js", function(){
+              $.loadScript(base + "package/" + missing[i][0] + ".js", function(){
                 pending--;
                 if (!pending) {
                   updatePackages(this);
