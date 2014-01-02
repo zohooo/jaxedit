@@ -163,6 +163,17 @@ if (!window.console) console = {log : function() {}};
       document.body.appendChild(script);
     },
 
+    findScript: function(name) {
+      var scripts= document.getElementsByTagName("script");
+      for (var i = scripts.length - 1; i >= 0; i--) {
+        var src = scripts[i].src.split("?")[0], path = src.split("/");
+          if (path.slice(-1, path.length) == name) {
+            return src.slice(0, -name.length);
+          }
+      }
+      return null;
+    },
+
     inArray: function(value, array) {
       if (Array.prototype.indexOf) {
         return array.indexOf(value);
