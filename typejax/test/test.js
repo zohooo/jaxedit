@@ -21,11 +21,11 @@ window.onload = function() {
     }, {
       info: "article",
       code: "\\documentclass{article}\\begin{document}One\\end{document}",
-      tree: "|main tree 0  \n|--main preamble 0 39 \n|----inline {} 14 23 \n|------inline itext 14 -1 article\n|--block par 39 42 \n|----inline itext 39 -1 One\n|--block par 42 56 "
+      tree: "|main tree 0  \n|--main preamble 0 39 \n|----block par 0 23 \n|------inline documentclass 0 23 \n|--------inline {} 14 23 \n|----------inline itext 14 -1 article\n|------inline itext 23 -1 \n|--block par 39 42 \n|----inline itext 39 -1 One\n|--block par 42 56 "
     }, {
       info: "beamer",
       code: "\\documentclass{beamer}\n\\begin{document}\n\\begin{frame}\nOne\n\\end{frame}\n\\end{document}",
-      tree: "|main tree 0  \n|--main preamble 0 39 \n|----inline {} 14 22 \n|------inline itext 14 -1 beamer\n|----block par 22 23 \n|------inline itext 22 -1  \n|--block par 39 40 \n|--main frame 40 69 \n|----block par 54 58 \n|------inline itext 54 -1 One \n|--block par 69 70 \n|--block par 70 84 "
+      tree: "|main tree 0  \n|--main preamble 0 39 \n|----block par 0 23 \n|------inline documentclass 0 22 \n|--------inline {} 14 22 \n|----------inline itext 14 -1 beamer\n|------inline itext 22 -1  \n|--block par 39 84 \n|main tree 0  \n|--main preamble 0 39 \n|----block par 0 23 \n|------inline documentclass 0 22 \n|--------inline {} 14 22 \n|----------inline itext 14 -1 beamer\n|------inline itext 22 -1  \n|--block par 39 40 \n|--main frame 40 69 \n|----block par 54 58 \n|------inline itext 54 -1 One \n|--block par 69 70 \n|--block par 70 84 "
     }, {
       info: "textbf",
       code: "One \\textbf{Two} Three",
@@ -37,10 +37,14 @@ window.onload = function() {
 
   var output = document.getElementById("output");
   var message = typejax.message;
-  var test, code, tree, tree1;
-  for (var i = 0; i < tests.length; i++) {
+  var test, code, tree, tree1, i = 0;
+
+  function doTest() {
     test = tests[i], code = test.code, tree = test.tree;
-    typejax.parser(code, 0, code.length);
+    typejax.parser.load(code, 0, code.length, callback);
+  }
+
+  function callback() {
     tree1 = message.get("tree");
     message.clear("tree");
     if (tree === tree1) {
@@ -52,5 +56,8 @@ window.onload = function() {
       console.log(code.replace(/\\/g, "\\\\").replace(/\n/g, "\\n"));
       console.log(tree1.replace(/\\/g, "\\\\").replace(/\n/g, "\\n"));
     }
+    if ((++i) < tests.length) doTest();
   }
+
+  doTest();
 }
