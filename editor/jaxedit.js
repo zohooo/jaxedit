@@ -268,7 +268,8 @@ window.jaxedit = (function($){
       var codearea = this.childs.codearea,
           showarea = this.childs.showarea;
 
-      document.getElementById("version").innerHTML = "v" + this.version;
+      document.getElementById("version").innerHTML =
+        (location.pathname.slice(0, 6) == "/beta/") ? "beta" : "v" + this.version;
       this.getOptions();
       this.bindCore();
       if (this.trustHost) {
