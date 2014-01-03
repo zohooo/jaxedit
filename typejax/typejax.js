@@ -1985,7 +1985,7 @@ window.typejax = (function($){
           var parameters = this.readParameters(node),
               name = parameters[0], parent = parameters[1] || null;
           if (name) {
-            this.newCounters(name, parent);
+            this.newCounter(name, parent);
           }
         },
 
