@@ -179,7 +179,7 @@ window.jaxedit = (function($){
         $.loadScript("editor/textarea/colorful.js", function(){
           $.loadScript("library/codemirror/lib/codemirror.js", function(){
             $.loadScript("library/codemirror/mode/stex/stex.js", function(){
-              $.loadScript("library/codemirror/lib/util/matchbrackets.js", function(){
+              $.loadScript("library/codemirror/addon/edit/matchbrackets.js", function(){
                 that.addEditor();
                 that.hasEditor = true;
                 that.initialize();
