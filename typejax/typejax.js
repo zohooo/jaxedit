@@ -101,7 +101,7 @@ window.typejax = (function($){
     },
 
     typeTiny : function(delstart, delend, deltext, instext, newsize, showarea) {
-      var that = this;
+      var that = this, bridge = typejax.bridge;
       var text = typejax.totaltext, size = typejax.totalsize;
 
       function changeAll() {
@@ -113,10 +113,10 @@ window.typejax = (function($){
       }
 
       function changeSome() {
-        var modinfo = that.markData(delstart, delend, instext), output;
+        var modinfo = bridge.markData(delstart, delend, instext), output;
         typejax.innerdata = [];
         output = typejax.tinyParser(text, modinfo[0], modinfo[1] + modinfo[2]);
-        that.updateData(modinfo[3], modinfo[4]);
+        bridge.updateData(modinfo[3], modinfo[4]);
         showarea.innerHTML = output;
       }
 
@@ -137,7 +137,7 @@ window.typejax = (function($){
     },
 
     typeFull : function(delstart, delend, deltext, instext, newsize, showarea) {
-      var that = this;
+      var that = this, bridge = typejax.bridge;
       var divstart, divend;
       if (typejax.totalsize == instext.length) {
         // generate all preview at first time
@@ -149,7 +149,7 @@ window.typejax = (function($){
           changeDone();
         });
       } else {
-        var modinfo = that.markData(delstart, delend, instext);
+        var modinfo = bridge.markData(delstart, delend, instext);
         var divstart = modinfo[3], divend = modinfo[4];
         typejax.innerdata = [];
         typejax.parser.load(typejax.totaltext, modinfo[0], modinfo[1] + modinfo[2], function(outdiv){
@@ -172,7 +172,7 @@ window.typejax = (function($){
       }
 
       function changeSome(outdiv) {
-        divend = that.updateData(divstart, divend);
+        divend = bridge.updateData(divstart, divend);
         // now delete old and insert new dom elements
         for (var i = divstart; i < divend; i++) {
           showarea.removeChild(showarea.childNodes[divstart]);
@@ -185,12 +185,12 @@ window.typejax = (function($){
           node.innerHTML = outdiv[i][1];
           showarea.insertBefore(node, showarea.childNodes[divstart+i] || null);
         }
-        that.updateSections(divstart, divend, typejax.innerdata.length);
+        bridge.updateSections(divstart, divend, typejax.innerdata.length);
       }
 
       function changeDone() {
         //console.log("totalsect:", typejax.totalsect);
-        that.updateTOC();
+        bridge.updateTOC();
         //console.log(showarea.innerHTML);
         MathJax.Hub.Queue(["Process", MathJax.Hub, showarea]);
         MathJax.Hub.Queue(["afterTypeset", typejax.updater, divstart, divend, showarea]);
@@ -201,6 +201,77 @@ window.typejax = (function($){
       }
     },
 
+    afterTypeTiny : function(isAll) {
+      if (window.jaxedit) {
+        var source = jaxedit.childs.source, right = jaxedit.childs.right,
+            preview = jaxedit.childs.preview, showarea = jaxedit.childs.showarea;
+        var size;
+
+        showarea.style.visibility = "hidden";
+
+        showarea.style.width = "20px";
+        var mw = source.clientWidth, cw = showarea.clientWidth, sw = showarea.scrollWidth,
+        size = Math.max(Math.min(sw + 30, 0.618 * mw), 0.382 * mw);
+        right.style.width = size + "px";
+        preview.style.width = (size - 6) + "px";
+        showarea.style.width = (size - 8) + "px";
+
+        showarea.style.height = "20px";
+        var mh = source.clientHeight, ch = showarea.clientHeight, sh = showarea.scrollHeight;
+        size = Math.min(sh + 10, 0.5 * mh);
+        right.style.height = size + "px";
+        preview.style.height = (size - 6) + "px";
+        showarea.style.height = (size - 10) + "px";
+
+        showarea.style.visibility = "visible";
+
+        jaxedit.autoScroll = isAll;
+      }
+      if (this.thequeue.length > 0) this.gettask();
+      this.isRunning = false;
+    },
+
+    afterTypeset : function(start, end, showarea) {
+      if (window.jaxedit) {
+        if (showarea.childNodes.length > start) { // sometimes showarea is empty
+          jaxedit.autoScroll = false;
+          showarea.childNodes[start].scrollIntoView(true);
+          showarea.scrollTop -= 60;
+          setTimeout(function(){jaxedit.autoScroll = true;}, 500); // after scroll event
+        }
+        // for scrollbar following
+        jaxedit.scrollers.showscroll = showarea.scrollTop;
+        this.updateHeight(start, end, showarea);
+      }
+      if (this.thequeue.length > 0) this.gettask();
+      this.isRunning = false;
+    },
+
+    updateHeight : function(start, end, showarea) {
+      var divheights = jaxedit.scrollers.divheights, showheight = jaxedit.scrollers.showheight;
+      var innerdata = typejax.innerdata, totaldata = typejax.totaldata;
+      var data, height, i;
+      divheights.splice(start, end - start);
+      for (i = 0; i < innerdata.length; i++) {
+        data = innerdata[i];
+        height = showarea.childNodes[start+i].scrollHeight;
+        divheights.splice(start+i, 0, [data[0], data[1], height]);
+      }
+      for (i = start + innerdata.length; i < totaldata.length; i++) {
+        data = totaldata[i];
+        divheights[i][0] = data[0];
+        divheights[i][1] = data[1];
+      }
+      showheight = 0;
+      for (i = 0; i < divheights.length; i++) {
+        showheight += divheights[i][2];
+      }
+      jaxedit.scrollers.showheight = (showheight > 0) ? showheight : 1;
+      //console.log("divheights:", showheight, divheights);
+    }
+  };
+
+  typejax.bridge = {
     markData : function(delstart, delend, instext) {
       // determine which top level dom elements to refresh
       var divstart = -1, divend = -1, dividx = -1, modstart = 0, modend = 0, pdata = [], i;
@@ -295,75 +366,6 @@ window.typejax = (function($){
       }
       tocdiv = document.getElementById("tableofcontents");
       if (tocdiv) tocdiv.innerHTML = tocstr;
-    },
-
-    afterTypeTiny : function(isAll) {
-      if (window.jaxedit) {
-        var source = jaxedit.childs.source, right = jaxedit.childs.right,
-            preview = jaxedit.childs.preview, showarea = jaxedit.childs.showarea;
-        var size;
-
-        showarea.style.visibility = "hidden";
-
-        showarea.style.width = "20px";
-        var mw = source.clientWidth, cw = showarea.clientWidth, sw = showarea.scrollWidth,
-        size = Math.max(Math.min(sw + 30, 0.618 * mw), 0.382 * mw);
-        right.style.width = size + "px";
-        preview.style.width = (size - 6) + "px";
-        showarea.style.width = (size - 8) + "px";
-
-        showarea.style.height = "20px";
-        var mh = source.clientHeight, ch = showarea.clientHeight, sh = showarea.scrollHeight;
-        size = Math.min(sh + 10, 0.5 * mh);
-        right.style.height = size + "px";
-        preview.style.height = (size - 6) + "px";
-        showarea.style.height = (size - 10) + "px";
-
-        showarea.style.visibility = "visible";
-
-        jaxedit.autoScroll = isAll;
-      }
-      if (this.thequeue.length > 0) this.gettask();
-      this.isRunning = false;
-    },
-
-    afterTypeset : function(start, end, showarea) {
-      if (window.jaxedit) {
-        if (showarea.childNodes.length > start) { // sometimes showarea is empty
-          jaxedit.autoScroll = false;
-          showarea.childNodes[start].scrollIntoView(true);
-          showarea.scrollTop -= 60;
-          setTimeout(function(){jaxedit.autoScroll = true;}, 500); // after scroll event
-        }
-        // for scrollbar following
-        jaxedit.scrollers.showscroll = showarea.scrollTop;
-        this.updateHeight(start, end, showarea);
-      }
-      if (this.thequeue.length > 0) this.gettask();
-      this.isRunning = false;
-    },
-
-    updateHeight : function(start, end, showarea) {
-      var divheights = jaxedit.scrollers.divheights, showheight = jaxedit.scrollers.showheight;
-      var innerdata = typejax.innerdata, totaldata = typejax.totaldata;
-      var data, height, i;
-      divheights.splice(start, end - start);
-      for (i = 0; i < innerdata.length; i++) {
-        data = innerdata[i];
-        height = showarea.childNodes[start+i].scrollHeight;
-        divheights.splice(start+i, 0, [data[0], data[1], height]);
-      }
-      for (i = start + innerdata.length; i < totaldata.length; i++) {
-        data = totaldata[i];
-        divheights[i][0] = data[0];
-        divheights[i][1] = data[1];
-      }
-      showheight = 0;
-      for (i = 0; i < divheights.length; i++) {
-        showheight += divheights[i][2];
-      }
-      jaxedit.scrollers.showheight = (showheight > 0) ? showheight : 1;
-      //console.log("divheights:", showheight, divheights);
     }
   };
 
