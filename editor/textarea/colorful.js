@@ -105,10 +105,11 @@ jaxedit.addOption = function() {
       var env = tok.string, line = pos.line, ch = pos.ch;
       if (tok.end > ch) env = env.slice(0, env.length - tok.end + ch);
       var cmd = cm.getRange({line: line, ch: ch - env.length - 7}, {line: line, ch: ch - env.length});
+      var curPos = CodeMirror.Pos(line, ch + 1);
       if (cmd == '\\begin{') {
-        cm.replaceSelection('}\n' + '\\end{' + env + '}', {line: line, ch: ch + 1});
+        cm.replaceSelection('}\n' + '\\end{' + env + '}', {head: curPos, anchor: curPos});
       } else {
-        cm.replaceSelection('}', {line: line, ch: ch + 1});
+        cm.replaceSelection('}', {head: curPos, anchor: curPos});
       }
       return;
     }
