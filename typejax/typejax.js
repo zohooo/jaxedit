@@ -172,7 +172,7 @@ window.typejax = (function($){
       }
 
       function changeSome(outdiv) {
-        that.updateData(divstart, divend);
+        divend = that.updateData(divstart, divend);
         // now delete old and insert new dom elements
         for (var i = divstart; i < divend; i++) {
           showarea.removeChild(showarea.childNodes[divstart]);
@@ -256,6 +256,7 @@ window.typejax = (function($){
         typejax.totaldata.splice(divstart+i, 0, typejax.innerdata[i]);
       }
       //console.log("totaldata:",typejax.totaldata);
+      return divend;
     },
     
     updateSections : function(divstart, divend, datalength) {
