@@ -73,7 +73,6 @@ window.typejax = (function($){
       var delstart, delend, deltext, instext, newsize;
       var localhead = localsize, localtail = localsize;
       var oldsize = localsize;
-      var showarea = this.showarea;
       while (this.thequeue.length > 0) {
         task = this.thequeue.shift();
         delstart = task[0]; delend = task[1]; deltext = task[2]; instext = task[3]; newsize = task[4];
@@ -89,79 +88,40 @@ window.typejax = (function($){
       }
       //console.log("delstart:", delstart, "delend:", delend, "inssize:", instext.length, "newsize:", newsize);
       typejax.totaltext = localtext; typejax.totalsize = localsize;
-      this.runtask(delstart, delend, deltext, instext, newsize, showarea);
+      this.runtask(delstart, delend, deltext, instext, newsize);
     },
 
-    runtask : function(delstart, delend, deltext, instext, newsize, showarea) {
+    runtask : function(delstart, delend, deltext, instext, newsize) {
+      var bridge = typejax.bridge;
       if (this.typemode == "tiny") {
-        this.typeTiny(delstart, delend, deltext, instext, newsize, showarea);
+        bridge.typeTiny(delstart, delend, deltext, instext, newsize);
       } else {
-        this.typeFull(delstart, delend, deltext, instext, newsize, showarea);
+        bridge.typeFull(delstart, delend, deltext, instext, newsize);
       }
     },
 
-    typeTiny : function(delstart, delend, deltext, instext, newsize, showarea) {
-      var that = this, bridge = typejax.bridge;
-      var text = typejax.totaltext, size = typejax.totalsize;
-
-      function changeAll() {
-        var output;
-        typejax.innerdata = [];
-        output = typejax.tinyParser(text, 0, size);
-        typejax.totaldata = typejax.innerdata;
-        showarea.innerHTML = output;
-      }
-
-      function changeSome() {
-        var modinfo = bridge.markData(delstart, delend, instext), output;
-        typejax.innerdata = [];
-        output = typejax.tinyParser(text, modinfo[0], modinfo[1] + modinfo[2]);
-        bridge.updateData(modinfo[3], modinfo[4]);
-        showarea.innerHTML = output;
-      }
-
-      var isAll = false;
-      if (typejax.totalsize == instext.length) {
-        changeAll();
-        isAll = true;
-      } else {
-        changeSome();
-      }
-      //console.log(showarea.innerHTML);
+    updateTiny : function(output, isAll) {
+      var showarea = this.showarea;
+      showarea.innerHTML = output;
       MathJax.Hub.Queue(["Typeset", MathJax.Hub, showarea]); // Process or Typeset
       MathJax.Hub.Queue(["afterTypeTiny", typejax.updater, isAll]);
       if (window.jaxedit) {
         MathJax.Hub.Queue(["disableFileElements", jaxedit, false]);
-        console.log("size: " + typejax.totalsize + "; change: " + delstart + " to " + delend);
       }
     },
 
-    typeFull : function(delstart, delend, deltext, instext, newsize, showarea) {
-      var that = this, bridge = typejax.bridge;
-      var divstart, divend;
-      if (typejax.totalsize == instext.length) {
-        // generate all preview at first time
-        // or clear all text content in textarea
-        divstart = 0; // for scrollIntoView after mathjax typeset
-        divend = typejax.totaldata.length; // for updateHeight function
-        typejax.parser.load(typejax.totaltext, 0, typejax.totalsize, function(outdiv){
-          changeAll(outdiv);
-          changeDone();
-        });
+    updateFull : function(change) {
+      var showarea = this.showarea,
+          outdiv = change.outdiv, divstart = change.start, divend = change.end;
+      if (change.type == "all") {
+        changeAll(outdiv);
+        changeDone();
       } else {
-        var modinfo = bridge.markData(delstart, delend, instext);
-        var divstart = modinfo[3], divend = modinfo[4];
-        typejax.innerdata = [];
-        typejax.parser.load(typejax.totaltext, modinfo[0], modinfo[1] + modinfo[2], function(outdiv){
-          changeSome(outdiv);
-          changeDone();
-        });
+        changeSome(outdiv);
+        changeDone();
       }
 
       function changeAll(outdiv) {
-        console.log("innerdata:", typejax.innerdata);
-        typejax.totaldata = typejax.innerdata;
-        typejax.totalsect = typejax.innersect;
         var output = "", data = "", style;
         while (outdiv.length > 0) {
           data = outdiv.shift();
@@ -172,7 +132,6 @@ window.typejax = (function($){
       }
 
       function changeSome(outdiv) {
-        divend = bridge.updateData(divstart, divend);
         // now delete old and insert new dom elements
         for (var i = divstart; i < divend; i++) {
           showarea.removeChild(showarea.childNodes[divstart]);
@@ -185,18 +144,13 @@ window.typejax = (function($){
           node.innerHTML = outdiv[i][1];
           showarea.insertBefore(node, showarea.childNodes[divstart+i] || null);
         }
-        bridge.updateSections(divstart, divend, typejax.innerdata.length);
       }
 
       function changeDone() {
-        //console.log("totalsect:", typejax.totalsect);
-        bridge.updateTOC();
-        //console.log(showarea.innerHTML);
         MathJax.Hub.Queue(["Process", MathJax.Hub, showarea]);
         MathJax.Hub.Queue(["afterTypeset", typejax.updater, divstart, divend, showarea]);
         if (window.jaxedit) {
           MathJax.Hub.Queue(["disableFileElements", jaxedit, false]);
-          jaxedit.childs.rbot.innerHTML = "size: " + typejax.totalsize + "; change: " + delstart + " to " + delend;
         }
       }
     },
@@ -272,6 +226,78 @@ window.typejax = (function($){
   };
 
   typejax.bridge = {
+    typeTiny : function(delstart, delend, deltext, instext, newsize) {
+      var that = this, updater = typejax.updater;
+      var text = typejax.totaltext, size = typejax.totalsize;
+
+      function parseAll() {
+        var output;
+        typejax.innerdata = [];
+        output = typejax.tinyParser(text, 0, size);
+        typejax.totaldata = typejax.innerdata;
+        updater.updateTiny(output, isAll);
+      }
+
+      function parseSome() {
+        var modinfo = that.markData(delstart, delend, instext), output;
+        typejax.innerdata = [];
+        output = typejax.tinyParser(text, modinfo[0], modinfo[1] + modinfo[2]);
+        that.updateData(modinfo[3], modinfo[4]);
+        updater.updateTiny(output, isAll);
+      }
+
+      var isAll = false;
+      if (typejax.totalsize == instext.length) {
+        parseAll();
+        isAll = true;
+      } else {
+        parseSome();
+      }
+      if (window.jaxedit) {
+        console.log("size: " + typejax.totalsize + "; change: " + delstart + " to " + delend);
+      }
+    },
+
+    typeFull : function(delstart, delend, deltext, instext, newsize) {
+      var that = this, updater = typejax.updater;
+      var divstart, divend;
+
+      function parseAll() {
+        // generate all preview at first time
+        // or clear all text content in textarea
+        divstart = 0; // for scrollIntoView after mathjax typeset
+        divend = typejax.totaldata.length; // for updateHeight function
+        typejax.parser.load(typejax.totaltext, 0, typejax.totalsize, function(outdiv){
+          console.log("innerdata:", typejax.innerdata);
+          typejax.totaldata = typejax.innerdata;
+          typejax.totalsect = typejax.innersect;
+          updater.updateFull({type: "all", start: divstart, end: divend, outdiv: outdiv});
+          that.updateTOC();
+        });
+      }
+
+      function parseSome() {
+        var modinfo = that.markData(delstart, delend, instext);
+        divstart = modinfo[3], divend = modinfo[4];
+        typejax.innerdata = [];
+        typejax.parser.load(typejax.totaltext, modinfo[0], modinfo[1] + modinfo[2], function(outdiv){
+          divend = that.updateData(divstart, divend);
+          updater.updateFull({type: "some", start: divstart, end: divend, outdiv: outdiv});
+          that.updateSections(divstart, divend, typejax.innerdata.length);
+          that.updateTOC();
+        });
+      }
+
+      if (typejax.totalsize == instext.length) {
+        parseAll();
+      } else {
+        parseSome();
+      }
+      if (window.jaxedit) {
+        jaxedit.childs.rbot.innerHTML = "size: " + typejax.totalsize + "; change: " + delstart + " to " + delend;
+      }
+    },
+
     markData : function(delstart, delend, instext) {
       // determine which top level dom elements to refresh
       var divstart = -1, divend = -1, dividx = -1, modstart = 0, modend = 0, pdata = [], i;
