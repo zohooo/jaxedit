@@ -24,6 +24,7 @@ window.typejax = (function($){
   typejax.updater = {
     typemode : "full",
     thequeue : [],
+    thehooks : {},
     isRunning : false,
     showarea : null,
 
@@ -100,18 +101,33 @@ window.typejax = (function($){
       }
     },
 
+    addHook: function(type, scope, fn) {
+      var hooks = this.thehooks[type], back = [scope, fn];
+      if (hooks) {
+        hooks.push(back);
+      } else {
+        this.thehooks[type] = [back];
+      }
+    },
+
+    runHooks: function(type) {
+      var hooks = this.thehooks[type], args = [].slice.call(arguments, 1, arguments.length);
+      if (!hooks) return;
+      for (var i = 0; i < hooks.length; i++) {
+        MathJax.Hub.Queue(hooks[i].concat(args));
+      }
+    },
+
     updateTiny : function(output, isAll) {
       var showarea = this.showarea;
       showarea.innerHTML = output;
       MathJax.Hub.Queue(["Typeset", MathJax.Hub, showarea]); // Process or Typeset
-      MathJax.Hub.Queue(["afterTypeTiny", typejax.updater, isAll]);
-      if (window.jaxedit) {
-        MathJax.Hub.Queue(["disableFileElements", jaxedit, false]);
-      }
+      this.runHooks("After Typeset Tiny", isAll);
+      MathJax.Hub.Queue(["afterTypeset", typejax.updater]);
     },
 
     updateFull : function(change) {
-      var showarea = this.showarea,
+      var that = this, showarea = this.showarea,
           outdiv = change.outdiv, divstart = change.start, divend = change.end;
       if (change.type == "all") {
         changeAll(outdiv);
@@ -148,80 +164,14 @@ window.typejax = (function($){
 
       function changeDone() {
         MathJax.Hub.Queue(["Process", MathJax.Hub, showarea]);
-        MathJax.Hub.Queue(["afterTypeset", typejax.updater, divstart, divend, showarea]);
-        if (window.jaxedit) {
-          MathJax.Hub.Queue(["disableFileElements", jaxedit, false]);
-        }
+        that.runHooks("After Typeset Full", divstart, divend);
+        MathJax.Hub.Queue(["afterTypeset", typejax.updater]);
       }
     },
 
-    afterTypeTiny : function(isAll) {
-      if (window.jaxedit) {
-        var source = jaxedit.childs.source, right = jaxedit.childs.right,
-            preview = jaxedit.childs.preview, showarea = jaxedit.childs.showarea;
-        var size;
-
-        showarea.style.visibility = "hidden";
-
-        showarea.style.width = "20px";
-        var mw = source.clientWidth, cw = showarea.clientWidth, sw = showarea.scrollWidth,
-        size = Math.max(Math.min(sw + 30, 0.618 * mw), 0.382 * mw);
-        right.style.width = size + "px";
-        preview.style.width = (size - 6) + "px";
-        showarea.style.width = (size - 8) + "px";
-
-        showarea.style.height = "20px";
-        var mh = source.clientHeight, ch = showarea.clientHeight, sh = showarea.scrollHeight;
-        size = Math.min(sh + 10, 0.5 * mh);
-        right.style.height = size + "px";
-        preview.style.height = (size - 6) + "px";
-        showarea.style.height = (size - 10) + "px";
-
-        showarea.style.visibility = "visible";
-
-        jaxedit.autoScroll = isAll;
-      }
+    afterTypeset: function() {
       if (this.thequeue.length > 0) this.gettask();
       this.isRunning = false;
-    },
-
-    afterTypeset : function(start, end, showarea) {
-      if (window.jaxedit) {
-        if (showarea.childNodes.length > start) { // sometimes showarea is empty
-          jaxedit.autoScroll = false;
-          showarea.childNodes[start].scrollIntoView(true);
-          showarea.scrollTop -= 60;
-          setTimeout(function(){jaxedit.autoScroll = true;}, 500); // after scroll event
-        }
-        // for scrollbar following
-        jaxedit.scrollers.showscroll = showarea.scrollTop;
-        this.updateHeight(start, end, showarea);
-      }
-      if (this.thequeue.length > 0) this.gettask();
-      this.isRunning = false;
-    },
-
-    updateHeight : function(start, end, showarea) {
-      var divheights = jaxedit.scrollers.divheights, showheight = jaxedit.scrollers.showheight;
-      var innerdata = typejax.innerdata, totaldata = typejax.totaldata;
-      var data, height, i;
-      divheights.splice(start, end - start);
-      for (i = 0; i < innerdata.length; i++) {
-        data = innerdata[i];
-        height = showarea.childNodes[start+i].scrollHeight;
-        divheights.splice(start+i, 0, [data[0], data[1], height]);
-      }
-      for (i = start + innerdata.length; i < totaldata.length; i++) {
-        data = totaldata[i];
-        divheights[i][0] = data[0];
-        divheights[i][1] = data[1];
-      }
-      showheight = 0;
-      for (i = 0; i < divheights.length; i++) {
-        showheight += divheights[i][2];
-      }
-      jaxedit.scrollers.showheight = (showheight > 0) ? showheight : 1;
-      //console.log("divheights:", showheight, divheights);
     }
   };
 

@@ -259,9 +259,82 @@ window.jaxedit = (function($){
 
       editor.setReadOnly(true);
       this.disableFileElements(true);
+      this.addHooks();
       typejax.updater.init(data.newtextvalue, data.newtextsize, showarea);
       this.addHandler();
       editor.setReadOnly(false);
+    },
+
+    addHooks: function() {
+      var childs = this.childs, showarea = childs.showarea, updater = typejax.updater;
+
+      function resizeShow(isAll) {
+        var source = childs.source, right = childs.right, preview = childs.preview, size;
+
+        showarea.style.visibility = "hidden";
+
+        showarea.style.width = "20px";
+        var mw = source.clientWidth, cw = showarea.clientWidth, sw = showarea.scrollWidth,
+        size = Math.max(Math.min(sw + 30, 0.618 * mw), 0.382 * mw);
+        right.style.width = size + "px";
+        preview.style.width = (size - 6) + "px";
+        showarea.style.width = (size - 8) + "px";
+
+        showarea.style.height = "20px";
+        var mh = source.clientHeight, ch = showarea.clientHeight, sh = showarea.scrollHeight;
+        size = Math.min(sh + 10, 0.5 * mh);
+        right.style.height = size + "px";
+        preview.style.height = (size - 6) + "px";
+        showarea.style.height = (size - 10) + "px";
+
+        showarea.style.visibility = "visible";
+
+        this.autoScroll = isAll;
+      }
+
+      function scrollView(start) {
+        if (showarea.childNodes.length > start) { // sometimes showarea is empty
+          this.autoScroll = false;
+          showarea.childNodes[start].scrollIntoView(true);
+          showarea.scrollTop -= 60;
+          setTimeout(function(){jaxedit.autoScroll = true;}, 500); // after scroll event
+        }
+        // for scrollbar following
+        this.scrollers.showscroll = showarea.scrollTop;
+      }
+
+      function updateHeight(start, end) {
+        var divheights = this.scrollers.divheights, showheight = this.scrollers.showheight;
+        var innerdata = typejax.innerdata, totaldata = typejax.totaldata;
+        var data, height, i;
+        divheights.splice(start, end - start);
+        for (i = 0; i < innerdata.length; i++) {
+          data = innerdata[i];
+          height = showarea.childNodes[start+i].scrollHeight;
+          divheights.splice(start+i, 0, [data[0], data[1], height]);
+        }
+        for (i = start + innerdata.length; i < totaldata.length; i++) {
+          data = totaldata[i];
+          divheights[i][0] = data[0];
+          divheights[i][1] = data[1];
+        }
+        showheight = 0;
+        for (i = 0; i < divheights.length; i++) {
+          showheight += divheights[i][2];
+        }
+        this.scrollers.showheight = (showheight > 0) ? showheight : 1;
+        //console.log("divheights:", showheight, divheights);
+      }
+
+      function enableFileElements() {
+        this.disableFileElements(false);
+      }
+
+      updater.addHook("After Typeset Tiny", this, resizeShow);
+      updater.addHook("After Typeset Tiny", this, enableFileElements);
+      updater.addHook("After Typeset Full", this, scrollView);
+      updater.addHook("After Typeset Full", this, updateHeight);
+      updater.addHook("After Typeset Full", this, enableFileElements);
     },
 
     doLoad: function() {
