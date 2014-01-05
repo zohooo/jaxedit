@@ -268,6 +268,7 @@ window.typejax = (function($){
         divstart = 0; // for scrollIntoView after mathjax typeset
         divend = typejax.totaldata.length; // for updateHeight function
         typejax.parser.load(typejax.totaltext, 0, typejax.totalsize, function(outdiv){
+          if (!outdiv) return parseAll();
           console.log("innerdata:", typejax.innerdata);
           typejax.totaldata = typejax.innerdata;
           typejax.totalsect = typejax.innersect;
@@ -281,6 +282,7 @@ window.typejax = (function($){
         divstart = modinfo[3], divend = modinfo[4];
         typejax.innerdata = [];
         typejax.parser.load(typejax.totaltext, modinfo[0], modinfo[1] + modinfo[2], function(outdiv){
+          if (!outdiv) return parseAll();
           divend = that.updateData(divstart, divend);
           updater.updateFull({type: "some", start: divstart, end: divend, outdiv: outdiv});
           that.updateSections(divstart, divend, typejax.innerdata.length);
@@ -422,7 +424,7 @@ window.typejax = (function($){
   };
 
   typejax.parser = (function(that){
-    var input, modstart, modend, callback, pending = 0, base = $.findScript("typejax.js");
+    var input, modstart, modend, callback, done, base = $.findScript("typejax.js");
 
     var lexer = {
       snippet : "", // content of the source input
@@ -2181,7 +2183,7 @@ window.typejax = (function($){
         envPreamble: function(node) {
           var list = packages.list, used = list.used,
               current = list.current, missing = list.missing, existing = list.existing;
-          pending = missing.length;
+          var pending = missing.length;
           if (pending) {
             stop();
             for (i = 0; i < pending; i++) {
@@ -2194,7 +2196,9 @@ window.typejax = (function($){
               }, this);
             }
           } else if (existing.length < used.length) {
+            stop();
             setTimeout(updatePackages, 0, this);
+            setTimeout(reload, 0);
           }
 
           function updatePackages(that) {
@@ -2337,19 +2341,20 @@ window.typejax = (function($){
     function stop() {
       console.log("---------------- stop parser ----------------");
       lexer.ended = true;
+      done = false;
     }
 
     function load(input1, modstart1, modend1, callback1) {
       input = input1; modstart = modstart1; modend = modend1; callback = callback1;
+      done = true;
       var outhtml = start();
-      if (!pending) {
-        callback.call(typejax.updater, outhtml);
+      if (done) {
+        callback(outhtml);
       }
     }
 
     function reload() {
-      var outhtml = start();
-      callback.call(typejax.updater, outhtml);
+      callback(null);
     };
 
     return { latex: latex, load: load, extend: extend };
