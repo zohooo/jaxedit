@@ -99,9 +99,9 @@ jaxedit.addOption = function() {
   function autoCloseEnv(cm, key) {
     var pos = cm.getCursor(true), tok = cm.getTokenAt(pos);
     var inner = CodeMirror.innerMode(cm.getMode(), tok.state);
-    if (inner.mode.name != 'stex') throw CodeMirror.Pass;
+    if (inner.mode.name != 'stex') return CodeMirror.Pass;
 
-    if (key == "}" && tok.type == 'atom') {
+    if (key == "}" /*&& tok.type == 'atom'*/) {
       var env = tok.string, line = pos.line, ch = pos.ch;
       if (tok.end > ch) env = env.slice(0, env.length - tok.end + ch);
       var cmd = cm.getRange({line: line, ch: ch - env.length - 7}, {line: line, ch: ch - env.length});
@@ -114,6 +114,6 @@ jaxedit.addOption = function() {
       return;
     }
 
-    throw CodeMirror.Pass;
+    return CodeMirror.Pass;
   }
 };
