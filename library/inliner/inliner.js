@@ -107,19 +107,19 @@ if (!window.console) console = {log : function() {}};
     })(),
 
     addStyles: function(css, id) {
-      if (id) {
-        var style = document.getElementById(id);
-        if (style) {
-          style.innerHTML = css;
-          return;
-        }
+      var style;
+      if (id && (style = document.getElementById(id))) {
+        style.parentNode.removeChild(style);
       }
-      var style = document.createElement("style");
+      style = document.createElement("style");
       style.type = "text/css";
       if (id) style.id = id;
-      style.innerHTML = css;
-      var head = document.getElementsByTagName("head")[0];
-      head.appendChild(style);
+      document.getElementsByTagName("head")[0].appendChild(style);
+      if (style.styleSheet) { // IE8
+        style.styleSheet.cssText = css;
+      } else {
+        style.appendChild(document.createTextNode(css));
+      }
     },
 
     loadStyles: function(url, id) {
