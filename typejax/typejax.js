@@ -374,7 +374,7 @@ window.typejax = (function($){
   };
 
   typejax.parser = (function(that){
-    var input, modstart, modend, callback, done, base = $.findScript("typejax.js");
+    var input, modstart, modend, callback, done, time, base = $.findScript("typejax.js");
 
     var lexer = {
       snippet : "", // content of the source input
@@ -1980,10 +1980,12 @@ window.typejax = (function($){
           // \newtheorem*{envname}{thmname}
           var csname = node.name, parameters = this.readParameters(node);
           var envname = parameters[0]; if (!envname) return;
-          var thmname, numberby, counter;
+          var thmname, numberby, counter, theorem;
           if (csname == "newtheorem") {
             counter = parameters[1]; thmname = parameters[2]; numberby = parameters[3];
             if (thmname) {
+              theorem = this.theorems[envname];
+              if (!theorem || theorem.thmname != thmname) delayReload();
               this.theorems[envname] = {thmname: thmname};
               if (envname != "theorem") {
                 latex["article"]["definitions"]["environment"][envname] = "theorem";
@@ -1996,10 +1998,11 @@ window.typejax = (function($){
                 this.newCounter(envname, null);
               }
             }
-            this.theorems[envname];
           } else { // newtheorem*
             thmname = parameters[1];
             if (thmname) {
+              theorem = this.theorems[envname];
+              if (!theorem || theorem.thmname != thmname) delayReload();
               this.theorems[envname] = {thmname: thmname, star: true};
               if (envname != "theorem") {
                 latex["article"]["definitions"]["environment"][envname] = "theorem";
@@ -2296,6 +2299,10 @@ window.typejax = (function($){
 
     function load(input1, modstart1, modend1, callback1) {
       input = input1; modstart = modstart1; modend = modend1; callback = callback1;
+      if (time && ((new Date).getTime() - time) > 2000) {
+        time = null;
+        return callback(null);
+      }
       done = true;
       var outhtml = start();
       if (done) {
@@ -2306,6 +2313,10 @@ window.typejax = (function($){
     function reload() {
       callback(null);
     };
+
+    function delayReload() {
+      time = (new Date).getTime();
+    }
 
     return { latex: latex, load: load, extend: extend };
   })(typejax);
