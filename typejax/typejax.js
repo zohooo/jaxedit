@@ -36,7 +36,7 @@ window.typejax = (function($){
         this.totaldata = [];
         this.totalsect = [];
         showarea.innerHTML = "";
-        this.updater.puttask(0, 0, "", newtext, newsize, showarea);
+        this.updater.putTask(0, 0, "", newtext, newsize, showarea);
       }]);
     },
 
@@ -58,17 +58,17 @@ window.typejax = (function($){
       this.init(that.totaltext, that.totalsize, this.showarea);
     },
 
-    puttask : function(delstart, delend, deltext, instext, newsize, showarea) {
+    putTask : function(delstart, delend, deltext, instext, newsize, showarea) {
       if (deltext == "" && instext == "") return;
       this.showarea = showarea;
       this.thequeue.push([delstart, delend, deltext, instext, newsize]);
       if (!this.isRunning) {
         this.isRunning = true;
-        this.gettask();
+        this.getTask();
       }
     },
 
-    gettask : function() {
+    getTask : function() {
       var localtext = typejax.totaltext, localsize = typejax.totalsize;
       var task = [];
       var delstart, delend, deltext, instext, newsize;
@@ -89,10 +89,10 @@ window.typejax = (function($){
       }
       //console.log("delstart:", delstart, "delend:", delend, "inssize:", instext.length, "newsize:", newsize);
       typejax.totaltext = localtext; typejax.totalsize = localsize;
-      this.runtask(delstart, delend, deltext, instext, newsize);
+      this.runTask(delstart, delend, deltext, instext, newsize);
     },
 
-    runtask : function(delstart, delend, deltext, instext, newsize) {
+    runTask : function(delstart, delend, deltext, instext, newsize) {
       var bridge = typejax.bridge;
       if (this.typemode == "tiny") {
         bridge.typeTiny(delstart, delend, deltext, instext, newsize);
@@ -170,7 +170,7 @@ window.typejax = (function($){
     },
 
     afterTypeset: function() {
-      if (this.thequeue.length > 0) this.gettask();
+      if (this.thequeue.length > 0) this.getTask();
       this.isRunning = false;
     }
   };
