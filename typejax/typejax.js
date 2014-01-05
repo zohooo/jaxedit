@@ -367,7 +367,7 @@ window.typejax = (function($){
         return "\\begin{" + p1 + "}" + p2.replace(re, arguments.callee) + "\\end{" + p1 + "}";
       }
     });
-    text = this.escapeText(text);
+    text = $.escapeText(text);
     text = text.replace(/(\n|\r\n)*$/, "");
     text = text.replace(/\n|\r\n/g, "<br>");
     return text;
@@ -2317,14 +2317,14 @@ window.typejax = (function($){
       if (tree.mode == "inline") {
         open = "<span class='" + tree.name + "'>", close = "</span>";
         if (tree.name == "imath") {
-          open += "<span class='MathJax_Preview'>" + this.escapeText(tree.value) + "</span>";
+          open += "<span class='MathJax_Preview'>" + $.escapeText(tree.value) + "</span>";
           open += "<script type='math/tex'>", close = "</script>" + close; 
         }
       } else {
         open = "<div class='envblock " + tree.name + "'>", close = "</div>";
         switch (tree.name) {
           case "bmath":
-            open += "<div class='MathJax_Preview'>" + this.escapeText(tree.value) + "</div>";
+            open += "<div class='MathJax_Preview'>" + $.escapeText(tree.value) + "</div>";
             open += "<script type='math/tex; mode=display'>", close = "</script>" + close;
             break;
           case "enumerate":
@@ -2341,7 +2341,7 @@ window.typejax = (function($){
     } else {
       switch (tree.name) {
         case "bmath":
-          open = "<div class='MathJax_Preview'>" + this.escapeText(tree.value) + "</div>";
+          open = "<div class='MathJax_Preview'>" + $.escapeText(tree.value) + "</div>";
           open += "<script type='math/tex; mode=display'>", close = "</script>";
           break;
         case "enumerate":
@@ -2370,12 +2370,6 @@ window.typejax = (function($){
     } else {
       return open + html + close;
     }
-  };
-
-  typejax.escapeText = function(text) {
-    return text.replace(/[<>\&\"\']/g, function(c) {
-      return '&#' + c.charCodeAt(0) + ';';
-    });
   };
 
   typejax.message = {

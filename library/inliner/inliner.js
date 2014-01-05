@@ -174,6 +174,12 @@ if (!window.console) console = {log : function() {}};
       return null;
     },
 
+    escapeText: function(text) {
+      return text.replace(/[<>\&\"\']/g, function(c) {
+        return '&#' + c.charCodeAt(0) + ';';
+      });
+    },
+
     inArray: function(value, array) {
       if (Array.prototype.indexOf) {
         return array.indexOf(value);
