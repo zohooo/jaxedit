@@ -188,7 +188,7 @@ window.typejax = (function($){
       function parseSome() {
         var modinfo = that.markData(delstart, delend, instext), output;
         output = typejax.tinyParser(text, modinfo[0], modinfo[1] + modinfo[2]);
-        that.updateData(modinfo[3], modinfo[4], output[0]);
+        that.updateData(modinfo[3], modinfo[4], modinfo[2], output[0]);
         updater.updateTiny(output[1], isAll);
       }
 
@@ -206,7 +206,7 @@ window.typejax = (function($){
 
     typeFull : function(delstart, delend, deltext, instext, newsize) {
       var that = this, updater = typejax.updater;
-      var divstart, divend;
+      var divstart, divend, olddata;
 
       function parseAll() {
         // generate all preview at first time
@@ -223,11 +223,12 @@ window.typejax = (function($){
       }
 
       function parseSome() {
-        var modinfo = that.markData(delstart, delend, instext);
-        divstart = modinfo[3], divend = modinfo[4];
-        typejax.parser.load(typejax.totaltext, modinfo[0], modinfo[1] + modinfo[2], function(outdiv){
+        var modinfo = that.markData(delstart, delend, instext), modsize = modinfo[2];
+        divstart = modinfo[3]; divend = modinfo[4];
+        typejax.parser.load(typejax.totaltext, modinfo[0], modinfo[1] + modsize, function(outdiv){
           if (!outdiv) return parseAll();
-          divend = that.updateData(divstart, divend, outdiv);
+          var up = that.updateData(divstart, divend, modsize, outdiv);
+          divend = up.divend; olddata = up.olddata;
           updater.updateFull({type: "some", start: divstart, end: divend, outdiv: outdiv});
           that.updateSections(divstart, divend, outdiv.length);
           that.updateTOC();
@@ -270,35 +271,28 @@ window.typejax = (function($){
         }
       }
 
-      for (i = divstart; i < divend; i++) {
-        typejax.totaldata[i].from = -1;
-        typejax.totaldata[i].to = -1;
-      }
       var modsize = instext.length - (delend - delstart);
-      for (i = divend; i < typejax.totaldata.length; i++) {
-        typejax.totaldata[i].from += modsize;
-        typejax.totaldata[i].to += modsize;
-      }
-      //console.log("totaldata:", typejax.totaldata);
       console.log("div:",divstart,divend,"modify:",modstart,modend + modsize);
       //var modtext = typejax.totaltext.substring(modstart,modend + modsize);
       //console.log("modtext:", modtext);
       return [modstart, modend, modsize, divstart, divend];
     },
 
-    updateData : function(divstart, divend, out) {
-      var i, n = 0;
-      for (i = divstart; i < typejax.totaldata.length; i++) {
-        if (typejax.totaldata[i].to <= out[out.length-1].to) n += 1;
+    updateData: function(divstart, divend, modsize, out) {
+      var data = typejax.totaldata, olddata, to = out[out.length-1].to, n = 0, i;
+      olddata = data.splice(divstart, divend - divstart);
+      for (i = divstart; i < data.length; i++) {
+        data[i].from += modsize;
+        data[i].to += modsize;
+        if (data[i].to <= to) n++;
       }
-      typejax.totaldata.splice(divstart, n);
-      divend = divstart + n;
-      //console.log("totaldata:",typejax.totaldata);
+      if (n) olddata.concat(data.splice(divstart, n));
       for (i = 0; i < out.length; i++) {
-        typejax.totaldata.splice(divstart+i, 0, out[i]);
+        data.splice(divstart + i, 0, out[i]);
       }
-      //console.log("totaldata:",typejax.totaldata);
-      return divend;
+      divend += n;
+      //console.log("olddata:", olddata);
+      return {divend: divend, oldddata: olddata};
     },
     
     updateSections : function(divstart, divend, datalength) {
