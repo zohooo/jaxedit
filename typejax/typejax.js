@@ -16,7 +16,6 @@ window.typejax = (function($){
     totaltext : "",
     totalsize : 0,
     totaldata : [],
-    innerdata : [],
     totalsect : [],
     innersect : []
   };
@@ -130,41 +129,41 @@ window.typejax = (function($){
       var that = this, showarea = this.showarea,
           outdiv = change.outdiv, divstart = change.start, divend = change.end;
       if (change.type == "all") {
-        changeAll(outdiv);
+        changeAll();
         changeDone();
       } else {
-        changeSome(outdiv);
+        changeSome();
         changeDone();
       }
 
-      function changeAll(outdiv) {
+      function changeAll() {
         var output = "", data = "", style;
-        while (outdiv.length > 0) {
-          data = outdiv.shift();
-          style = data[2] ? " style='counter-reset:" + data[2] + ";'" : "";
-          output += "<div class='envblock " + data[0] + "'" + style + ">" + data[1] + "</div>";
+        for (var i = 0; i < outdiv.length; i++) {
+          data = outdiv[i];
+          style = data.reset ? " style='counter-reset:" + data.reset + ";'" : "";
+          output += "<div class='envblock " + data.name + "'" + style + ">" + data.html + "</div>";
         }
         showarea.innerHTML = output;
       }
 
-      function changeSome(outdiv) {
+      function changeSome() {
         // now delete old and insert new dom elements
         for (var i = divstart; i < divend; i++) {
           showarea.removeChild(showarea.childNodes[divstart]);
         }
-        var node;
+        var node, data;
         for (i=0; i<outdiv.length; i++) {
-          node = document.createElement("div");
-          node.className = "envblock " + outdiv[i][0];
-          if (outdiv[i][2]) node.style.cssText = "counter-reset:" + outdiv[i][2] + ";";
-          node.innerHTML = outdiv[i][1];
+          node = document.createElement("div"); data = outdiv[i];
+          node.className = "envblock " + data.name;
+          if (data.reset) node.style.cssText = "counter-reset:" + data.reset + ";";
+          node.innerHTML = data.html;
           showarea.insertBefore(node, showarea.childNodes[divstart+i] || null);
         }
       }
 
       function changeDone() {
         MathJax.Hub.Queue(["Process", MathJax.Hub, showarea]);
-        that.runHooks("After Typeset Full", divstart, divend);
+        that.runHooks("After Typeset Full", divstart, divend, outdiv);
         MathJax.Hub.Queue(["afterTypeset", typejax.updater]);
       }
     },
@@ -181,19 +180,16 @@ window.typejax = (function($){
       var text = typejax.totaltext, size = typejax.totalsize;
 
       function parseAll() {
-        var output;
-        typejax.innerdata = [];
-        output = typejax.tinyParser(text, 0, size);
-        typejax.totaldata = typejax.innerdata;
-        updater.updateTiny(output, isAll);
+        var output = typejax.tinyParser(text, 0, size);
+        typejax.totaldata = output[0];
+        updater.updateTiny(output[1], isAll);
       }
 
       function parseSome() {
         var modinfo = that.markData(delstart, delend, instext), output;
-        typejax.innerdata = [];
         output = typejax.tinyParser(text, modinfo[0], modinfo[1] + modinfo[2]);
-        that.updateData(modinfo[3], modinfo[4]);
-        updater.updateTiny(output, isAll);
+        that.updateData(modinfo[3], modinfo[4], output[0]);
+        updater.updateTiny(output[1], isAll);
       }
 
       var isAll = false;
@@ -219,8 +215,7 @@ window.typejax = (function($){
         divend = typejax.totaldata.length; // for updateHeight function
         typejax.parser.load(typejax.totaltext, 0, typejax.totalsize, function(outdiv){
           if (!outdiv) return parseAll();
-          console.log("innerdata:", typejax.innerdata);
-          typejax.totaldata = typejax.innerdata;
+          typejax.totaldata = outdiv;
           typejax.totalsect = typejax.innersect;
           updater.updateFull({type: "all", start: divstart, end: divend, outdiv: outdiv});
           that.updateTOC();
@@ -230,12 +225,11 @@ window.typejax = (function($){
       function parseSome() {
         var modinfo = that.markData(delstart, delend, instext);
         divstart = modinfo[3], divend = modinfo[4];
-        typejax.innerdata = [];
         typejax.parser.load(typejax.totaltext, modinfo[0], modinfo[1] + modinfo[2], function(outdiv){
           if (!outdiv) return parseAll();
-          divend = that.updateData(divstart, divend);
+          divend = that.updateData(divstart, divend, outdiv);
           updater.updateFull({type: "some", start: divstart, end: divend, outdiv: outdiv});
-          that.updateSections(divstart, divend, typejax.innerdata.length);
+          that.updateSections(divstart, divend, outdiv.length);
           that.updateTOC();
         });
       }
@@ -252,38 +246,38 @@ window.typejax = (function($){
 
     markData : function(delstart, delend, instext) {
       // determine which top level dom elements to refresh
-      var divstart = -1, divend = -1, dividx = -1, modstart = 0, modend = 0, pdata = [], i;
+      var divstart = -1, divend = -1, dividx = -1, modstart = 0, modend = 0, pdata, i;
       for (i = 0; i < typejax.totaldata.length; i++) {
         pdata = typejax.totaldata[i];
         dividx += 1;
-        if (pdata[0] <= delstart && pdata[1] >= delstart && divstart < 0) {
-          modstart = pdata[0];
+        if (pdata.from <= delstart && pdata.to >= delstart && divstart < 0) {
+          modstart = pdata.from;
           divstart = dividx;
         }
-        if (pdata[0] <= delend && pdata[1] >= delend) {
-          modend = pdata[1];
+        if (pdata.from <= delend && pdata.to >= delend) {
+          modend = pdata.to;
           divend = dividx+1;
         }
-        if (pdata[0] > delend) break;
+        if (pdata.from > delend) break;
       }
       // handle the case when two paragraphs were merged as one
       if (divstart > 0) {
         var data1 = typejax.totaldata[divstart-1], data2 = typejax.totaldata[divstart],
-            re = /^\n *\n/, str = typejax.totaltext.substring(data2[0], data2[1]);
-        if (str.charAt(0) == "\n" && !re.test(str) && data1[2] == "par") {
+            re = /^\n *\n/, str = typejax.totaltext.slice(data2.from, data2.to);
+        if (str.charAt(0) == "\n" && !re.test(str) && data1.name == "par") {
           divstart = divstart - 1;
-          modstart = data1[0];
+          modstart = data1.from;
         }
       }
 
       for (i = divstart; i < divend; i++) {
-        typejax.totaldata[i][0] = -1;
-        typejax.totaldata[i][1] = -1;
+        typejax.totaldata[i].from = -1;
+        typejax.totaldata[i].to = -1;
       }
       var modsize = instext.length - (delend - delstart);
       for (i = divend; i < typejax.totaldata.length; i++) {
-        typejax.totaldata[i][0] += modsize;
-        typejax.totaldata[i][1] += modsize;
+        typejax.totaldata[i].from += modsize;
+        typejax.totaldata[i].to += modsize;
       }
       //console.log("totaldata:", typejax.totaldata);
       console.log("div:",divstart,divend,"modify:",modstart,modend + modsize);
@@ -292,17 +286,16 @@ window.typejax = (function($){
       return [modstart, modend, modsize, divstart, divend];
     },
 
-    updateData : function(divstart, divend) {
-      console.log("innerdata:", typejax.innerdata);
+    updateData : function(divstart, divend, out) {
       var i, n = 0;
       for (i = divstart; i < typejax.totaldata.length; i++) {
-        if (typejax.totaldata[i][1] <= typejax.innerdata[typejax.innerdata.length-1][1]) n += 1;
+        if (typejax.totaldata[i].to <= out[out.length-1].to) n += 1;
       }
       typejax.totaldata.splice(divstart, n);
       divend = divstart + n;
       //console.log("totaldata:",typejax.totaldata);
-      for (i = 0; i < typejax.innerdata.length; i++) {
-        typejax.totaldata.splice(divstart+i, 0, typejax.innerdata[i]);
+      for (i = 0; i < out.length; i++) {
+        typejax.totaldata.splice(divstart+i, 0, out[i]);
       }
       //console.log("totaldata:",typejax.totaldata);
       return divend;
@@ -348,12 +341,12 @@ window.typejax = (function($){
   };
 
   typejax.tinyParser = function(input, modstart, modend) {
-    var data = this.innerdata, text = input.slice(modstart, modend), size = text.length;
+    var data = [], text = input.slice(modstart, modend);
     var re = /(\n|\r\n){2,}/g, i = modstart;
     while (re.exec(text) != null) {
-      data.push([i, (i = modstart + re.lastIndex)]);
+      data.push({from: i, to: (i = modstart + re.lastIndex)});
     }
-    if (i < modend) data.push([i, modend]);
+    if (i < modend) data.push({from: i, to: modend});
 
     var dmaths = ["equation", "equation*", "eqnarray", "eqnarray*", "gather", "gather*",
                   "align", "align*", "alignat", "alignat*", "multline", "multline*"];
@@ -370,7 +363,7 @@ window.typejax = (function($){
     text = $.escapeText(text);
     text = text.replace(/(\n|\r\n)*$/, "");
     text = text.replace(/\n|\r\n/g, "<br>");
-    return text;
+    return [data, text];
   };
 
   typejax.parser = (function(that){
@@ -506,7 +499,6 @@ window.typejax = (function($){
         this.initTree();
         this.mathenv = "";
         this.omitspace = false;
-        typejax.innerdata = [];
         typejax.innersect = [];
 
         this.packages = packages;
@@ -1247,9 +1239,6 @@ window.typejax = (function($){
         }
         if (this.nodelevel == 0) {
           if (!node.to) console.log("doThisGroup: node.to is empty!");
-          if (node.to > node.from) {
-            typejax.innerdata.push([node.from, node.to, node.name]);
-          }
         }
         //console.log("doThisGroup: ", node.name, node.argtype);
         //console.log("doThisGroup: ", this.nodearray);
@@ -2052,7 +2041,7 @@ window.typejax = (function($){
           } else {
             sectintoc = value0 ? value0 : value1;
             anchor = "typejax-identifier-" + (++latex.identifier);
-            typejax.innersect.push([typejax.innerdata.length, csname, sectintoc, anchor]);
+            typejax.innersect.push([syner.innertree.childs.length, csname, sectintoc, anchor]);
             node.value = "<span class='the" + csname + "' id='" + anchor + "'></span><span>" + value1 + "</span>";
             node.reset = latex.subcounters[csname] || undefined;
           }
@@ -2280,15 +2269,19 @@ window.typejax = (function($){
       console.log("---------------- start parser ----------------");
       syner.analysis(input, modstart, modend);
       syner.printTree(syner.innertree);
-      var outhtml = [], html;
-      var i, childs = syner.innertree.childs;
+      var childs = syner.innertree.childs, out = [], child, i;
       for (i = 0; i < childs.length; i++) {
+        child = childs[i];
         that.builder.reset = "";
-        html = that.builder(childs[i], false);
-        outhtml.push([childs[i].name, html, that.builder.reset]);
+        out.push({
+          from:  child.from,
+          to:    child.to,
+          name:  child.name,
+          html:  that.builder(child, false),
+          reset: that.builder.reset});
       }
-      console.log("outhtml:", outhtml);
-      return outhtml;
+      console.log("output:", out);
+      return out;
     }
 
     function stop() {
@@ -2304,9 +2297,9 @@ window.typejax = (function($){
         return callback(null);
       }
       done = true;
-      var outhtml = start();
+      var out = start();
       if (done) {
-        callback(outhtml);
+        callback(out);
       }
     }
 

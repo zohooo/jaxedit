@@ -303,20 +303,19 @@ window.jaxedit = (function($){
         this.scrollers.showscroll = showarea.scrollTop;
       }
 
-      function updateHeight(start, end) {
+      function updateHeight(start, end, innerdata) {
         var divheights = this.scrollers.divheights, showheight = this.scrollers.showheight;
-        var innerdata = typejax.innerdata, totaldata = typejax.totaldata;
-        var data, height, i;
+        var totaldata = typejax.totaldata, data, height, i;
         divheights.splice(start, end - start);
         for (i = 0; i < innerdata.length; i++) {
           data = innerdata[i];
           height = showarea.childNodes[start+i].scrollHeight;
-          divheights.splice(start+i, 0, [data[0], data[1], height]);
+          divheights.splice(start+i, 0, [data.from, data.to, height]);
         }
         for (i = start + innerdata.length; i < totaldata.length; i++) {
           data = totaldata[i];
-          divheights[i][0] = data[0];
-          divheights[i][1] = data[1];
+          divheights[i][0] = data.from;
+          divheights[i][1] = data.to;
         }
         showheight = 0;
         for (i = 0; i < divheights.length; i++) {
