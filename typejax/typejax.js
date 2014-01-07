@@ -127,19 +127,82 @@ window.typejax = (function($){
 
     updateFull : function(change) {
       var that = this, showarea = this.showarea,
-          outdiv = change.outdiv, divstart = change.start, divend = change.end;
+          olddiv = change.olddiv, newdiv = change.newdiv,
+          divstart = change.start, divend = change.end;
       if (change.type == "all") {
-        changeAll();
+        if (olddiv.length && newdiv.length) {
+          compareDiv();
+        } else {
+          changeAll();
+        }
         changeDone();
       } else {
         changeSome();
         changeDone();
       }
 
+      function compareDiv() {
+        /*
+        var msg, div, t;
+        msg = "olddiv:"; t = 0;
+        while (div = olddiv[t]) {msg += " [" + [div.from, div.to, div.name].join(" ") + "]"; t++}
+        console.log(msg);
+        msg = "newdiv:"; t = 0;
+        while (div = newdiv[t]) {msg += " [" + [div.from, div.to, div.name].join(" ") + "]"; t++}
+        console.log(msg);
+        */
+        var modsize = newdiv[newdiv.length - 1].to - olddiv[olddiv.length - 1].to;
+        // console.log(olddiv.length, newdiv.length, modsize);
+
+        var idx = divstart, exist, ndiv, odiv, nFrom, nTo, oFrom, oTo,
+            min, max, i, k, a = 0, b = 0;
+
+        for (i = 0; i < newdiv.length; i++) {
+          ndiv = newdiv[i]; nFrom = ndiv.from; nTo = ndiv.to; exist = false;
+          for (k = a = b; k < olddiv.length; k++) {
+            odiv = olddiv[k]; oFrom = odiv.from; oTo = odiv.to;
+            min = oFrom + Math.min(0, modsize); max = oTo + Math.max(0, modsize);
+            if (max < nTo) continue; if (min > nFrom) break;
+            if (oTo - oFrom == nTo - nFrom && odiv.name == ndiv.name && odiv.html == ndiv.html) {
+              b = k; exist = true; break;
+            }
+          }
+          if (!exist) {
+            for (k = a; k < olddiv.length; k++) {
+              if (oTo + modsize <= nTo) b++;
+            }
+          }
+          for (k = a; k < b; k++) {
+            typejax.message.log("update", "\t\t", "delete", k);
+            removeDiv(idx);
+          }
+          if (exist) {
+            typejax.message.log("update", "\t\t", "omit", b);
+            typejax.message.log("update", "remain", i);
+            b++; idx++;
+          } else {
+            typejax.message.log("update", "insert", i);
+            insertDiv(idx++, i);
+          }
+        }
+      }
+
+      function removeDiv(idx) {
+        showarea.removeChild(showarea.childNodes[idx]);
+      }
+
+      function insertDiv(idx, i) {
+        node = document.createElement("div"); data = newdiv[i];
+        node.className = "envblock " + data.name;
+        if (data.reset) node.style.cssText = "counter-reset:" + data.reset + ";";
+        node.innerHTML = data.html;
+        showarea.insertBefore(node, showarea.childNodes[idx] || null);
+      }
+
       function changeAll() {
         var output = "", data = "", style;
-        for (var i = 0; i < outdiv.length; i++) {
-          data = outdiv[i];
+        for (var i = 0; i < newdiv.length; i++) {
+          data = newdiv[i];
           style = data.reset ? " style='counter-reset:" + data.reset + ";'" : "";
           output += "<div class='envblock " + data.name + "'" + style + ">" + data.html + "</div>";
         }
@@ -152,8 +215,8 @@ window.typejax = (function($){
           showarea.removeChild(showarea.childNodes[divstart]);
         }
         var node, data;
-        for (i=0; i<outdiv.length; i++) {
-          node = document.createElement("div"); data = outdiv[i];
+        for (i=0; i< newdiv.length; i++) {
+          node = document.createElement("div"); data = newdiv[i];
           node.className = "envblock " + data.name;
           if (data.reset) node.style.cssText = "counter-reset:" + data.reset + ";";
           node.innerHTML = data.html;
@@ -163,7 +226,7 @@ window.typejax = (function($){
 
       function changeDone() {
         MathJax.Hub.Queue(["Process", MathJax.Hub, showarea]);
-        that.runHooks("After Typeset Full", divstart, divend, outdiv);
+        that.runHooks("After Typeset Full", divstart, divend, newdiv);
         MathJax.Hub.Queue(["afterTypeset", typejax.updater]);
       }
     },
@@ -205,19 +268,21 @@ window.typejax = (function($){
     },
 
     typeFull : function(delstart, delend, deltext, instext, newsize) {
-      var that = this, updater = typejax.updater;
-      var divstart, divend, olddata;
+      var that = this, updater = typejax.updater,
+          totaldata = typejax.totaldata, olddata, divstart, divend;
 
       function parseAll() {
         // generate all preview at first time
         // or clear all text content in textarea
         divstart = 0; // for scrollIntoView after mathjax typeset
-        divend = typejax.totaldata.length; // for updateHeight function
+        divend = totaldata.length; // for updateHeight function
         typejax.parser.load(typejax.totaltext, 0, typejax.totalsize, function(outdiv){
           if (!outdiv) return parseAll();
+          olddata = totaldata;
           typejax.totaldata = outdiv;
+          updater.updateFull({type: "all", start: divstart, end: divend,
+                              olddiv: olddata, newdiv: outdiv});
           typejax.totalsect = typejax.innersect;
-          updater.updateFull({type: "all", start: divstart, end: divend, outdiv: outdiv});
           that.updateTOC();
         });
       }
@@ -229,7 +294,8 @@ window.typejax = (function($){
           if (!outdiv) return parseAll();
           var up = that.updateData(divstart, divend, modsize, outdiv);
           divend = up.divend; olddata = up.olddata;
-          updater.updateFull({type: "some", start: divstart, end: divend, outdiv: outdiv});
+          updater.updateFull({type: "some", start: divstart, end: divend,
+                              olddiv: olddata, newdiv: outdiv});
           that.updateSections(divstart, divend, outdiv.length);
           that.updateTOC();
         });
