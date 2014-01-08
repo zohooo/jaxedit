@@ -2398,10 +2398,13 @@ window.typejax = (function($){
   };
 
   typejax.message = {
+    degug: "none",
+
     log: function(type) {
       var msg = Array.prototype.slice.call(arguments, 1).join(" ");
       var sto = this.storage;
       sto[type] = sto[type] ? sto[type] + "\n" + msg : msg;
+      if (this.debug == "all" || this.debug.indexOf(type) > -1) console.log(msg);
     },
 
     get: function(type) {

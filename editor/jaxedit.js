@@ -30,7 +30,7 @@ window.jaxedit = (function($){
     wcode: null,
 
     options: {
-      debug: false,
+      debug: "none",
       highlight: false,
       localjs: false
     },
@@ -260,6 +260,7 @@ window.jaxedit = (function($){
       editor.setReadOnly(true);
       this.disableFileElements(true);
       this.addHooks();
+      typejax.message.debug = this.options.debug;
       typejax.updater.init(data.newtextvalue, data.newtextsize, showarea);
       this.addHandler();
       editor.setReadOnly(false);
