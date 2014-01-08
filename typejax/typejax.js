@@ -127,36 +127,19 @@ window.typejax = (function($){
 
     updateFull : function(change) {
       var that = this, showarea = this.showarea,
-          olddiv = change.olddiv, newdiv = change.newdiv,
-          divstart = change.start, divend = change.end;
-      if (change.type == "all") {
-        if (olddiv.length && newdiv.length) {
-          compareDiv();
-        } else {
-          changeAll();
-        }
-        changeDone();
-      } else {
-        changeSome();
-        changeDone();
-      }
+          olddiv = change.olddiv, newdiv = change.newdiv, start = change.start, end = change.end;
+
+      if (olddiv.length && newdiv.length) compareDiv(); else changeAll();
+
+      MathJax.Hub.Queue(["Process", MathJax.Hub, showarea]);
+      that.runHooks("After Typeset Full", start, end, newdiv);
+      MathJax.Hub.Queue(["afterTypeset", typejax.updater]);
 
       function compareDiv() {
-        /*
-        var msg, div, t;
-        msg = "olddiv:"; t = 0;
-        while (div = olddiv[t]) {msg += " [" + [div.from, div.to, div.name].join(" ") + "]"; t++}
-        console.log(msg);
-        msg = "newdiv:"; t = 0;
-        while (div = newdiv[t]) {msg += " [" + [div.from, div.to, div.name].join(" ") + "]"; t++}
-        console.log(msg);
-        */
         var modsize = newdiv[newdiv.length - 1].to - olddiv[olddiv.length - 1].to;
         // console.log(olddiv.length, newdiv.length, modsize);
-
-        var idx = divstart, exist, ndiv, odiv, nFrom, nTo, oFrom, oTo,
+        var idx = start, exist, ndiv, odiv, nFrom, nTo, oFrom, oTo,
             min, max, i, k, a = 0, b = 0;
-
         for (i = 0; i < newdiv.length; i++) {
           ndiv = newdiv[i]; nFrom = ndiv.from; nTo = ndiv.to; exist = false;
           for (k = a = b; k < olddiv.length; k++) {
@@ -169,7 +152,8 @@ window.typejax = (function($){
           }
           if (!exist) {
             for (k = a; k < olddiv.length; k++) {
-              if (oTo + modsize <= nTo) b++;
+              odiv = olddiv[k]; oFrom = odiv.from; oTo = odiv.to;
+              if (oTo + modsize <= nTo) b++; else if (oFrom + modsize > nTo) break;
             }
           }
           for (k = a; k < b; k++) {
@@ -207,27 +191,6 @@ window.typejax = (function($){
           output += "<div class='envblock " + data.name + "'" + style + ">" + data.html + "</div>";
         }
         showarea.innerHTML = output;
-      }
-
-      function changeSome() {
-        // now delete old and insert new dom elements
-        for (var i = divstart; i < divend; i++) {
-          showarea.removeChild(showarea.childNodes[divstart]);
-        }
-        var node, data;
-        for (i=0; i< newdiv.length; i++) {
-          node = document.createElement("div"); data = newdiv[i];
-          node.className = "envblock " + data.name;
-          if (data.reset) node.style.cssText = "counter-reset:" + data.reset + ";";
-          node.innerHTML = data.html;
-          showarea.insertBefore(node, showarea.childNodes[divstart+i] || null);
-        }
-      }
-
-      function changeDone() {
-        MathJax.Hub.Queue(["Process", MathJax.Hub, showarea]);
-        that.runHooks("After Typeset Full", divstart, divend, newdiv);
-        MathJax.Hub.Queue(["afterTypeset", typejax.updater]);
       }
     },
 
@@ -280,8 +243,7 @@ window.typejax = (function($){
           if (!outdiv) return parseAll();
           olddata = totaldata;
           typejax.totaldata = outdiv;
-          updater.updateFull({type: "all", start: divstart, end: divend,
-                              olddiv: olddata, newdiv: outdiv});
+          updater.updateFull({start: divstart, end: divend, olddiv: olddata, newdiv: outdiv});
           typejax.totalsect = typejax.innersect;
           that.updateTOC();
         });
@@ -294,8 +256,7 @@ window.typejax = (function($){
           if (!outdiv) return parseAll();
           var up = that.updateData(divstart, divend, modsize, outdiv);
           divend = up.divend; olddata = up.olddata;
-          updater.updateFull({type: "some", start: divstart, end: divend,
-                              olddiv: olddata, newdiv: outdiv});
+          updater.updateFull({start: divstart, end: divend, olddiv: olddata, newdiv: outdiv});
           that.updateSections(divstart, divend, outdiv.length);
           that.updateTOC();
         });
@@ -358,7 +319,7 @@ window.typejax = (function($){
       }
       divend += n;
       //console.log("olddata:", olddata);
-      return {divend: divend, oldddata: olddata};
+      return {divend: divend, olddata: olddata};
     },
     
     updateSections : function(divstart, divend, datalength) {
