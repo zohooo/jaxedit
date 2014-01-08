@@ -1283,10 +1283,10 @@ window.typejax = (function($){
       openChild : function(type, name, from, mark) {
         var parent = this.nodeplace;
         if (!parent) {
-          console.log("openChild: wrong nodeplace!");
+          typejax.message.log("node", "openChild: wrong nodeplace!");
           return;
         }
-        console.log("OpenChild: ", type, name, from);
+        typejax.message.log("node", "OpenChild: ", type, name, from);
         var node = {
           type: type,
           name: name,
@@ -1315,7 +1315,7 @@ window.typejax = (function($){
           parent.argarray.push(parent);
         }
 
-        console.log("nodelevel:", this.nodelevel, "arglength:", node.argarray.length);
+        typejax.message.log("node", "nodelevel:", this.nodelevel, "arglength:", node.argarray.length);
         //this.printTree(this.innertree);
         return node;
       },
@@ -1324,10 +1324,10 @@ window.typejax = (function($){
         var node = this.nodeplace;
         node.to = position;
         if (!node) {
-          console.log("closeChild: wrong nodeplace!");
+          typejax.message.log("node", "closeChild: wrong nodeplace!");
           return;
         }
-        console.log("CloseChild:", node.type, node.name, node.to);
+        typejax.message.log("node", "CloseChild:", node.type, node.name, node.to);
         if (node.from >= node.to) {
           //console.log("closeChild: empty group " + node.name);
           node.parent.childs.pop();
@@ -1353,7 +1353,7 @@ window.typejax = (function($){
         } else if (node.mode == "block" && node.name != "bmath") {
           /*node.childs[node.childs.length -1].to = node.to;*/
         }
-        console.log("nodelevel:", this.nodelevel);
+        typejax.message.log("node", "nodelevel:", this.nodelevel);
         //this.printTree(this.innertree);
       },
       
