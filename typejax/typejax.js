@@ -88,15 +88,15 @@ window.typejax = (function($){
       }
       //console.log("delstart:", delstart, "delend:", delend, "inssize:", instext.length, "newsize:", newsize);
       typejax.totaltext = localtext; typejax.totalsize = localsize;
-      this.runTask(delstart, delend, deltext, instext, newsize);
+      this.runTask(delstart, delend, instext.length);
     },
 
-    runTask : function(delstart, delend, deltext, instext, newsize) {
+    runTask : function(delstart, delend, inssize) {
       var bridge = typejax.bridge;
       if (this.typemode == "tiny") {
-        bridge.typeTiny(delstart, delend, deltext, instext, newsize);
+        bridge.typeTiny(delstart, delend, inssize);
       } else {
-        bridge.typeFull(delstart, delend, deltext, instext, newsize);
+        bridge.typeFull(delstart, delend, inssize);
       }
     },
 
@@ -201,7 +201,7 @@ window.typejax = (function($){
   };
 
   typejax.bridge = {
-    typeTiny : function(delstart, delend, deltext, instext, newsize) {
+    typeTiny : function(delstart, delend, inssize) {
       var that = this, updater = typejax.updater;
       var text = typejax.totaltext, size = typejax.totalsize;
 
@@ -212,14 +212,14 @@ window.typejax = (function($){
       }
 
       function parseSome() {
-        var modinfo = that.markData(delstart, delend, instext), output;
+        var modinfo = that.markData(delstart, delend, inssize), output;
         output = typejax.tinyParser(text, modinfo[0], modinfo[1] + modinfo[2]);
         that.updateData(modinfo[3], modinfo[4], modinfo[2], output[0]);
         updater.updateTiny(output[1], isAll);
       }
 
       var isAll = false;
-      if (typejax.totalsize == instext.length) {
+      if (typejax.totalsize == inssize) {
         parseAll();
         isAll = true;
       } else {
@@ -230,7 +230,7 @@ window.typejax = (function($){
       }
     },
 
-    typeFull : function(delstart, delend, deltext, instext, newsize) {
+    typeFull : function(delstart, delend, inssize) {
       var that = this, updater = typejax.updater,
           totaldata = typejax.totaldata, olddata, divstart, divend;
 
@@ -250,7 +250,7 @@ window.typejax = (function($){
       }
 
       function parseSome() {
-        var modinfo = that.markData(delstart, delend, instext), modsize = modinfo[2];
+        var modinfo = that.markData(delstart, delend, inssize), modsize = modinfo[2];
         divstart = modinfo[3]; divend = modinfo[4];
         typejax.parser.load(typejax.totaltext, modinfo[0], modinfo[1] + modsize, function(outdiv){
           if (!outdiv) return parseAll();
@@ -262,7 +262,7 @@ window.typejax = (function($){
         });
       }
 
-      if (typejax.totalsize == instext.length) {
+      if (typejax.totalsize == inssize) {
         parseAll();
       } else {
         parseSome();
@@ -272,7 +272,7 @@ window.typejax = (function($){
       }
     },
 
-    markData : function(delstart, delend, instext) {
+    markData : function(delstart, delend, inssize) {
       // determine which top level dom elements to refresh
       var divstart = -1, divend = -1, dividx = -1, modstart = 0, modend = 0, pdata, i;
       for (i = 0; i < typejax.totaldata.length; i++) {
@@ -298,7 +298,7 @@ window.typejax = (function($){
         }
       }
 
-      var modsize = instext.length - (delend - delstart);
+      var modsize = inssize - (delend - delstart);
       console.log("div:",divstart,divend,"modify:",modstart,modend + modsize);
       //var modtext = typejax.totaltext.substring(modstart,modend + modsize);
       //console.log("modtext:", modtext);
