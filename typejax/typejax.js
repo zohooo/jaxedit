@@ -15,6 +15,8 @@ window.typejax = (function($){
   var typejax = {
     totaltext : "",
     totalsize : 0,
+    raw: "",
+    rawsize: 0,
     totaldata : [],
     totalsect : [],
     innersect : []
@@ -96,7 +98,8 @@ window.typejax = (function($){
       if (this.typemode == "tiny") {
         bridge.typeTiny(delstart, delend, inssize);
       } else {
-        bridge.typeFull(delstart, delend, inssize);
+        var r = bridge.expandMacros(delstart, delend, inssize);
+        bridge.typeFull(r.delStart, r.delEnd, r.insSize);
       }
     },
 
@@ -201,6 +204,70 @@ window.typejax = (function($){
   };
 
   typejax.bridge = {
+    expandMacros: function(delStart, delEnd, insSize) {
+      var raw = tex = typejax.totaltext, oldraw = typejax.raw, size = tex.length, map = [], macros = [], m,
+          re = /\\newcommand\{(\\\w+)\}(\[(\d)\])?\{(.*)\}/g;
+      while (m = re.exec(tex)) {
+        macros.push({name: m[1], idx: m.index, len: m[0].length, arg: m[3] || 0, def: m[4]});
+      }
+      //console.log(macros);
+
+      function mergeMaps(map, mapx) {
+        var itemx, item, shift, n, k = 0;
+        for (n = 0; n < mapx.length; n++) {
+          itemx = mapx[n]; shift = 0;
+          while (item = map[k]) {
+            if (item[0] < itemx[0]) {
+              shift += item[2] - item[1]; k++;
+            } else {
+              break;
+            }
+          }
+          itemx[0] -= shift;
+          map.splice(k, 0, itemx); k++;
+        }
+        //console.log(map);
+        return map;
+      }
+
+      console.log("tex:", "delStart", delStart, "delEnd", delEnd, "+", insSize, "=", size);
+      var modSize = insSize - (delEnd - delStart), oldSize = size - modSize,
+          head = delStart, tail = oldSize - delEnd, insStart, insEnd,
+          eSize, size1, size2, mapx, i = 0;
+      while (m = macros[i++]) {
+        re = new RegExp("\\" + m.name + "(?![a-zA-Z\\}])", "g"); mapx = [];
+        //console.log(re);
+        insStart = head, insEnd = raw.length - tail, size1 = size2 = 0;
+        raw = raw.replace(re, function(match, start){
+          //console.log(arguments);
+          mapx.push([start, match.length, m.def.length]);
+          var end = start + match.length;
+          eSize = m.def.length - match.length;
+          console.log("head", head, "tail", tail, "start", start, "end", end,
+                      "insStart", insStart, "insEnd", insEnd);
+          if (end < insStart) {
+            size1 += eSize;
+          } else if (insEnd < start) {
+            size2 += eSize;
+          } else {
+            //console.log("shrink head or tail");
+            head = Math.min(head, start);
+            tail = Math.min(tail, raw.length - end);
+          }
+          console.log("head", head, "tail", tail);
+          return m.def;
+        });
+        head += size1; tail += size2;
+        console.log("head", head, "tail", tail);
+        mergeMaps(map, mapx);
+      }
+      delStart = head; delEnd = oldraw.length - tail; insSize = raw.length - head - tail;
+      console.log("raw:", "delStart", delStart, "delEnd", delEnd, "+", insSize, "=", raw.length);
+      console.log(raw);
+      typejax.raw = raw; typejax.rawsize = raw.length;
+      return {delStart: delStart, delEnd: delEnd, insSize: insSize};
+    },
+
     typeTiny : function(delstart, delend, inssize) {
       var that = this, updater = typejax.updater;
       var text = typejax.totaltext, size = typejax.totalsize;
@@ -239,7 +306,7 @@ window.typejax = (function($){
         // or clear all text content in textarea
         divstart = 0; // for scrollIntoView after mathjax typeset
         divend = totaldata.length; // for updateHeight function
-        typejax.parser.load(typejax.totaltext, 0, typejax.totalsize, function(outdiv){
+        typejax.parser.load(typejax.raw, 0, typejax.raw.length, function(outdiv){
           if (!outdiv) return parseAll();
           olddata = totaldata;
           typejax.totaldata = outdiv;
@@ -252,7 +319,7 @@ window.typejax = (function($){
       function parseSome() {
         var modinfo = that.markData(delstart, delend, inssize), modsize = modinfo[2];
         divstart = modinfo[3]; divend = modinfo[4];
-        typejax.parser.load(typejax.totaltext, modinfo[0], modinfo[1] + modsize, function(outdiv){
+        typejax.parser.load(typejax.raw, modinfo[0], modinfo[1] + modsize, function(outdiv){
           if (!outdiv) return parseAll();
           var up = that.updateData(divstart, divend, modsize, outdiv);
           divend = up.divend; olddata = up.olddata;
@@ -262,7 +329,7 @@ window.typejax = (function($){
         });
       }
 
-      if (typejax.totalsize == inssize) {
+      if (typejax.raw.length == inssize) {
         parseAll();
       } else {
         parseSome();
