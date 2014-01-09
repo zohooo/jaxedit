@@ -208,9 +208,16 @@ window.typejax = (function($){
       var raw = tex = typejax.totaltext, oldraw = typejax.raw, size = tex.length, map = [], macros = [], m,
           re = /\\newcommand\{(\\\w+)\}(\[(\d)\])?\{(.*)\}/g;
       while (m = re.exec(tex)) {
-        macros.push({name: m[1], idx: m.index, len: m[0].length, arg: m[3] || 0, def: m[4]});
+        macros.push({name: m[1], idx: m.index, len: m[0].length, num: m[3] || 0, def: m[4]});
       }
       //console.log(macros);
+
+      function getRegExp(macro) {
+        var name = macro.name, num = macro.num, def = macro.def, re = "";
+        while (num--) { re += "\\s*(\\{.*?\\}|[^\\{])"; }
+        re = "\\" + name + "(?![a-zA-Z\\}])" + re;
+        return new RegExp(re, "g");
+      }
 
       function mergeMaps(map, mapx) {
         var itemx, item, shift, n, k = 0;
@@ -233,16 +240,24 @@ window.typejax = (function($){
       console.log("tex:", "delStart", delStart, "delEnd", delEnd, "+", insSize, "=", size);
       var modSize = insSize - (delEnd - delStart), oldSize = size - modSize,
           head = delStart, tail = oldSize - delEnd, insStart, insEnd,
-          eSize, size1, size2, mapx, i = 0;
+          eSize, size1, size2, mapx, num, i = 0;
       while (m = macros[i++]) {
-        re = new RegExp("\\" + m.name + "(?![a-zA-Z\\}])", "g"); mapx = [];
+        re = getRegExp(m), mapx = [], num = m.num;
         //console.log(re);
         insStart = head, insEnd = raw.length - tail, size1 = size2 = 0;
-        raw = raw.replace(re, function(match, start){
+        raw = raw.replace(re, function(match){
           //console.log(arguments);
-          mapx.push([start, match.length, m.def.length]);
-          var end = start + match.length;
-          eSize = m.def.length - match.length;
+          var start = arguments[arguments.length - 2], end = start + match.length,
+              args = [], result = m.def, k;
+          for (k = 1; k <= num; k++) {
+            args[k] = arguments[k].replace(/^\s+|\s+$/g, '').replace(/^\{|\}$/g, "");
+          }
+          //console.log(args);
+          for (k = 1; k <= num; k++) {
+            result = result.replace(new RegExp("#" + k, "g"), args[k]);
+          }
+          mapx.push([start, match.length, result.length]);
+          eSize = result.length - match.length;
           console.log("head", head, "tail", tail, "start", start, "end", end,
                       "insStart", insStart, "insEnd", insEnd);
           if (end < insStart) {
@@ -255,7 +270,7 @@ window.typejax = (function($){
             tail = Math.min(tail, raw.length - end);
           }
           console.log("head", head, "tail", tail);
-          return m.def;
+          return result;
         });
         head += size1; tail += size2;
         console.log("head", head, "tail", tail);
