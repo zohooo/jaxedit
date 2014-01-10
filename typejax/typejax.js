@@ -207,8 +207,8 @@ window.typejax = (function($){
     expandMacros: function(delStart, delEnd, insSize) {
 
       function nestBrackets(level) {
-        var level = level || 5, re = "[^\\{\\}]*?";
-        while (level--) re = "[^\\{\\}]*?(?:\\{" + re + "\}[^\\{\\}]*?)*?";
+        var level = level || 5, re = c = "(?:[^\\r\\n\\{\\}]|\\\\[\\{\\}]|\\r?\\n(?!\\r?\\n))*?";
+        while (level--) re = c + "(?:\\{" + re + "\}" + c + ")*?";
         return "\\s*(\\{" + re + "\\}|[^\\{])";
       }
 
@@ -240,7 +240,8 @@ window.typejax = (function($){
       var raw = tex = typejax.totaltext, oldraw = typejax.raw, size = tex.length, map = [], macros = [], m,
           re = new RegExp("\\\\newcommand\\{(\\\\\\w+)\}(\\[(\\d)\\])?" + nestBrackets(), "g");
       while (m = re.exec(tex)) {
-        macros.push({name: m[1], idx: m.index, len: m[0].length, num: m[3] || 0, def: m[4]});
+        macros.push({name: m[1], idx: m.index, len: m[0].length,
+                     num: m[3] || 0, def: m[4].replace(/^\{|\}$/g, "")});
       }
       //console.log(macros);
 
