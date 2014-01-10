@@ -205,16 +205,16 @@ window.typejax = (function($){
 
   typejax.bridge = {
     expandMacros: function(delStart, delEnd, insSize) {
-      var raw = tex = typejax.totaltext, oldraw = typejax.raw, size = tex.length, map = [], macros = [], m,
-          re = /\\newcommand\{(\\\w+)\}(\[(\d)\])?\{(.*)\}/g;
-      while (m = re.exec(tex)) {
-        macros.push({name: m[1], idx: m.index, len: m[0].length, num: m[3] || 0, def: m[4]});
+
+      function nestBrackets(level) {
+        var level = level || 5, re = "[^\\{\\}]*?";
+        while (level--) re = "[^\\{\\}]*?(?:\\{" + re + "\}[^\\{\\}]*?)*?";
+        return "\\s*(\\{" + re + "\\}|[^\\{])";
       }
-      //console.log(macros);
 
       function getRegExp(macro) {
         var name = macro.name, num = macro.num, def = macro.def, re = "";
-        while (num--) { re += "\\s*(\\{.*?\\}|[^\\{])"; }
+        while (num--) re += nestBrackets();
         re = "\\" + name + "(?![a-zA-Z\\}])" + re;
         return new RegExp(re, "g");
       }
@@ -236,6 +236,13 @@ window.typejax = (function($){
         //console.log(map);
         return map;
       }
+
+      var raw = tex = typejax.totaltext, oldraw = typejax.raw, size = tex.length, map = [], macros = [], m,
+          re = new RegExp("\\\\newcommand\\{(\\\\\\w+)\}(\\[(\\d)\\])?" + nestBrackets(), "g");
+      while (m = re.exec(tex)) {
+        macros.push({name: m[1], idx: m.index, len: m[0].length, num: m[3] || 0, def: m[4]});
+      }
+      //console.log(macros);
 
       console.log("tex:", "delStart", delStart, "delEnd", delEnd, "+", insSize, "=", size);
       var modSize = insSize - (delEnd - delStart), oldSize = size - modSize,
