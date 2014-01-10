@@ -209,7 +209,7 @@ window.typejax = (function($){
       function nestBrackets(level) {
         var level = level || 5, re = c = "(?:[^\\r\\n\\{\\}]|\\\\[\\{\\}]|\\r?\\n(?!\\r?\\n))*?";
         while (level--) re = c + "(?:\\{" + re + "\}" + c + ")*?";
-        return "\\s*(\\{" + re + "\\}|[^\\{])";
+        return " *(\\{" + re + "\\}|[^\\{])";
       }
 
       function getRegExp(macro) {
@@ -217,6 +217,10 @@ window.typejax = (function($){
         while (num--) re += nestBrackets();
         re = "\\" + name + "(?![a-zA-Z\\}])" + re;
         return new RegExp(re, "g");
+      }
+
+      function trimString(s) {
+        return s.replace(/^ +| +$/g, '').replace(/^\{|\}$/g, "");
       }
 
       function mergeMaps(map, mapx) {
@@ -237,12 +241,42 @@ window.typejax = (function($){
         return map;
       }
 
-      var raw = tex = typejax.totaltext, oldraw = typejax.raw, size = tex.length, map = [], macros = [], m,
-          re = new RegExp("\\\\newcommand\\{(\\\\\\w+)\}(\\[(\\d)\\])?" + nestBrackets(), "g");
-      while (m = re.exec(tex)) {
-        macros.push({name: m[1], idx: m.index, len: m[0].length,
-                     num: m[3] || 0, def: m[4].replace(/^\{|\}$/g, "")});
+      function scanMacros(tex) {
+        var macros = [], cs = "\\\\\\w+", re, m;
+        // \def, \gdef, \edef and \xdef
+        re = new RegExp("\\\\[gex]?def\\*? *(" + cs + ") *(#\\d)*" + nestBrackets(), "g");
+        while (m = re.exec(tex)) {
+          macros.push({ name: trimString(m[1]),
+                        idx:  m.index,
+                        len:  m[0].length,
+                        num:  m[2] ? Math.min(m[2].length / 2, 9) : 0,
+                        def:  trimString(m[3]) });
+        }
+        // \newcommand, \newcommand*, \renewcommand and \renewcommand*
+        re = new RegExp("\\\\(?:re)?newcommand\\*? *(" + cs + "|\\{" + cs + "\}) *(\\[(\\d)\\])?"
+                        + nestBrackets(), "g");
+        while (m = re.exec(tex)) {
+          macros.push({ name: trimString(m[1]),
+                        idx:  m.index,
+                        len:  m[0].length,
+                        num:  m[3] || 0,
+                        def:  trimString(m[4]) });
+        }
+        // \DeclareMathOperator and \DeclareMathOperator* inside amsmath
+        re = new RegExp("\\\\DeclareMathOperator(\\*?) *(" + cs + "|\\{" + cs + "\}) *"
+                       + nestBrackets(), "g");
+        while (m = re.exec(tex)) {
+          macros.push({ name: trimString(m[2]),
+                        idx:  m.index,
+                        len:  m[0].length,
+                        num:  0,
+                        def:  "\\operatorname" + m[1] + "{" + trimString(m[3]) + "}" });
+        }
+        return macros;
       }
+
+      var raw = tex = typejax.totaltext, oldraw = typejax.raw, size = tex.length,
+          map = [], macros = scanMacros(tex), m;
       //console.log(macros);
 
       console.log("tex:", "delStart", delStart, "delEnd", delEnd, "+", insSize, "=", size);
@@ -258,7 +292,7 @@ window.typejax = (function($){
           var start = arguments[arguments.length - 2], end = start + match.length,
               args = [], result = m.def, k;
           for (k = 1; k <= num; k++) {
-            args[k] = arguments[k].replace(/^\s+|\s+$/g, '').replace(/^\{|\}$/g, "");
+            args[k] = trimString(arguments[k]);
           }
           //console.log(args);
           for (k = 1; k <= num; k++) {
