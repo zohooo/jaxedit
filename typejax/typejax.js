@@ -241,6 +241,33 @@ window.typejax = (function($){
         return map;
       }
 
+      function preUpdate() {
+        mapx = [], insStart = head, insEnd = raw.length - tail, size1 = size2 = 0;
+      }
+
+      function updateSizes(start, minus, plus) {
+        var end = start + minus, size = plus - minus;
+        mapx.push([start, minus, plus]);
+        console.log("head", head, "tail", tail, "start", start, "end", end,
+                    "insStart", insStart, "insEnd", insEnd);
+        if (end < insStart) {
+          size1 += size;
+        } else if (insEnd < start) {
+          size2 += size;
+        } else {
+          //console.log("shrink head or tail");
+          head = Math.min(head, start);
+          tail = Math.min(tail, raw.length - end);
+        }
+        console.log("head", head, "tail", tail);
+      }
+
+      function postUpdate() {
+        head += size1; tail += size2;
+        console.log("head", head, "tail", tail);
+        mergeMaps(map, mapx);
+      }
+
       function scanMacros(tex) {
         var macros = [], cs = "\\\\\\w+", re, m;
         // \def, \gdef, \edef and \xdef
@@ -282,11 +309,11 @@ window.typejax = (function($){
       console.log("tex:", "delStart", delStart, "delEnd", delEnd, "+", insSize, "=", size);
       var modSize = insSize - (delEnd - delStart), oldSize = size - modSize,
           head = delStart, tail = oldSize - delEnd, insStart, insEnd,
-          eSize, size1, size2, mapx, num, i = 0;
+          size1, size2, mapx, num, i = 0;
       while (m = macros[i++]) {
-        re = getRegExp(m), mapx = [], num = m.num;
+        re = getRegExp(m), num = m.num;
         //console.log(re);
-        insStart = head, insEnd = raw.length - tail, size1 = size2 = 0;
+        preUpdate();
         raw = raw.replace(re, function(match){
           //console.log(arguments);
           var start = arguments[arguments.length - 2], end = start + match.length,
@@ -298,25 +325,10 @@ window.typejax = (function($){
           for (k = 1; k <= num; k++) {
             result = result.replace(new RegExp("#" + k, "g"), args[k]);
           }
-          mapx.push([start, match.length, result.length]);
-          eSize = result.length - match.length;
-          console.log("head", head, "tail", tail, "start", start, "end", end,
-                      "insStart", insStart, "insEnd", insEnd);
-          if (end < insStart) {
-            size1 += eSize;
-          } else if (insEnd < start) {
-            size2 += eSize;
-          } else {
-            //console.log("shrink head or tail");
-            head = Math.min(head, start);
-            tail = Math.min(tail, raw.length - end);
-          }
-          console.log("head", head, "tail", tail);
+          updateSizes(start, match.length, result.length);
           return result;
         });
-        head += size1; tail += size2;
-        console.log("head", head, "tail", tail);
-        mergeMaps(map, mapx);
+        postUpdate();
       }
       delStart = head; delEnd = oldraw.length - tail; insSize = raw.length - head - tail;
       console.log("raw:", "delStart", delStart, "delEnd", delEnd, "+", insSize, "=", raw.length);
