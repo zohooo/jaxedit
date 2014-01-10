@@ -268,6 +268,12 @@ window.typejax = (function($){
         mergeMaps(map, mapx);
       }
 
+      function doReplace(re, replacer) {
+        preUpdate();
+        raw = raw.replace(re, replacer);
+        postUpdate();
+      }
+
       function scanMacros(tex) {
         var macros = [], cs = "\\\\\\w+", re, m;
         // \def, \gdef, \edef and \xdef
@@ -302,34 +308,38 @@ window.typejax = (function($){
         return macros;
       }
 
-      var raw = tex = typejax.totaltext, oldraw = typejax.raw, size = tex.length,
-          map = [], macros = scanMacros(tex), m;
-      //console.log(macros);
-
-      console.log("tex:", "delStart", delStart, "delEnd", delEnd, "+", insSize, "=", size);
-      var modSize = insSize - (delEnd - delStart), oldSize = size - modSize,
-          head = delStart, tail = oldSize - delEnd, insStart, insEnd,
-          size1, size2, mapx, num, i = 0;
-      while (m = macros[i++]) {
-        re = getRegExp(m), num = m.num;
-        //console.log(re);
-        preUpdate();
-        raw = raw.replace(re, function(match){
-          //console.log(arguments);
-          var start = arguments[arguments.length - 2], end = start + match.length,
-              args = [], result = m.def, k;
-          for (k = 1; k <= num; k++) {
-            args[k] = trimString(arguments[k]);
-          }
-          //console.log(args);
-          for (k = 1; k <= num; k++) {
-            result = result.replace(new RegExp("#" + k, "g"), args[k]);
-          }
-          updateSizes(start, match.length, result.length);
-          return result;
-        });
-        postUpdate();
+      function replaceMacros() {
+        var i = 0, m, re, num;
+        while (m = macros[i++]) {
+          re = getRegExp(m), num = m.num;
+          //console.log(re);
+          doReplace(re, function(match){
+            //console.log(arguments);
+            var start = arguments[arguments.length - 2], end = start + match.length,
+                args = [], result = m.def, k;
+            for (k = 1; k <= num; k++) {
+              args[k] = trimString(arguments[k]);
+            }
+            //console.log(args);
+            for (k = 1; k <= num; k++) {
+              result = result.replace(new RegExp("#" + k, "g"), args[k]);
+            }
+            updateSizes(start, match.length, result.length);
+            return result;
+          });
+        }
       }
+
+      var raw = tex = typejax.totaltext, oldraw = typejax.raw, size = tex.length,
+          modSize = insSize - (delEnd - delStart), oldSize = size - modSize,
+          head = delStart, tail = oldSize - delEnd, insStart, insEnd,
+          size1, size2, macros = [], map = [], mapx = [];
+      console.log("tex:", "delStart", delStart, "delEnd", delEnd, "+", insSize, "=", size);
+
+      macros = scanMacros(tex);
+      //console.log(macros);
+      replaceMacros();
+
       delStart = head; delEnd = oldraw.length - tail; insSize = raw.length - head - tail;
       console.log("raw:", "delStart", delStart, "delEnd", delEnd, "+", insSize, "=", raw.length);
       console.log(raw);
