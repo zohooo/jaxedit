@@ -224,19 +224,18 @@ window.typejax = (function($){
       }
 
       function mergeMaps(map, mapx) {
-        var itemx, item, shift, n, k = 0;
+        var itemx, item, n, k;
         for (n = 0; n < mapx.length; n++) {
-          itemx = mapx[n]; shift = 0;
+          itemx = mapx[n], k = 0;
           while (item = map[k]) {
             if (item[0] < itemx[0]) {
-              shift += item[2] - item[1]; k++;
+              itemx[0] -= item[2] - item[1]; k++;
             } else {
               break;
             }
           }
-          itemx[0] -= shift;
-          map.splice(k, 0, itemx); k++;
         }
+        map = map.concat(mapx).sort(function(a,b){return a[0]-b[0];});
         //console.log(map);
         return map;
       }
@@ -265,7 +264,7 @@ window.typejax = (function($){
       function postUpdate() {
         head += size1; tail += size2;
         console.log("head", head, "tail", tail);
-        mergeMaps(map, mapx);
+        map = mergeMaps(map, mapx);
       }
 
       function doReplace(re, replacer) {
