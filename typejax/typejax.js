@@ -249,7 +249,7 @@ window.typejax = (function($){
         var end = start + minus, size = plus - minus;
         mapx.push([start, minus, plus, macro]);
         if (changed) return;
-        console.log("head", head, "tail", tail, "start", start, "end", end);
+        typejax.message.log("macro", "head", head, "tail", tail, "start", start, "end", end);
         if (end < insStart) {
           size1 += size;
         } else if (insEnd < start) {
@@ -269,7 +269,7 @@ window.typejax = (function($){
         raw = raw.replace(re, replacer);
         if (!changed) {
           head += size1; tail += size2;
-          console.log("head", head, "tail", tail);
+          typejax.message.log("macro", "head", head, "tail", tail);
         }
         map = mergeMaps(map, mapx);
       }
@@ -379,7 +379,7 @@ window.typejax = (function($){
 
       delStart = head; delEnd = oldraw.length - tail; insSize = raw.length - head - tail;
       console.log("raw:", "delStart", delStart, "delEnd", delEnd, "+", insSize, "=", raw.length);
-      console.log(raw);
+      //console.log(raw);
       typejax.raw = raw; typejax.rawsize = raw.length;
       return {delStart: delStart, delEnd: delEnd, insSize: insSize};
     },
