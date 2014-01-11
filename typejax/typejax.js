@@ -275,8 +275,8 @@ window.typejax = (function($){
       }
 
       function checkMacros() {
-        var changed = false;
-        $.each(macros, function(name, m) {
+        changed = false;
+        $.each(that.macros, function(name, m) {
           var start = m.idx, end = start + m.len;
           if (!(end < delStart || delEnd < start)) {
             changed = true;
@@ -284,7 +284,16 @@ window.typejax = (function($){
           }
         });
         if (changed) head = tail = 0;
-        return changed;
+      }
+
+      function updateMacros() {
+        $.each(macros, function(name){
+          if (!that.macros[name]) {
+            changed = true;
+            head = tail = 0;
+          }
+        });
+        that.macros = macros;
       }
 
       function extractMacros() {
@@ -360,11 +369,12 @@ window.typejax = (function($){
       var raw = tex = typejax.totaltext, oldraw = typejax.raw, size = tex.length,
           modSize = insSize - (delEnd - delStart), oldSize = size - modSize,
           head = delStart, tail = oldSize - delEnd, insStart, insEnd, size1, size2,
-          macros = this.macros, changed, map = [], mapx = [];
+          that = this, macros = {}, changed, map = [], mapx = [];
       console.log("tex:", "delStart", delStart, "delEnd", delEnd, "+", insSize, "=", size);
 
       checkMacros();
       extractMacros();
+      updateMacros();
       replaceMacros();
 
       delStart = head; delEnd = oldraw.length - tail; insSize = raw.length - head - tail;
