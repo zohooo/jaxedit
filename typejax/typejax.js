@@ -204,16 +204,17 @@ window.typejax = (function($){
   };
 
   typejax.bridge = {
-    expandMacros: function(delStart, delEnd, insSize) {
+    macros: {},
 
+    expandMacros: function(delStart, delEnd, insSize) {
       function nestBrackets(level) {
         var level = level || 5, re = c = "(?:[^\\r\\n\\{\\}]|\\\\[\\{\\}]|\\r?\\n(?!\\r?\\n))*?";
         while (level--) re = c + "(?:\\{" + re + "\}" + c + ")*?";
         return " *(\\{" + re + "\\}|[^\\{])";
       }
 
-      function getRegExp(macro) {
-        var name = macro.name, num = macro.num, def = macro.def, re = "";
+      function getRegExp(name, macro) {
+        var num = macro.num, def = macro.def, re = "";
         while (num--) re += nestBrackets();
         re = "\\" + name + "(?![a-zA-Z\\}])" + re;
         return new RegExp(re, "g");
@@ -235,20 +236,20 @@ window.typejax = (function($){
             }
           }
         }
+        $.each(mapx, function(k, v){
+          if (v[3]) v[3].idx = v[0];
+          v.length = 3;
+        });
         map = map.concat(mapx).sort(function(a,b){return a[0]-b[0];});
         //console.log(map);
         return map;
       }
 
-      function preUpdate() {
-        mapx = [], insStart = head, insEnd = raw.length - tail, size1 = size2 = 0;
-      }
-
-      function updateSizes(start, minus, plus) {
+      function updateSizes(start, minus, plus, macro) {
         var end = start + minus, size = plus - minus;
-        mapx.push([start, minus, plus]);
-        console.log("head", head, "tail", tail, "start", start, "end", end,
-                    "insStart", insStart, "insEnd", insEnd);
+        mapx.push([start, minus, plus, macro]);
+        if (changed) return;
+        console.log("head", head, "tail", tail, "start", start, "end", end);
         if (end < insStart) {
           size1 += size;
         } else if (insEnd < start) {
@@ -258,59 +259,86 @@ window.typejax = (function($){
           head = Math.min(head, start);
           tail = Math.min(tail, raw.length - end);
         }
-        console.log("head", head, "tail", tail);
-      }
-
-      function postUpdate() {
-        head += size1; tail += size2;
-        console.log("head", head, "tail", tail);
-        map = mergeMaps(map, mapx);
       }
 
       function doReplace(re, replacer) {
-        preUpdate();
+        mapx = [];
+        if (!changed) {
+          insStart = head, insEnd = raw.length - tail, size1 = size2 = 0;
+        }
         raw = raw.replace(re, replacer);
-        postUpdate();
+        if (!changed) {
+          head += size1; tail += size2;
+          console.log("head", head, "tail", tail);
+        }
+        map = mergeMaps(map, mapx);
       }
 
-      function scanMacros(tex) {
-        var macros = [], cs = "\\\\\\w+", re, m;
+      function checkMacros() {
+        var changed = false;
+        $.each(macros, function(name, m) {
+          var start = m.idx, end = start + m.len;
+          if (!(end < delStart || delEnd < start)) {
+            changed = true;
+            //break;
+          }
+        });
+        if (changed) head = tail = 0;
+        return changed;
+      }
+
+      function extractMacros() {
+        var cs = "\\\\\\w+", re;
         // \def, \gdef, \edef and \xdef
         re = new RegExp("\\\\[gex]?def\\*? *(" + cs + ") *(#\\d)*" + nestBrackets(), "g");
-        while (m = re.exec(tex)) {
-          macros.push({ name: trimString(m[1]),
-                        idx:  m.index,
-                        len:  m[0].length,
-                        num:  m[2] ? Math.min(m[2].length / 2, 9) : 0,
-                        def:  trimString(m[3]) });
-        }
+        doReplace(re, function(match){
+          var m = arguments, start = m[m.length - 2], end = start + match.length;
+          var macro = {
+            idx:  start,
+            len:  m[0].length,
+            num:  m[2] ? Math.min(m[2].length / 2, 9) : 0,
+            def:  trimString(m[3])
+          };
+          macros[trimString(m[1])] = macro;
+          updateSizes(start, match.length, 0, macro);
+          return "";
+        });
         // \newcommand, \newcommand*, \renewcommand and \renewcommand*
         re = new RegExp("\\\\(?:re)?newcommand\\*? *(" + cs + "|\\{" + cs + "\}) *(\\[(\\d)\\])?"
                         + nestBrackets(), "g");
-        while (m = re.exec(tex)) {
-          macros.push({ name: trimString(m[1]),
-                        idx:  m.index,
-                        len:  m[0].length,
-                        num:  m[3] || 0,
-                        def:  trimString(m[4]) });
-        }
+        doReplace(re, function(match){
+          var m = arguments, start = m[m.length - 2], end = start + match.length;
+          var macro = {
+            idx:  start,
+            len:  m[0].length,
+            num:  m[3] || 0,
+            def:  trimString(m[4])
+          };
+          macros[trimString(m[1])] = macro;
+          updateSizes(start, match.length, 0, macro);
+          return "";
+        });
         // \DeclareMathOperator and \DeclareMathOperator* inside amsmath
         re = new RegExp("\\\\DeclareMathOperator(\\*?) *(" + cs + "|\\{" + cs + "\}) *"
                        + nestBrackets(), "g");
-        while (m = re.exec(tex)) {
-          macros.push({ name: trimString(m[2]),
-                        idx:  m.index,
-                        len:  m[0].length,
-                        num:  0,
-                        def:  "\\operatorname" + m[1] + "{" + trimString(m[3]) + "}" });
-        }
-        return macros;
+        doReplace(re, function(match){
+          var m = arguments, start = m[m.length - 2], end = start + match.length;
+          var macro = {
+            idx:  start,
+            len:  m[0].length,
+            num:  0,
+            def:  "\\operatorname" + m[1] + "{" + trimString(m[3]) + "}"
+          };
+          macros[trimString(m[2])] = macro;
+          updateSizes(start, match.length, 0, macro);
+          return "";
+        });
       }
 
       function replaceMacros() {
         var i = 0, m, re, num;
-        while (m = macros[i++]) {
-          re = getRegExp(m), num = m.num;
+        $.each(macros, function(name, m){
+          re = getRegExp(name, m), num = m.num;
           //console.log(re);
           doReplace(re, function(match){
             //console.log(arguments);
@@ -326,17 +354,17 @@ window.typejax = (function($){
             updateSizes(start, match.length, result.length);
             return result;
           });
-        }
+        });
       }
 
       var raw = tex = typejax.totaltext, oldraw = typejax.raw, size = tex.length,
           modSize = insSize - (delEnd - delStart), oldSize = size - modSize,
-          head = delStart, tail = oldSize - delEnd, insStart, insEnd,
-          size1, size2, macros = [], map = [], mapx = [];
+          head = delStart, tail = oldSize - delEnd, insStart, insEnd, size1, size2,
+          macros = this.macros, changed, map = [], mapx = [];
       console.log("tex:", "delStart", delStart, "delEnd", delEnd, "+", insSize, "=", size);
 
-      macros = scanMacros(tex);
-      //console.log(macros);
+      checkMacros();
+      extractMacros();
       replaceMacros();
 
       delStart = head; delEnd = oldraw.length - tail; insSize = raw.length - head - tail;
