@@ -1,7 +1,7 @@
 
 /* JaxEdit: online LaTeX editor with live preview
- * Copyright (c) 2011-2013 JaxEdit project
- * License: GNU General Public License, Version 3
+ * Copyright (c) 2011-2014 JaxEdit project
+ * License: The MIT License
  *
  * Website: http://jaxedit.com
  * Source:  https://github.com/zohooo/jaxedit
