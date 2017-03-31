@@ -2581,7 +2581,7 @@ window.typejax = (function($){
   };
 
   typejax.message = {
-    degug: "none",
+    debug: "none",
 
     log: function(type) {
       var msg = Array.prototype.slice.call(arguments, 1).join(" ");
