@@ -549,7 +549,7 @@ window.jaxedit = (function($){
         this.onclick = function(){ that.toggleModal(false); };
       });
       helpbtn.onclick = function() {
-        window.open("https://zohooo.github.io/jaxedit/?help", "_blank");
+        window.open("manual/help.html", "_blank");
       };
       helpbtn.style.display = "inline-block";
     },
