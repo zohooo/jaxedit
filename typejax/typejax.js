@@ -56,6 +56,12 @@ window.typejax = (function($){
       this.init(that.totaltext, that.totalsize, this.showarea);
     },
 
+    inQueue : function(delstart, delend, deltext, instext, newsize, showarea) {
+      MathJax.Hub.Queue([typejax, function(){
+        this.updater.putTask(delstart, delend, deltext, instext, newsize, showarea);
+      }]);
+    },
+
     putTask : function(delstart, delend, deltext, instext, newsize, showarea) {
       if (deltext == "" && instext == "") return;
       this.showarea = showarea;

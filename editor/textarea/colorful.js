@@ -46,7 +46,7 @@ jaxedit.doChange = function(editor, change) {
 
   jaxedit.setScrollers(textsize, delstart, editor.getScrollInfo().top);
   if (change.origin !== "setValue") {
-    typejax.updater.putTask(delstart, delend, deltext, instext, textsize, jaxedit.childs.showarea);
+    typejax.updater.inQueue(delstart, delend, deltext, instext, textsize, jaxedit.childs.showarea);
   }
 };
 

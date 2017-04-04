@@ -134,7 +134,7 @@ jaxedit.doChange = function(event) {
   }
 
   jaxedit.setScrollers(newtextsize, delstart, codearea.scrollTop);
-  typejax.updater.putTask(delstart, delend, deltext, instext, newtextsize, showarea);
+  typejax.updater.inQueue(delstart, delend, deltext, instext, newtextsize, showarea);
 };
 
 jaxedit.addEditor = function() {
