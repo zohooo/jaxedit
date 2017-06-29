@@ -114,7 +114,7 @@ window.jaxedit = (function($){
         }
       }
 
-      mathpath = options.localjs ? "library/mathjax/unpacked/" : "http://cdn.mathjax.org/mathjax/2.1-latest/";
+      mathpath = options.localjs ? "library/mathjax/unpacked/" : "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/";
       if (location.pathname.slice(0, 6) == "/note/") {
         gatepath = "/gate/"; shareurl = "/note/";
       } else {
